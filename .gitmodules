@@ -1,0 +1,6 @@
+[submodule "modules/WikiClientLibrary"]
+	path = modules/WikiClientLibrary
+	url = https://github.com/CXuesong/WikiClientLibrary
+[submodule "modules/MwParserFromScratch"]
+	path = modules/MwParserFromScratch
+	url = https://github.com/CXuesong/MwParserFromScratch
