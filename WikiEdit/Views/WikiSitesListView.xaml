@@ -1,0 +1,32 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WikiEdit.Views"
+             xmlns:vm="clr-namespace:WikiEdit.ViewModels"
+             xmlns:Tx="http://unclassified.software/source/txtranslation"
+             x:Class="WikiEdit.Views.WikiSitesListView"
+             mc:Ignorable="d" 
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type vm:WikiSiteListViewModel}}"
+             x:Name="ThisControl" >
+    <UserControl.Resources>
+        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <ListView ItemsSource="{Binding WikiSites}" SelectedItem="{Binding SelectedWikiSite}">
+            <ListView.View>
+                <GridView>
+                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="{Tx:T name}"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding AccountProfile.UserName, Mode=OneWay}" Header="{Tx:T user name}"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding LastAccessTime}" Header="{Tx:T last access time}"/>
+                </GridView>
+            </ListView.View>
+        </ListView>
+        <local:AccountProfileView DataContext="{Binding SelectedWikiSite.AccountProfile, Mode=OneWay}" Visibility="{Binding DataContext.IsAccountProfileVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=ThisControl}" Grid.Row="1" />
+    </Grid>
+</UserControl>

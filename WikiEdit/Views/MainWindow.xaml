@@ -1,0 +1,69 @@
+﻿<fluent:RibbonWindow
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:WikiEdit"
+        xmlns:fluent="urn:fluent-ribbon"
+        xmlns:Tx="http://unclassified.software/source/txtranslation"
+        xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
+        xmlns:v="clr-namespace:WikiEdit.Views"
+        xmlns:vm="clr-namespace:WikiEdit.ViewModels" x:Class="WikiEdit.Views.MainWindow"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="600" Width="800"
+        d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}">
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
+        </Grid.RowDefinitions>
+        <fluent:Ribbon AutomaticStateManagement="True">
+            <fluent:Ribbon.QuickAccessItems>
+                <fluent:QuickAccessMenuItem IsChecked="True">
+                    <fluent:Button Header="{Tx:T new session}" Command="{Binding Commands[New]}" Icon="Images/New.png" LargeIcon="Images/NewLG.png"/>
+                </fluent:QuickAccessMenuItem>
+                <fluent:QuickAccessMenuItem IsChecked="True">
+                    <fluent:Button Header="{Tx:T open session}" Command="{Binding Commands[Open]}" Icon="Images/Open.png" LargeIcon="Images/OpenLG.png"/>
+                </fluent:QuickAccessMenuItem>
+                <fluent:QuickAccessMenuItem IsChecked="True">
+                    <fluent:Button Header="{Tx:T save session}" Command="{Binding Commands[Save]}" Icon="Images/Save.png" LargeIcon="Images/SaveLG.png"/>
+                </fluent:QuickAccessMenuItem>
+            </fluent:Ribbon.QuickAccessItems>
+            <fluent:Ribbon.Menu>
+                <fluent:Backstage>
+                    <fluent:BackstageTabControl>
+                        <fluent:BackstageTabItem Header="Header" />
+                    </fluent:BackstageTabControl>
+                </fluent:Backstage>
+            </fluent:Ribbon.Menu>
+            <fluent:RibbonTabItem Header="General">
+                <fluent:RibbonGroupBox>
+                    <fluent:Button Header="Button" />
+                </fluent:RibbonGroupBox>
+            </fluent:RibbonTabItem>
+        </fluent:Ribbon>
+        <Grid Grid.Row="1">
+            <xcad:DockingManager>
+                <xcad:LayoutRoot>
+                    <xcad:LayoutPanel Orientation="Horizontal">
+                        <xcad:LayoutAnchorablePane DockWidth="200">
+                            <xcad:LayoutAnchorable ContentId="AccountProfile" Title="{Tx:T wiki site list}">
+                                <v:WikiSitesListView DataContext="{Binding WikiSiteListViewModel}" />
+                            </xcad:LayoutAnchorable>
+                        </xcad:LayoutAnchorablePane>
+                        <xcad:LayoutDocumentPaneGroup>
+                            <xcad:LayoutDocumentPane>
+                                <xcad:LayoutDocument Title="Document 1" />
+                            </xcad:LayoutDocumentPane>
+                        </xcad:LayoutDocumentPaneGroup>
+                        <xcad:LayoutAnchorablePaneGroup DockWidth="125">
+                            <xcad:LayoutAnchorablePane>
+                                <!-- TODO -->
+                            </xcad:LayoutAnchorablePane>
+                        </xcad:LayoutAnchorablePaneGroup>
+                    </xcad:LayoutPanel>
+                </xcad:LayoutRoot>
+            </xcad:DockingManager>
+        </Grid>
+    </Grid>
+</fluent:RibbonWindow>
