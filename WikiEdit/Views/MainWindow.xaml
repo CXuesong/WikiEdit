@@ -8,7 +8,9 @@
         xmlns:Tx="http://unclassified.software/source/txtranslation"
         xmlns:xcad="http://schemas.xceed.com/wpf/xaml/avalondock"
         xmlns:v="clr-namespace:WikiEdit.Views"
-        xmlns:vm="clr-namespace:WikiEdit.ViewModels" x:Class="WikiEdit.Views.MainWindow"
+        xmlns:vm="clr-namespace:WikiEdit.ViewModels"
+        xmlns:vmd="clr-namespace:WikiEdit.ViewModels.Documents"
+        x:Class="WikiEdit.Views.MainWindow"
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800"
         d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}">
@@ -19,20 +21,17 @@
         </Grid.RowDefinitions>
         <fluent:Ribbon AutomaticStateManagement="True">
             <fluent:Ribbon.QuickAccessItems>
-                <fluent:QuickAccessMenuItem IsChecked="True">
-                    <fluent:Button Header="{Tx:T new session}" Command="{Binding Commands[New]}" Icon="Images/New.png" LargeIcon="Images/NewLG.png"/>
-                </fluent:QuickAccessMenuItem>
-                <fluent:QuickAccessMenuItem IsChecked="True">
-                    <fluent:Button Header="{Tx:T open session}" Command="{Binding Commands[Open]}" Icon="Images/Open.png" LargeIcon="Images/OpenLG.png"/>
-                </fluent:QuickAccessMenuItem>
-                <fluent:QuickAccessMenuItem IsChecked="True">
-                    <fluent:Button Header="{Tx:T save session}" Command="{Binding Commands[Save]}" Icon="Images/Save.png" LargeIcon="Images/SaveLG.png"/>
-                </fluent:QuickAccessMenuItem>
+                <fluent:QuickAccessMenuItem IsChecked="True" Target="{x:Reference NewSessionRibbonButton}" />
+                <fluent:QuickAccessMenuItem IsChecked="True" Target="{x:Reference OpenSessionRibbonButton}" />
+                <fluent:QuickAccessMenuItem IsChecked="True" Target="{x:Reference SaveSessionRibbonButton}" />
             </fluent:Ribbon.QuickAccessItems>
             <fluent:Ribbon.Menu>
                 <fluent:Backstage>
                     <fluent:BackstageTabControl>
-                        <fluent:BackstageTabItem Header="Header" />
+                        <fluent:Button x:Name="NewSessionRibbonButton" Header="{Tx:T new session}" Command="{Binding Commands[New]}" Icon="/WikiEdit;component/Images/New.png" LargeIcon="/WikiEdit;component/Images/NewLG.png"/>
+                        <fluent:Button x:Name="OpenSessionRibbonButton" Header="{Tx:T open session}" Command="{Binding Commands[Open]}" Icon="/WikiEdit;component/Images/Open.png" LargeIcon="/WikiEdit;component/Images/OpenLG.png"/>
+                        <fluent:Button x:Name="SaveSessionRibbonButton" Header="{Tx:T save session}" Command="{Binding Commands[Save]}" Icon="/WikiEdit;component/Images/Save.png" LargeIcon="/WikiEdit;component/Images/SaveLG.png"/>
+                        <fluent:Button x:Name="SaveSessionAsRibbonButton" Header="{Tx:T save session}" Command="{Binding Commands[SaveAs]}" />
                     </fluent:BackstageTabControl>
                 </fluent:Backstage>
             </fluent:Ribbon.Menu>
@@ -43,7 +42,25 @@
             </fluent:RibbonTabItem>
         </fluent:Ribbon>
         <Grid Grid.Row="1">
-            <xcad:DockingManager>
+            <xcad:DockingManager DocumentsSource="{Binding DocumentViewModels}">
+                <xcad:DockingManager.DocumentHeaderTemplate>
+                    <DataTemplate DataType="xcad:LayoutDocument">
+                        <TextBlock Text="{Binding Title}" />
+                    </DataTemplate>
+                </xcad:DockingManager.DocumentHeaderTemplate>
+                <xcad:DockingManager.LayoutItemContainerStyleSelector>
+                    <v:AvalonDockLayoutItemContainerStyleSelector>
+                        <v:AvalonDockLayoutItemContainerStyleSelector.DocumentStyle>
+                            <Style TargetType="{x:Type xcad:LayoutItem}" d:DataContext="{d:DesignInstance vmd:DocumentViewModel}">
+                                <Setter Property="Title" Value="{Binding Title}" />
+                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
+                                <Setter Property="IsActive" Value="{Binding IsActive}" />
+                                <Setter Property="ContentId" Value="{Binding ContentId}" />
+                                <Setter Property="CloseCommand" Value="{Binding CloseCommand}" />
+                            </Style>
+                        </v:AvalonDockLayoutItemContainerStyleSelector.DocumentStyle>
+                    </v:AvalonDockLayoutItemContainerStyleSelector>
+                </xcad:DockingManager.LayoutItemContainerStyleSelector>
                 <xcad:LayoutRoot>
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutAnchorablePane DockWidth="200">
@@ -53,7 +70,7 @@
                         </xcad:LayoutAnchorablePane>
                         <xcad:LayoutDocumentPaneGroup>
                             <xcad:LayoutDocumentPane>
-                                <xcad:LayoutDocument Title="Document 1" />
+                                <!-- Additional Documents Here -->
                             </xcad:LayoutDocumentPane>
                         </xcad:LayoutDocumentPaneGroup>
                         <xcad:LayoutAnchorablePaneGroup DockWidth="125">

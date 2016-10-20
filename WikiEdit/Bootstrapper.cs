@@ -9,6 +9,7 @@ using Prism.Unity;
 using Unclassified.TxLib;
 using WikiEdit.Controllers;
 using WikiEdit.ViewModels;
+using WikiEdit.ViewModels.Documents;
 using WikiEdit.Views;
 
 namespace WikiEdit
@@ -20,10 +21,14 @@ namespace WikiEdit
             base.ConfigureContainer();
             // DI configuration
             var weController = new WikiEditController();
-            weController.FillDemo();
             Container.RegisterInstance(weController);
             Container.RegisterType<MainWindow>(new ContainerControlledLifetimeManager());
             Container.RegisterType<MainWindowViewModel>(new ContainerControlledLifetimeManager());
+#if DEBUG
+            weController.FillDemo();
+            var vm = Container.Resolve<MainWindowViewModel>();
+            vm.DocumentViewModels.Add(new WikiSiteOverviewViewModel(weController.WikiSites[0]));
+#endif
         }
 
         protected override DependencyObject CreateShell()

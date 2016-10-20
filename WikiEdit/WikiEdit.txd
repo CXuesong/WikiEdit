@@ -5,12 +5,13 @@
 		<text key="account profile">Account Profile</text>
 		<text key="cancel">Cancel</text>
 		<text key="field is required">The field is required.</text>
-		<text key="last access time">上次访问时间</text>
+		<text key="last access time">Last access</text>
 		<text key="login">Login</text>
 		<text key="login into wiki">Login into</text>
 		<text key="logout">Logout</text>
 		<text key="logout confirmation">Are you sure to log out?</text>
 		<text key="name">Name</text>
+		<text key="new session">New session</text>
 		<text key="open session">Open session</text>
 		<text key="password">Password</text>
 		<text key="please wait">Please wait…</text>
@@ -226,12 +227,13 @@
 		<text key="account profile">账户信息</text>
 		<text key="cancel">取消</text>
 		<text key="field is required" acceptpunctuation="true">此字段是必填项目。</text>
-		<text key="last access time">上次访问时间</text>
+		<text key="last access time">上次访问</text>
 		<text key="login">登录</text>
 		<text key="login into wiki" acceptpunctuation="true">登录到</text>
 		<text key="logout">注销</text>
 		<text key="logout confirmation" acceptpunctuation="true">确实要注销吗？</text>
 		<text key="name">名称</text>
+		<text key="new session">新建会话</text>
 		<text key="open session">打开会话</text>
 		<text key="password">密码</text>
 		<text key="please wait" acceptpunctuation="true">请稍后……</text>

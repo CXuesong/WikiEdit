@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,17 +11,16 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiEdit.Controllers;
+using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit.ViewModels
 {
     internal class MainWindowViewModel : BindableBase
     {
-        private Dictionary<string, ICommand> _Commands;
         private readonly WikiEditController wikiEditController;
         private string _FileName;
 
         public WikiSiteListViewModel WikiSiteListViewModel { get; }
-
 
         public MainWindowViewModel(WikiSiteListViewModel wikiSiteListViewModel,
             WikiEditController wikiEditController)
@@ -28,6 +28,8 @@ namespace WikiEdit.ViewModels
             this.WikiSiteListViewModel = wikiSiteListViewModel;
             this.wikiEditController = wikiEditController;
         }
+
+        #region Session Persistence
 
         public string FileName
         {
@@ -74,14 +76,17 @@ namespace WikiEdit.ViewModels
             }
         }
 
+        #endregion
+
+        #region Commands
+
+        private Dictionary<string, ICommand> _Commands;
+
         public Dictionary<string, ICommand> Commands
         {
             get
             {
-                if (_Commands == null)
-                {
-
-                }
+                if (_Commands == null) BuildCommands();
                 return _Commands;
             }
         }
@@ -112,5 +117,9 @@ namespace WikiEdit.ViewModels
             addCommand("Save", () => SaveSession());
             addCommand("SaveAs", () => SaveSession(true));
         }
+
+        #endregion
+
+        public ObservableCollection<DocumentViewModel> DocumentViewModels { get; } = new ObservableCollection<DocumentViewModel>();
     }
 }

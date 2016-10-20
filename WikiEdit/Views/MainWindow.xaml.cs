@@ -15,6 +15,7 @@ using System.Windows.Shapes;
 using Fluent;
 using Microsoft.Practices.Unity;
 using WikiEdit.ViewModels;
+using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit.Views
 {
@@ -34,6 +35,22 @@ namespace WikiEdit.Views
         public MainWindow()
         {
             InitializeComponent();
+        }
+    }
+
+    /// <summary>
+    /// Select Style for docking tabs.
+    /// </summary>
+    internal class AvalonDockLayoutItemContainerStyleSelector : StyleSelector
+    {
+
+        public Style DocumentStyle { get; set; }
+
+        public override Style SelectStyle(object item, DependencyObject container)
+        {
+            if (item is DocumentViewModel)
+                return DocumentStyle;
+            return base.SelectStyle(item, container);
         }
     }
 }

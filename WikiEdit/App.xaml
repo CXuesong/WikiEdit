@@ -3,7 +3,9 @@
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:local="clr-namespace:WikiEdit"
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
-             xmlns:v="clr-namespace:WikiEdit.Views">
+             xmlns:v="clr-namespace:WikiEdit.Views"
+             xmlns:vmd="clr-namespace:WikiEdit.ViewModels.Documents"
+             xmlns:vd="clr-namespace:WikiEdit.Views.Documents">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -23,6 +25,9 @@
             </Style>
             <DataTemplate DataType="{x:Type vm:LoginViewModel}">
                 <v:LoginView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vmd:WikiSiteOverviewViewModel}">
+                <vd:WikiSiteOverviewView />
             </DataTemplate>
         </ResourceDictionary>
     </Application.Resources>
