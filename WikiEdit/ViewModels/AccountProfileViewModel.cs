@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -42,6 +43,21 @@ namespace WikiEdit.ViewModels
             }
         }
 
+        private bool _IsBusy;
+
+        public bool IsBusy
+        {
+            get { return _IsBusy; }
+            set { SetProperty(ref _IsBusy, value); }
+        }
+
+        private string _Status;
+
+        public string Status
+        {
+            get { return _Status; }
+            set { SetProperty(ref _Status, value); }
+        }
 
         public WikiSiteViewModel WikiSite { get; }
 
@@ -81,9 +97,22 @@ namespace WikiEdit.ViewModels
                 {
                     _RefreshCommand = new DelegateCommand(async () =>
                     {
-                        var site = await WikiSite.GetSiteAsync();
-                        await site.RefreshUserInfoAsync();
-                        Reload();
+                        IsBusy = true;
+                        Status = null;
+                        try
+                        {
+                            var site = await WikiSite.GetSiteAsync();
+                            await site.RefreshUserInfoAsync();
+                            Reload();
+                        }
+                        catch (Exception ex)
+                        {
+                            Status = ex.Message;
+                        }
+                        finally
+                        {
+                            IsBusy = false;
+                        }
                     });
                 }
                 return _RefreshCommand;
@@ -101,11 +130,17 @@ namespace WikiEdit.ViewModels
                     _LoginCommand = new DelegateCommand(() =>
                     {
                         if (LoginViewModel == null)
-                            LoginViewModel = new LoginViewModel(WikiSite, () =>
-                            {
-                                LoginViewModel = null;
-                                Reload();
-                            }) {UserName = UserName};
+                            LoginViewModel = new LoginViewModel(WikiSite,
+                                (busy, status) =>
+                                {
+                                    IsBusy = busy;
+                                    Status = status;
+                                },
+                                successful =>
+                                {
+                                    LoginViewModel = null;
+                                    if (successful) Reload();
+                                }) {UserName = UserName};
                     }, () => _LoginViewModel == null && !HasLoggedIn);
                 }
                 return _LoginCommand;

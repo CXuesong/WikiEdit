@@ -15,10 +15,12 @@ namespace WikiEdit.ViewModels
 {
     internal class LoginViewModel : BindableBase, INotifyDataErrorInfo
     {
+        private readonly Action<bool, string> _StatusChangedAction;
+
         /// <summary>
         /// The action used to close current login view.
         /// </summary>
-        private readonly Action _CloseViewAction;
+        private readonly Action<bool> _CloseViewAction;
         private readonly ErrorsContainer<string> errors;
         private string _UserName;
 
@@ -42,14 +44,6 @@ namespace WikiEdit.ViewModels
             }
         }
 
-        private string _Status;
-
-        public string Status
-        {
-            get { return _Status; }
-            private set { SetProperty(ref _Status, value); }
-        }
-
         #region Commands/Callbacks
 
 
@@ -63,7 +57,7 @@ namespace WikiEdit.ViewModels
                 UserName = null;
                 UserName = "";
             }
-            Status = Tx.T("please wait");
+            _StatusChangedAction(true, Tx.T("please wait"));
             try
             {
                 var site = await WikiSite.GetSiteAsync();
@@ -74,18 +68,18 @@ namespace WikiEdit.ViewModels
                 {
                     pp = Marshal.SecureStringToGlobalAllocUnicode(password);
                     var ps = Marshal.PtrToStringUni(pp);
-                    Status = Tx.T("please wait");
                     await site.LoginAsync(_UserName, ps);
                 }
                 finally
                 {
                     Marshal.ZeroFreeGlobalAllocUnicode(pp);
                 }
-                _CloseViewAction();
+                _StatusChangedAction(false, null);
+                _CloseViewAction(true);
             }
             catch (Exception ex)
             {
-                Status = ex.Message;
+                _StatusChangedAction(false, ex.Message);
             }
         }
 
@@ -98,7 +92,7 @@ namespace WikiEdit.ViewModels
             {
                 if (_CancelCommand == null)
                 {
-                    _CancelCommand = new DelegateCommand(_CloseViewAction);
+                    _CancelCommand = new DelegateCommand(() => _CloseViewAction(false));
                 }
                 return _CancelCommand;
             }
@@ -107,11 +101,14 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
-        public LoginViewModel(WikiSiteViewModel siteVm, Action closeViewAction)
+        // statusChangedAction : IsWorking, Status
+        public LoginViewModel(WikiSiteViewModel siteVm, Action<bool, string> statusChangedAction, Action<bool> closeViewAction)
         {
             if (siteVm == null) throw new ArgumentNullException(nameof(siteVm));
+            if (statusChangedAction == null) throw new ArgumentNullException(nameof(statusChangedAction));
             if (closeViewAction == null) throw new ArgumentNullException(nameof(closeViewAction));
             WikiSite = siteVm;
+            _StatusChangedAction = statusChangedAction;
             _CloseViewAction = closeViewAction;
             errors = new ErrorsContainer<string>(OnErrorsChanged);
         }

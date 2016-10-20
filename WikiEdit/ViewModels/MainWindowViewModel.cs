@@ -8,6 +8,7 @@ using System.Windows.Input;
 using Microsoft.Practices.Unity;
 using Microsoft.Win32;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiEdit.Controllers;
@@ -27,13 +28,64 @@ namespace WikiEdit.ViewModels
 
         public ObservableCollection<DocumentViewModel> DocumentViewModels => childVmService.DocumentViewModels;
 
+        #region Wiki Site
+
+        private WikiSiteViewModel _CurrentWikiSite;
+        private bool _IsAccountProfileOpen;
+
+        public WikiSiteViewModel CurrentWikiSite
+        {
+            get { return _CurrentWikiSite; }
+            private set { SetProperty(ref _CurrentWikiSite, value); }
+        }
+
+        public bool IsAccountProfileOpen
+        {
+            get { return _IsAccountProfileOpen; }
+            set { SetProperty(ref _IsAccountProfileOpen, value); }
+        }
+
+        private DelegateCommand _ShowAccountProfile;
+
+        public DelegateCommand ShowAccountProfile
+        {
+            get
+            {
+                if (_ShowAccountProfile == null)
+                {
+                    _ShowAccountProfile = new DelegateCommand(() =>
+                    {
+                        if (CurrentWikiSite == null) IsAccountProfileOpen = false;
+                        IsAccountProfileOpen = !IsAccountProfileOpen;
+                    });
+                }
+                return _ShowAccountProfile;
+            }
+        }
+
+        #endregion
+
+
+
         public MainWindowViewModel(WikiEditController wikiEditController,
-            IChildViewModelService childVmService)
+            IChildViewModelService childVmService,
+            IEventAggregator eventAggregator)
         {
             if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
             if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
             this.wikiEditController = wikiEditController;
             this.childVmService = childVmService;
+            eventAggregator.GetEvent<ActiveDocumentChangedEvent>().Subscribe(OnActiveDocumentChanged);
+        }
+
+        private void OnActiveDocumentChanged(DocumentViewModel activeDocument)
+        {
+            if (activeDocument == null)
+            {
+                CurrentWikiSite = null;
+                return;
+            }
+            CurrentWikiSite = activeDocument.ContentSource as WikiSiteViewModel;
         }
 
         #region Session Persistence
@@ -42,6 +94,22 @@ namespace WikiEdit.ViewModels
         {
             get { return _FileName; }
             set { SetProperty(ref _FileName, value); }
+        }
+
+        public bool OpenSession()
+        {
+            if (!PromptSaveSession()) return false;
+            var ofd = new OpenFileDialog
+            {
+                Filter = Tx.T("session file filter"),
+            };
+            if (ofd.ShowDialog() == true)
+            {
+                wikiEditController.Load(ofd.FileName);
+                FileName = ofd.FileName;
+                return true;
+            }
+            return false;
         }
 
         public bool PromptSaveSession()
@@ -113,14 +181,7 @@ namespace WikiEdit.ViewModels
                     FileName = null;
                 }
             });
-            addCommand("Open", () =>
-            {
-                if (PromptSaveSession())
-                {
-                    wikiEditController.Clear();
-                    FileName = null;
-                }
-            });
+            addCommand("Open", () => OpenSession());
             addCommand("Save", () => SaveSession());
             addCommand("SaveAs", () => SaveSession(true));
         }

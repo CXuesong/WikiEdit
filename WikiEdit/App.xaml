@@ -26,9 +26,18 @@
             <DataTemplate DataType="{x:Type vm:LoginViewModel}">
                 <v:LoginView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:AccountProfileViewModel}">
+                <v:AccountProfileView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vmd:WikiSiteOverviewViewModel}">
                 <vd:WikiSiteOverviewView />
             </DataTemplate>
+
+            <Style x:Key="PopupContainerBorder" TargetType="Border">
+                <Setter Property="Background" Value="{DynamicResource ContextMenuBarBackgroundBrush}" />
+                <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBarBorderBrush}" />
+                <Setter Property="BorderThickness" Value="1" />
+            </Style>
         </ResourceDictionary>
     </Application.Resources>
 </Application>

@@ -1,4 +1,4 @@
-﻿<UserControl x:Class="WikiEdit.Views.AccountProfileView"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
@@ -6,21 +6,19 @@
              xmlns:local="clr-namespace:WikiEdit.Views"
              xmlns:Tx="http://unclassified.software/source/txtranslation"
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
+             xmlns:app="clr-namespace:WikiEdit" x:Class="WikiEdit.Views.AccountProfileView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance {x:Type vm:AccountProfileViewModel}}">
     <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
+        <app:UniversalBooleanConverter x:Key="ValueToVisibilityConverter"/>
     </UserControl.Resources>
-    <Grid>
-        <Grid Margin="10">
-            <Grid.RowDefinitions>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="Auto"/>
-                <RowDefinition Height="*"/>
-            </Grid.RowDefinitions>
+    <Grid IsEnabled="{Binding IsBusy, ConverterParameter=Inverse, Converter={StaticResource ValueToVisibilityConverter}}">
+        <StackPanel Margin="10">
             <ContentPresenter Content="{Binding LoginViewModel}" />
-            <Grid HorizontalAlignment="Center" Grid.Row="1">
+            <TextBlock Text="{Binding Status}" />
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}"/>
+            <Grid HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
                     <RowDefinition Height="Auto"/>
@@ -45,10 +43,13 @@
                         </DataTemplate>
                     </ItemsControl.ItemTemplate>
                 </ItemsControl>
-                <Button Content="{Tx:T login}" Command="{Binding LoginCommand}" Grid.Row="2" Grid.ColumnSpan="2" Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}" />
-                <Button Content="{Tx:T logout}" Command="{Binding LogoutCommand}" Grid.Row="3" Grid.ColumnSpan="2" Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}" />
             </Grid>
-        </Grid>
+            <StackPanel Orientation="Horizontal" HorizontalAlignment="Center">
+                <Button Content="{Tx:T login}" Command="{Binding LoginCommand}" Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}" />
+                <Button Content="{Tx:T logout}" Command="{Binding LogoutCommand}" Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}" />
+                <Button Content="{Tx:T refresh}" Command="{Binding RefreshCommand}" Visibility="{Binding IsEnabled, Converter={StaticResource BooleanToVisibilityConverter}, RelativeSource={RelativeSource Self}}" />
+            </StackPanel>
+        </StackPanel>
     </Grid>
 </UserControl>
 

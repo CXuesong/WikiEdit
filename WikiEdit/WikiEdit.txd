@@ -15,7 +15,9 @@
 		<text key="open session">Open session</text>
 		<text key="password">Password</text>
 		<text key="please wait">Please wait…</text>
+		<text key="refresh">Refresh</text>
 		<text key="save session">Save session</text>
+		<text key="save session as">Save session as</text>
 		<text key="save session prompt">Before continuing, would you like to save current session?</text>
 		<text key="session file filter">Session file (*.json)|*.json|All files|*.*</text>
 		<text key="Tx:byte unit" comment="Default: B" />
@@ -222,6 +224,7 @@
 		<text key="Tx:time.span neg.years.single" count="1">a year</text>
 		<text key="user name">User Name</text>
 		<text key="wiki site list">Wiki Sites List</text>
+		<text key="wiki site name">Site Name</text>
 	</culture>
 	<culture name="zh">
 		<text key="account profile">账户信息</text>
@@ -237,10 +240,13 @@
 		<text key="open session">打开会话</text>
 		<text key="password">密码</text>
 		<text key="please wait" acceptpunctuation="true">请稍后……</text>
+		<text key="refresh">刷新</text>
 		<text key="save session">保存会话</text>
+		<text key="save session as">会话另存为</text>
 		<text key="save session prompt" acceptpunctuation="true">是否保存当前会话？</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
 		<text key="user name">用户名</text>
 		<text key="wiki site list">维基站点列表</text>
+		<text key="wiki site name">站点名称</text>
 	</culture>
 </translation>

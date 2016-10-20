@@ -14,11 +14,19 @@
         mc:Ignorable="d"
         Title="MainWindow" Height="600" Width="800"
         d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}">
+    <fluent:RibbonWindow.Resources>
+        <local:UniversalBooleanConverter x:Key="ValueToVisibilityConverter"/>
+    </fluent:RibbonWindow.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
+        <Popup PopupAnimation="Slide" IsOpen="{Binding IsAccountProfileOpen}" StaysOpen="False" PlacementTarget="{x:Reference AccountProfileRibbonButton}" Placement="Bottom" AllowsTransparency="True">
+            <Border Style="{DynamicResource PopupContainerBorder}">
+                <ContentPresenter Content="{Binding CurrentWikiSite.AccountProfile}" />
+            </Border>
+        </Popup>
         <fluent:Ribbon AutomaticStateManagement="True">
             <fluent:Ribbon.QuickAccessItems>
                 <fluent:QuickAccessMenuItem IsChecked="True" Target="{x:Reference NewSessionRibbonButton}" />
@@ -31,10 +39,14 @@
                         <fluent:Button x:Name="NewSessionRibbonButton" Header="{Tx:T new session}" Command="{Binding Commands[New]}" Icon="/WikiEdit;component/Images/New.png" LargeIcon="/WikiEdit;component/Images/NewLG.png"/>
                         <fluent:Button x:Name="OpenSessionRibbonButton" Header="{Tx:T open session}" Command="{Binding Commands[Open]}" Icon="/WikiEdit;component/Images/Open.png" LargeIcon="/WikiEdit;component/Images/OpenLG.png"/>
                         <fluent:Button x:Name="SaveSessionRibbonButton" Header="{Tx:T save session}" Command="{Binding Commands[Save]}" Icon="/WikiEdit;component/Images/Save.png" LargeIcon="/WikiEdit;component/Images/SaveLG.png"/>
-                        <fluent:Button x:Name="SaveSessionAsRibbonButton" Header="{Tx:T save session}" Command="{Binding Commands[SaveAs]}" />
+                        <fluent:Button x:Name="SaveSessionAsRibbonButton" Header="{Tx:T save session as}" Command="{Binding Commands[SaveAs]}" />
                     </fluent:BackstageTabControl>
                 </fluent:Backstage>
             </fluent:Ribbon.Menu>
+            <fluent:Ribbon.ToolBarItems>
+                <fluent:Button Size="Middle" Header="{Binding CurrentWikiSite.Name}" Visibility="{Binding CurrentWikiSite, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}" ToolTip="{Tx:T wiki site name}" />
+                <fluent:Button x:Name="AccountProfileRibbonButton" Size="Middle" Header="{Binding CurrentWikiSite.AccountProfile.UserName}" Command="{Binding ShowAccountProfile}"  Visibility="{Binding CurrentWikiSite, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}" ToolTip="{Tx:T account profile}" />
+            </fluent:Ribbon.ToolBarItems>
             <fluent:RibbonTabItem Header="General">
                 <fluent:RibbonGroupBox>
                     <fluent:Button Header="Button" />

@@ -9,8 +9,10 @@ using Prism.Mvvm;
 
 namespace WikiEdit.ViewModels.Documents
 {
-    internal class DocumentViewModel : BindableBase
+    public class DocumentViewModel : BindableBase
     {
+        public event EventHandler Activated;
+
         public event CancelEventHandler Closing;
 
         public event EventHandler Closed;
@@ -37,7 +39,13 @@ namespace WikiEdit.ViewModels.Documents
         public bool IsActive
         {
             get { return _IsActive; }
-            set { SetProperty(ref _IsActive, value); }
+            set
+            {
+                if (SetProperty(ref _IsActive, value))
+                {
+                    if (value) OnActivated();
+                }
+            }
         }
 
         /// <summary>
@@ -88,6 +96,11 @@ namespace WikiEdit.ViewModels.Documents
         /// can be activated by e.g. WikiSiteViewModel .
         /// </summary>
         public virtual object ContentSource => null;
+
+        protected virtual void OnActivated()
+        {
+            Activated?.Invoke(this, EventArgs.Empty);
+        }
 
         protected virtual void OnClose(CancelEventArgs e)
         {

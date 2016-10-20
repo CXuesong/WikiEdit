@@ -22,7 +22,7 @@ namespace WikiEdit.Controllers
     /// </summary>
     internal class WikiEditController : BindableBase
     {
-        public WikiClient WikiClient { get; } = new WikiClient();
+        public WikiClient WikiClient { get; private set; }
 
         public ObservableCollection<WikiSiteViewModel> WikiSites { get; } = new ObservableCollection<WikiSiteViewModel>();
 
@@ -33,13 +33,21 @@ namespace WikiEdit.Controllers
             return site;
         }
 
+        private void ResetWikiClient()
+        {
+            WikiClient = new WikiClient
+            {
+                ClientUserAgent = $"WikiEdit/1.0 ({Environment.OSVersion};.NET CLR {Environment.Version})"
+            };
+        }
+
         #region Persistence
 
         private WikiEditSession storage = new WikiEditSession();
 
         private static readonly JsonSerializer StorageSerializer = new JsonSerializer
         {
-            ContractResolver = new CamelCasePropertyNamesContractResolver()
+            ContractResolver = new WikiEditSessionContractResolver(),
         };
 
         /// <summary>
@@ -48,7 +56,7 @@ namespace WikiEdit.Controllers
         public void Clear()
         {
             WikiSites.Clear();
-            WikiClient.CookieContainer = new CookieContainer();
+            ResetWikiClient();
         }
 
         /// <summary>
@@ -56,36 +64,40 @@ namespace WikiEdit.Controllers
         /// </summary>
         public void FillDemo()
         {
-            WikiSites.Add(new WikiSiteViewModel(this)
+            var newItems = new[]
             {
-                Name = "Test2 Wikipedia",
-                ApiEndpoint = "https://test2.wikipedia.org/w/api.php",
-                LastAccessTime = DateTimeOffset.Now,
-            });
-            WikiSites.Add(new WikiSiteViewModel(this)
+                new WikiSiteViewModel(this)
+                {
+                    Name = "Test2 Wikipedia",
+                    ApiEndpoint = "https://test2.wikipedia.org/w/api.php",
+                },
+                new WikiSiteViewModel(this)
+                {
+                    Name = "EN Wikipedia",
+                    ApiEndpoint = "https://en.wikipedia.org/w/api.php",
+                },
+                new WikiSiteViewModel(this)
+                {
+                    Name = "FR Wikipedia",
+                    ApiEndpoint = "https://fr.wikipedia.org/w/api.php",
+                },
+                new WikiSiteViewModel(this)
+                {
+                    Name = "JA Wikipedia",
+                    ApiEndpoint = "https://ja.wikipedia.org/w/api.php",
+                },
+                new WikiSiteViewModel(this)
+                {
+                    Name = "ZH Wikipedia",
+                    ApiEndpoint = "https://zh.wikipedia.org/w/api.php",
+                }
+            };
+            foreach (var i in newItems)
             {
-                Name = "EN Wikipedia",
-                ApiEndpoint = "https://en.wikipedia.org/w/api.php",
-                LastAccessTime = DateTimeOffset.Now,
-            });
-            WikiSites.Add(new WikiSiteViewModel(this)
-            {
-                Name = "FR Wikipedia",
-                ApiEndpoint = "https://fr.wikipedia.org/w/api.php",
-                LastAccessTime = DateTimeOffset.Now,
-            });
-            WikiSites.Add(new WikiSiteViewModel(this)
-            {
-                Name = "JA Wikipedia",
-                ApiEndpoint = "https://ja.wikipedia.org/w/api.php",
-                LastAccessTime = DateTimeOffset.Now,
-            });
-            WikiSites.Add(new WikiSiteViewModel(this)
-            {
-                Name = "ZH Wikipedia",
-                ApiEndpoint = "https://zh.wikipedia.org/w/api.php",
-                LastAccessTime = DateTimeOffset.Now,
-            });
+                i.LastAccessTime = DateTimeOffset.Now;
+                i.AccountProfile.GetType().GetProperty("UserName").SetValue(i.AccountProfile, "0.0.0.0");
+            }
+            WikiSites.AddRange(newItems);
         }
 
         /// <summary>
@@ -110,6 +122,7 @@ namespace WikiEdit.Controllers
             using (var sw = new StreamReader(path))
             using (var jr = new JsonTextReader(sw))
                 storage = StorageSerializer.Deserialize<WikiEditSession>(jr);
+            ResetWikiClient();
             WikiClient.CookieContainer = storage.SessionCookies ?? new CookieContainer();
             WikiSites.Clear();
             WikiSites.AddRange(storage.WikiSites.Select(s => new WikiSiteViewModel(s, this)));
@@ -119,7 +132,7 @@ namespace WikiEdit.Controllers
 
         public WikiEditController()
         {
-            
+            Clear();
         }
     }
 }

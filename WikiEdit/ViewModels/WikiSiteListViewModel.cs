@@ -17,22 +17,11 @@ namespace WikiEdit.ViewModels
         private readonly WikiEditController wikiEditController;
         private readonly IChildViewModelService childVmService;
         private WikiSiteViewModel _SelectedWikiSite;
-        private bool _IsAccountProfileVisible;
 
         public WikiSiteViewModel SelectedWikiSite
         {
             get { return _SelectedWikiSite; }
-            set
-            {
-                if (SetProperty(ref _SelectedWikiSite, value))
-                    IsAccountProfileVisible = value != null;
-            }
-        }
-
-        public bool IsAccountProfileVisible
-        {
-            get { return _IsAccountProfileVisible; }
-            set { SetProperty(ref _IsAccountProfileVisible, value); }
+            set { SetProperty(ref _SelectedWikiSite, value); }
         }
 
         public ObservableCollection<WikiSiteViewModel> WikiSites => wikiEditController.WikiSites;
@@ -44,7 +33,6 @@ namespace WikiEdit.ViewModels
         {
             if (site == null) return;
             var doc = childVmService.DocumentViewModels.GetOrCreate(site, () => new WikiSiteOverviewViewModel(site));
-            doc.IsSelected = true;
             doc.IsActive = true;
         }
 

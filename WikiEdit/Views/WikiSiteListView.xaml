@@ -27,6 +27,5 @@
                 </GridView>
             </ListView.View>
         </ListView>
-        <local:AccountProfileView DataContext="{Binding SelectedWikiSite.AccountProfile, Mode=OneWay}" Visibility="{Binding DataContext.IsAccountProfileVisible, Converter={StaticResource BooleanToVisibilityConverter}, ElementName=ThisControl}" Grid.Row="1" />
     </Grid>
 </UserControl>
