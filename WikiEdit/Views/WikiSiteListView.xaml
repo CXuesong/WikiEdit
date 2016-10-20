@@ -6,7 +6,7 @@
              xmlns:local="clr-namespace:WikiEdit.Views"
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
              xmlns:Tx="http://unclassified.software/source/txtranslation"
-             x:Class="WikiEdit.Views.WikiSitesListView"
+             x:Class="WikiEdit.Views.WikiSiteListView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type vm:WikiSiteListViewModel}}"
              x:Name="ThisControl" >
@@ -18,7 +18,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ListView ItemsSource="{Binding WikiSites}" SelectedItem="{Binding SelectedWikiSite}">
+        <ListView ItemsSource="{Binding WikiSites}" SelectedItem="{Binding SelectedWikiSite}" MouseDoubleClick="WikiSitesList_MouseDoubleClick">
             <ListView.View>
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="{Tx:T name}"/>

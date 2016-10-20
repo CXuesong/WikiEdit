@@ -43,20 +43,15 @@
         </fluent:Ribbon>
         <Grid Grid.Row="1">
             <xcad:DockingManager DocumentsSource="{Binding DocumentViewModels}">
-                <xcad:DockingManager.DocumentHeaderTemplate>
-                    <DataTemplate DataType="xcad:LayoutDocument">
-                        <TextBlock Text="{Binding Title}" />
-                    </DataTemplate>
-                </xcad:DockingManager.DocumentHeaderTemplate>
                 <xcad:DockingManager.LayoutItemContainerStyleSelector>
                     <v:AvalonDockLayoutItemContainerStyleSelector>
                         <v:AvalonDockLayoutItemContainerStyleSelector.DocumentStyle>
-                            <Style TargetType="{x:Type xcad:LayoutItem}" d:DataContext="{d:DesignInstance vmd:DocumentViewModel}">
-                                <Setter Property="Title" Value="{Binding Title}" />
-                                <Setter Property="IsSelected" Value="{Binding IsSelected}" />
-                                <Setter Property="IsActive" Value="{Binding IsActive}" />
-                                <Setter Property="ContentId" Value="{Binding ContentId}" />
-                                <Setter Property="CloseCommand" Value="{Binding CloseCommand}" />
+                            <Style TargetType="{x:Type xcad:LayoutItem}">
+                                <Setter Property="Title" Value="{Binding Model.Title}" />
+                                <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
+                                <Setter Property="IsActive" Value="{Binding Model.IsActive, Mode=TwoWay}" />
+                                <Setter Property="ContentId" Value="{Binding Model.ContentId}" />
+                                <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
                             </Style>
                         </v:AvalonDockLayoutItemContainerStyleSelector.DocumentStyle>
                     </v:AvalonDockLayoutItemContainerStyleSelector>
@@ -65,7 +60,7 @@
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutAnchorablePane DockWidth="200">
                             <xcad:LayoutAnchorable ContentId="AccountProfile" Title="{Tx:T wiki site list}">
-                                <v:WikiSitesListView DataContext="{Binding WikiSiteListViewModel}" />
+                                <v:WikiSiteListView DataContext="{Binding WikiSiteListViewModel}" />
                             </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
                         <xcad:LayoutDocumentPaneGroup>

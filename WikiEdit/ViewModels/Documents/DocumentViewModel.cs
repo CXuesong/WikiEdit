@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -10,7 +11,9 @@ namespace WikiEdit.ViewModels.Documents
 {
     internal class DocumentViewModel : BindableBase
     {
-        public event EventHandler Close;
+        public event CancelEventHandler Closing;
+
+        public event EventHandler Closed;
 
         #region View Properties
 
@@ -37,14 +40,22 @@ namespace WikiEdit.ViewModels.Documents
             set { SetProperty(ref _IsActive, value); }
         }
 
+        /// <summary>
+        /// ContentId of the document panel, which later can be
+        /// used to identify the panel in UI controls.
+        /// </summary>
         public string ContentId
         {
             get { return _ContentId; }
             set { SetProperty(ref _ContentId, value); }
         }
 
-        #endregion
+        protected void BuildContentId(string id)
+        {
+            ContentId = GetType().Name + "/" + id;
+        }
 
+        #endregion
 
         #region Commands
 
@@ -56,7 +67,14 @@ namespace WikiEdit.ViewModels.Documents
             {
                 if (_CloseCommand == null)
                 {
-                    _CloseCommand = new DelegateCommand(OnClose);
+                    _CloseCommand = new DelegateCommand(() =>
+                    {
+                        var e = new CancelEventArgs();
+                        OnClose(e);
+                        // Normally, ChildViewModelService will be responsible to close the document.
+                        if (!e.Cancel)
+                            OnClosed();
+                    });
                 }
                 return _CloseCommand;
             }
@@ -64,9 +82,21 @@ namespace WikiEdit.ViewModels.Documents
 
         #endregion
 
-        protected virtual void OnClose()
+        /// <summary>
+        /// This proeprty is used identify the attached data
+        /// source of the document, so that the document view model
+        /// can be activated by e.g. WikiSiteViewModel .
+        /// </summary>
+        public virtual object ContentSource => null;
+
+        protected virtual void OnClose(CancelEventArgs e)
         {
-            Close?.Invoke(this, EventArgs.Empty);
+            Closing?.Invoke(this, e);
+        }
+
+        protected virtual void OnClosed()
+        {
+            Closed?.Invoke(this, EventArgs.Empty);
         }
     }
 }

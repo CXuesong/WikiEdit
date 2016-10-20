@@ -11,6 +11,7 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiEdit.Controllers;
+using WikiEdit.Services;
 using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit.ViewModels
@@ -19,14 +20,20 @@ namespace WikiEdit.ViewModels
     {
         private readonly WikiEditController wikiEditController;
         private string _FileName;
+        private readonly IChildViewModelService childVmService;
 
-        public WikiSiteListViewModel WikiSiteListViewModel { get; }
+        [Dependency]
+        public WikiSiteListViewModel WikiSiteListViewModel { get; set; }
 
-        public MainWindowViewModel(WikiSiteListViewModel wikiSiteListViewModel,
-            WikiEditController wikiEditController)
+        public ObservableCollection<DocumentViewModel> DocumentViewModels => childVmService.DocumentViewModels;
+
+        public MainWindowViewModel(WikiEditController wikiEditController,
+            IChildViewModelService childVmService)
         {
-            this.WikiSiteListViewModel = wikiSiteListViewModel;
+            if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
+            if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
             this.wikiEditController = wikiEditController;
+            this.childVmService = childVmService;
         }
 
         #region Session Persistence
@@ -39,7 +46,7 @@ namespace WikiEdit.ViewModels
 
         public bool PromptSaveSession()
         {
-            switch (Utility.Confirm(Tx.T("save session prompt")))
+            switch (Utility.Confirm(Tx.T("save session prompt"), true))
             {
                 case true:
                     return SaveSession();
@@ -120,6 +127,5 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
-        public ObservableCollection<DocumentViewModel> DocumentViewModels { get; } = new ObservableCollection<DocumentViewModel>();
     }
 }

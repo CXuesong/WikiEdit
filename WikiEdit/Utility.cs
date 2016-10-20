@@ -4,6 +4,8 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Media;
+using Xceed.Wpf.AvalonDock.Controls;
 
 namespace WikiEdit
 {
@@ -48,6 +50,19 @@ namespace WikiEdit
 #else
             MessageBox.Show(ex.Message, null, MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #endif
+        }
+
+        public static T FindAncestor<T>(DependencyObject obj) where T : DependencyObject
+        {
+            // We'll skip the obj itself.
+            if (obj == null) throw new ArgumentNullException(nameof(obj));
+            do
+            {
+                obj = VisualTreeHelper.GetParent(obj);
+                var t = obj as T;
+                if (t != null) return t;
+            } while (obj != null);
+            return null;
         }
     }
 }

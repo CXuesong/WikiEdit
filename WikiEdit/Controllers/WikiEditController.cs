@@ -59,27 +59,32 @@ namespace WikiEdit.Controllers
             WikiSites.Add(new WikiSiteViewModel(this)
             {
                 Name = "Test2 Wikipedia",
-                ApiEndpoint = "https://test2.wikipedia.org/w/api.php"
+                ApiEndpoint = "https://test2.wikipedia.org/w/api.php",
+                LastAccessTime = DateTimeOffset.Now,
             });
             WikiSites.Add(new WikiSiteViewModel(this)
             {
                 Name = "EN Wikipedia",
-                ApiEndpoint = "https://en.wikipedia.org/w/api.php"
+                ApiEndpoint = "https://en.wikipedia.org/w/api.php",
+                LastAccessTime = DateTimeOffset.Now,
             });
             WikiSites.Add(new WikiSiteViewModel(this)
             {
                 Name = "FR Wikipedia",
-                ApiEndpoint = "https://fr.wikipedia.org/w/api.php"
+                ApiEndpoint = "https://fr.wikipedia.org/w/api.php",
+                LastAccessTime = DateTimeOffset.Now,
             });
             WikiSites.Add(new WikiSiteViewModel(this)
             {
                 Name = "JA Wikipedia",
-                ApiEndpoint = "https://ja.wikipedia.org/w/api.php"
+                ApiEndpoint = "https://ja.wikipedia.org/w/api.php",
+                LastAccessTime = DateTimeOffset.Now,
             });
             WikiSites.Add(new WikiSiteViewModel(this)
             {
                 Name = "ZH Wikipedia",
-                ApiEndpoint = "https://zh.wikipedia.org/w/api.php"
+                ApiEndpoint = "https://zh.wikipedia.org/w/api.php",
+                LastAccessTime = DateTimeOffset.Now,
             });
         }
 

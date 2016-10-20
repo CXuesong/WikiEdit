@@ -107,13 +107,14 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controllers\WikiEditController.cs" />
+    <Compile Include="Services\ChildViewModelService.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
     <Compile Include="ViewModels\Documents\WikiSiteOverviewViewModel.cs" />
     <Compile Include="Views\Documents\WikiSiteOverviewView.xaml.cs">
       <DependentUpon>WikiSiteOverviewView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\WikiSitesListView.xaml.cs">
-      <DependentUpon>WikiSitesListView.xaml</DependentUpon>
+    <Compile Include="Views\WikiSiteListView.xaml.cs">
+      <DependentUpon>WikiSiteListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
     <Page Include="Views\AccountProfileView.xaml">
@@ -154,7 +155,7 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
-    <Page Include="Views\WikiSitesListView.xaml">
+    <Page Include="Views\WikiSiteListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
