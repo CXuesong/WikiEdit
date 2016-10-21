@@ -1,5 +1,7 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using System.Diagnostics;
 using System.Globalization;
 using System.Linq;
 using System.Net;
@@ -11,6 +13,7 @@ using System.Windows.Data;
 using System.Windows.Media;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Serialization;
+using WikiClientLibrary;
 using Xceed.Wpf.AvalonDock.Controls;
 
 namespace WikiEdit
@@ -138,22 +141,85 @@ namespace WikiEdit
         }
     }
 
-    public class WikiEditSessionContractResolver : CamelCasePropertyNamesContractResolver
+    public class CookieContainerJsonConverter : JsonConverter
     {
-        protected override IList<JsonProperty> CreateProperties(Type type, MemberSerialization memberSerialization)
+        public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            // CookieContainer is hard to serialize…
-            if (type == typeof(CookieContainer))
+            var fields =
+                typeof(CookieContainer).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
+            var cookieStoreField = fields.First(f => f.Name == "m_domainTable" || f.Name == "_domainTable");
+            var cookieStore = cookieStoreField.GetValue(value);
+            writer.WriteStartArray();
+            // dict<string, System.Net.PathList>
+            foreach (DictionaryEntry e in (IEnumerable) cookieStore)
             {
-                //memberSerialization = MemberSerialization.Fields;
-                var props = type.GetFields(BindingFlags.Public
-                                           | BindingFlags.NonPublic
-                                           | BindingFlags.Instance)
-                    .Select(f => CreateProperty(f, MemberSerialization.Fields))
-                    .ToList();
-                return props;
+                // System.Net.PathList doesn't implement GetEnumerator
+                foreach (var c in new PathListWrapper(e.Value)
+                    .Cast<CookieCollection>()
+                    .SelectMany(cc => cc.Cast<Cookie>()))
+                    serializer.Serialize(writer, c);
             }
-            return base.CreateProperties(type, memberSerialization);
+            writer.WriteEndArray();
+        }
+
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        {
+            if (objectType != typeof(CookieContainer)) throw new NotSupportedException();
+            var cc = new CookieContainer();
+            var cookies = serializer.Deserialize<IList<Cookie>>(reader);
+            foreach (var cookie in cookies) cc.Add(cookie);
+            return cc;
+        }
+
+        public override bool CanConvert(Type objectType)
+        {
+            return objectType == typeof(CookieContainer);
+        }
+
+        private class PathListWrapper : IEnumerable
+        {
+            private object target;
+
+            private static readonly Type pathListType = typeof(CookieContainer).Assembly.GetType("System.Net.PathList", true);
+
+            public PathListWrapper(object target)
+            {
+                if (target == null) throw new ArgumentNullException(nameof(target));
+                this.target = target;
+            }
+
+            public IEnumerator GetEnumerator()
+            {
+                var values = (IEnumerable) pathListType.InvokeMember("Values",
+                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty,
+                    null, target, null);
+                return values.GetEnumerator();
+            }
+        }
+    }
+
+    public class TraceLogger : ILogger
+    {
+        public static TraceLogger Default { get; } = new TraceLogger();
+
+        public void Trace(string message)
+        {
+            System.Diagnostics.Trace.WriteLine(message);
+        }
+
+        public void Info(string message)
+        {
+            System.Diagnostics.Trace.TraceInformation(message);
+        }
+
+        public void Warn(string message)
+        {
+            System.Diagnostics.Trace.TraceWarning(message);
+        }
+
+        public void Error(Exception exception, string message)
+        {
+            System.Diagnostics.Trace.TraceError(message);
         }
     }
 }

@@ -15,8 +15,6 @@ namespace WikiEdit.ViewModels
 {
     internal class LoginViewModel : BindableBase, INotifyDataErrorInfo
     {
-        private readonly Action<bool, string> _StatusChangedAction;
-
         /// <summary>
         /// The action used to close current login view.
         /// </summary>
@@ -57,10 +55,11 @@ namespace WikiEdit.ViewModels
                 UserName = null;
                 UserName = "";
             }
-            _StatusChangedAction(true, Tx.T("please wait"));
+            if (WikiSite.IsBusy) return;
+            WikiSite.IsBusy = true;
+            WikiSite.Status = Tx.T("please wait");
             try
             {
-                var site = await WikiSite.GetSiteAsync();
                 // It seems not safe enough.
                 // Maybe adjustments will be applied to WikiClientLibrary later.
                 var pp = IntPtr.Zero;
@@ -68,18 +67,22 @@ namespace WikiEdit.ViewModels
                 {
                     pp = Marshal.SecureStringToGlobalAllocUnicode(password);
                     var ps = Marshal.PtrToStringUni(pp);
-                    await site.LoginAsync(_UserName, ps);
+                    await WikiSite.Site.LoginAsync(_UserName, ps);
                 }
                 finally
                 {
                     Marshal.ZeroFreeGlobalAllocUnicode(pp);
                 }
-                _StatusChangedAction(false, null);
+                WikiSite.Status = null;
                 _CloseViewAction(true);
             }
             catch (Exception ex)
             {
-                _StatusChangedAction(false, ex.Message);
+                WikiSite.Status = ex.Message;
+            }
+            finally
+            {
+                WikiSite.IsBusy = false;
             }
         }
 
@@ -102,13 +105,11 @@ namespace WikiEdit.ViewModels
         #endregion
 
         // statusChangedAction : IsWorking, Status
-        public LoginViewModel(WikiSiteViewModel siteVm, Action<bool, string> statusChangedAction, Action<bool> closeViewAction)
+        public LoginViewModel(WikiSiteViewModel siteVm, Action<bool> closeViewAction)
         {
             if (siteVm == null) throw new ArgumentNullException(nameof(siteVm));
-            if (statusChangedAction == null) throw new ArgumentNullException(nameof(statusChangedAction));
             if (closeViewAction == null) throw new ArgumentNullException(nameof(closeViewAction));
             WikiSite = siteVm;
-            _StatusChangedAction = statusChangedAction;
             _CloseViewAction = closeViewAction;
             errors = new ErrorsContainer<string>(OnErrorsChanged);
         }

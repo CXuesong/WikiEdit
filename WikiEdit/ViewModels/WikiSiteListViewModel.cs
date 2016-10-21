@@ -5,6 +5,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Prism.Events;
 using Prism.Mvvm;
 using WikiEdit.Controllers;
 using WikiEdit.Services;
@@ -14,6 +15,7 @@ namespace WikiEdit.ViewModels
 {
     internal class WikiSiteListViewModel : BindableBase
     {
+        private readonly IEventAggregator _EventAggregator;
         private readonly WikiEditController wikiEditController;
         private readonly IChildViewModelService childVmService;
         private WikiSiteViewModel _SelectedWikiSite;
@@ -32,14 +34,17 @@ namespace WikiEdit.ViewModels
         public void NotifyWikiSiteDoubleClick(WikiSiteViewModel site)
         {
             if (site == null) return;
-            var doc = childVmService.DocumentViewModels.GetOrCreate(site, () => new WikiSiteOverviewViewModel(site));
+            var doc = childVmService.DocumentViewModels.GetOrCreate(site, 
+                () => new WikiSiteOverviewViewModel(_EventAggregator, site));
             doc.IsActive = true;
         }
 
-        public WikiSiteListViewModel(WikiEditController controller, IChildViewModelService childVmService)
+        public WikiSiteListViewModel(IEventAggregator eventAggregator, WikiEditController controller, IChildViewModelService childVmService)
         {
+            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             if (controller == null) throw new ArgumentNullException(nameof(controller));
             if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
+            _EventAggregator = eventAggregator;
             wikiEditController = controller;
             this.childVmService = childVmService;
         }

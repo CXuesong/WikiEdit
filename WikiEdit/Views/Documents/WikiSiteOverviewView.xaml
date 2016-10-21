@@ -1,13 +1,33 @@
-﻿<UserControl x:Class="WikiEdit.Views.Documents.WikiSiteOverviewView"
+﻿<UserControl
              xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
              xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
              xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
              xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
              xmlns:local="clr-namespace:WikiEdit.Views"
+             xmlns:dvm="clr-namespace:WikiEdit.ViewModels.Documents"
+             xmlns:WikiEdit="clr-namespace:WikiEdit"
+             xmlns:Tx="http://unclassified.software/source/txtranslation"
+             x:Class="WikiEdit.Views.Documents.WikiSiteOverviewView"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
-    <Grid>
-        <Button x:Name="button" Content="Button" HorizontalAlignment="Left" Margin="104,123,0,0" VerticalAlignment="Top" Width="75"/>
-
-    </Grid>
+             d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type dvm:WikiSiteOverviewViewModel}}">
+    <UserControl.Resources>
+        <WikiEdit:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
+    </UserControl.Resources>
+    <StackPanel>
+        <StackPanel>
+            <TextBox Text="{Binding WikiSite.Status, Mode=OneWay}" Style="{DynamicResource TipTextBox}" Visibility="{Binding WikiSite.Status, Converter={StaticResource UniversalBooleanConverter}}" />
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding WikiSite.IsBusy, Converter={StaticResource UniversalBooleanConverter}}"/>
+            <TextBlock Style="{DynamicResource Heading2}" Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+            <Separator />
+            <TextBlock><InlineUIContainer>
+                    <TextBlock Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+                </InlineUIContainer><Run Text=" "/><Hyperlink NavigateUri="{Binding WikiSite.SiteUrl}"><InlineUIContainer>
+                        <TextBlock Text="{Binding WikiSite.SiteUrl}" />
+                    </InlineUIContainer></Hyperlink></TextBlock>
+        </StackPanel>
+        <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
+        <ItemsControl>
+            
+        </ItemsControl>
+    </StackPanel>
 </UserControl>

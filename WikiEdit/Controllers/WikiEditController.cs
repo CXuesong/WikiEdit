@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.Diagnostics;
 using System.IO;
 using System.Linq;
 using System.Net;
@@ -9,6 +10,7 @@ using System.Threading.Tasks;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Prism.Events;
 using Prism.Mvvm;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
@@ -22,6 +24,8 @@ namespace WikiEdit.Controllers
     /// </summary>
     internal class WikiEditController : BindableBase
     {
+        private readonly IEventAggregator _EventAggregator;
+
         public WikiClient WikiClient { get; private set; }
 
         public ObservableCollection<WikiSiteViewModel> WikiSites { get; } = new ObservableCollection<WikiSiteViewModel>();
@@ -37,7 +41,8 @@ namespace WikiEdit.Controllers
         {
             WikiClient = new WikiClient
             {
-                ClientUserAgent = $"WikiEdit/1.0 ({Environment.OSVersion};.NET CLR {Environment.Version})"
+                ClientUserAgent = $"WikiEdit/1.0 ({Environment.OSVersion};.NET CLR {Environment.Version})",
+                Logger = TraceLogger.Default,
             };
         }
 
@@ -47,7 +52,8 @@ namespace WikiEdit.Controllers
 
         private static readonly JsonSerializer StorageSerializer = new JsonSerializer
         {
-            ContractResolver = new WikiEditSessionContractResolver(),
+            Converters = {new CookieContainerJsonConverter()}
+            // TraceWriter = new DiagnosticsTraceWriter() {LevelFilter = TraceLevel.Verbose},
         };
 
         /// <summary>
@@ -66,27 +72,27 @@ namespace WikiEdit.Controllers
         {
             var newItems = new[]
             {
-                new WikiSiteViewModel(this)
+                new WikiSiteViewModel(_EventAggregator, this)
                 {
                     Name = "Test2 Wikipedia",
                     ApiEndpoint = "https://test2.wikipedia.org/w/api.php",
                 },
-                new WikiSiteViewModel(this)
+                new WikiSiteViewModel(_EventAggregator, this)
                 {
                     Name = "EN Wikipedia",
                     ApiEndpoint = "https://en.wikipedia.org/w/api.php",
                 },
-                new WikiSiteViewModel(this)
+                new WikiSiteViewModel(_EventAggregator, this)
                 {
                     Name = "FR Wikipedia",
                     ApiEndpoint = "https://fr.wikipedia.org/w/api.php",
                 },
-                new WikiSiteViewModel(this)
+                new WikiSiteViewModel(_EventAggregator, this)
                 {
                     Name = "JA Wikipedia",
                     ApiEndpoint = "https://ja.wikipedia.org/w/api.php",
                 },
-                new WikiSiteViewModel(this)
+                new WikiSiteViewModel(_EventAggregator, this)
                 {
                     Name = "ZH Wikipedia",
                     ApiEndpoint = "https://zh.wikipedia.org/w/api.php",
@@ -125,13 +131,15 @@ namespace WikiEdit.Controllers
             ResetWikiClient();
             WikiClient.CookieContainer = storage.SessionCookies ?? new CookieContainer();
             WikiSites.Clear();
-            WikiSites.AddRange(storage.WikiSites.Select(s => new WikiSiteViewModel(s, this)));
+            WikiSites.AddRange(storage.WikiSites.Select(s => new WikiSiteViewModel(_EventAggregator, this, s)));
         }
 
         #endregion
 
-        public WikiEditController()
+        public WikiEditController(IEventAggregator eventAggregator)
         {
+            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
+            _EventAggregator = eventAggregator;
             Clear();
         }
     }

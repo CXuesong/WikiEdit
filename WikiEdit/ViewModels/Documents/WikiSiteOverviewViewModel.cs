@@ -16,16 +16,20 @@ namespace WikiEdit.ViewModels.Documents
 
         public override object ContentSource => WikiSite;
 
-        public WikiSiteOverviewViewModel(WikiSiteViewModel wikiSite)
+        public WikiSiteOverviewViewModel(IEventAggregator eventAggregator, WikiSiteViewModel wikiSite)
         {
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             WikiSite = wikiSite;
-            Title = WikiSite.DisplayName;
-            PropertyChangedEventManager.AddHandler(WikiSite, WikiSite_PropertyChanged, nameof(WikiSite.DisplayName));
+            if (!wikiSite.IsBusy && !wikiSite.IsInitialized)
+#pragma warning disable 4014    // Just notify WikiSite need to be initialized.
+                wikiSite.InitializeAsync();
+#pragma warning restore 4014
+            Title = wikiSite.DisplayName;
+            eventAggregator.GetEvent<SiteInfoRefreshedEvent>();
             BuildContentId(wikiSite.ApiEndpoint);
         }
 
-        private void WikiSite_PropertyChanged(object sender, PropertyChangedEventArgs propertyChangedEventArgs)
+        private void OnSiteInfoRefreshed()
         {
             Title = WikiSite.DisplayName;
         }

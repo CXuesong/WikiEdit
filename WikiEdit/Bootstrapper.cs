@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
 using Microsoft.Practices.Unity;
+using Prism.Events;
 using Prism.Unity;
 using Unclassified.TxLib;
 using WikiEdit.Controllers;
@@ -22,16 +23,11 @@ namespace WikiEdit
         {
             base.ConfigureContainer();
             // DI configuration
-            var weController = new WikiEditController();
-            Container.RegisterInstance(weController);
+            Container.RegisterType<WikiEditController>(new ContainerControlledLifetimeManager());
             Container.RegisterType<MainWindow>(new ContainerControlledLifetimeManager());
             Container.RegisterType<MainWindowViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IChildViewModelService, ChildViewModelService>(
                 new ContainerControlledLifetimeManager());
-#if DEBUG
-            weController.FillDemo();
-            Container.Resolve<IChildViewModelService>().DocumentViewModels.Add(new WikiSiteOverviewViewModel(weController.WikiSites[0]));
-#endif
         }
 
         protected override DependencyObject CreateShell()
@@ -42,6 +38,13 @@ namespace WikiEdit
 
         protected override void InitializeShell()
         {
+#if DEBUG
+            var weController = Container.Resolve<WikiEditController>();
+            weController.FillDemo();
+            Container.Resolve<IChildViewModelService>()
+                .DocumentViewModels.Add(new WikiSiteOverviewViewModel(Container.Resolve<IEventAggregator>(),
+                    weController.WikiSites[0]));
+#endif
             Application.Current.DispatcherUnhandledException += App_DispatcherUnhandledException;
             Application.Current.MainWindow = (Window) Shell;
             Application.Current.MainWindow.Show();

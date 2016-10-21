@@ -5,7 +5,9 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
+using Microsoft.Practices.Unity;
 using Prism.Commands;
+using Prism.Events;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiEdit.Models;
@@ -81,11 +83,13 @@ namespace WikiEdit.ViewModels
         /// </summary>
         private void Reload()
         {
-            var site = WikiSite.GetSite();
+            var site = WikiSite.Site;
             UserName = site.UserInfo.Name;
             Groups = site.UserInfo.Groups.ToArray();
             HasLoggedIn = site.UserInfo.IsUser;
         }
+
+        #region Commands
 
         private DelegateCommand _RefreshCommand;
 
@@ -97,22 +101,7 @@ namespace WikiEdit.ViewModels
                 {
                     _RefreshCommand = new DelegateCommand(async () =>
                     {
-                        IsBusy = true;
-                        Status = null;
-                        try
-                        {
-                            var site = await WikiSite.GetSiteAsync();
-                            await site.RefreshUserInfoAsync();
-                            Reload();
-                        }
-                        catch (Exception ex)
-                        {
-                            Status = ex.Message;
-                        }
-                        finally
-                        {
-                            IsBusy = false;
-                        }
+                        if (!WikiSite.IsBusy) await WikiSite.RefreshAccountInfoAsync();
                     });
                 }
                 return _RefreshCommand;
@@ -131,11 +120,6 @@ namespace WikiEdit.ViewModels
                     {
                         if (LoginViewModel == null)
                             LoginViewModel = new LoginViewModel(WikiSite,
-                                (busy, status) =>
-                                {
-                                    IsBusy = busy;
-                                    Status = status;
-                                },
                                 successful =>
                                 {
                                     LoginViewModel = null;
@@ -159,8 +143,22 @@ namespace WikiEdit.ViewModels
                     {
                         if (Utility.Confirm(Tx.T("logout confirmation")) == true)
                         {
-                            var site = await WikiSite.GetSiteAsync();
-                            await site.LogoutAsync();
+                            if (WikiSite.IsBusy) return;
+                            WikiSite.IsBusy = true;
+                            WikiSite.Status = Tx.T("please wait");
+                            try
+                            {
+                                await WikiSite.Site.LogoutAsync();
+                                WikiSite.Status = null;
+                            }
+                            catch (Exception ex)
+                            {
+                                WikiSite.Status = ex.Message;
+                            }
+                            finally
+                            {
+                                WikiSite.IsBusy = false;
+                            }
                             Reload();
                         }
                     }, () => _LoginViewModel == null && HasLoggedIn);
@@ -169,18 +167,26 @@ namespace WikiEdit.ViewModels
             }
         }
 
-        public AccountProfileViewModel(WikiSiteViewModel siteVm) : this(siteVm, null)
+        #endregion
+
+        public AccountProfileViewModel(IEventAggregator eventAggregator, WikiSiteViewModel siteVm) 
+            : this(eventAggregator, siteVm, null)
         {
         }
 
-        public AccountProfileViewModel(WikiSiteViewModel siteVm, WikiSite siteModel)
+        public AccountProfileViewModel(IEventAggregator eventAggregator, WikiSiteViewModel siteVm, WikiSite siteModel)
         {
             if (siteVm == null) throw new ArgumentNullException(nameof(siteVm));
+            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             WikiSite = siteVm;
             if (siteModel != null)
             {
                 _UserName = siteModel.UserName;
             }
+            eventAggregator.GetEvent<AccountInfoRefreshedEvent>().Subscribe(site =>
+            {
+                if (site == WikiSite) Reload();
+            });
         }
     }
 }

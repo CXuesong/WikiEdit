@@ -20,6 +20,7 @@
 		<text key="save session as">Save session as</text>
 		<text key="save session prompt">Before continuing, would you like to save current session?</text>
 		<text key="session file filter">Session file (*.json)|*.json|All files|*.*</text>
+		<text key="titles.recent changes">Recent Changes</text>
 		<text key="Tx:byte unit" comment="Default: B" />
 		<text key="Tx:colon" comment="Can be used to insert additional spacing like for French." />
 		<text key="Tx:date.day" comment="Default: %d" />
@@ -245,6 +246,7 @@
 		<text key="save session as">会话另存为</text>
 		<text key="save session prompt" acceptpunctuation="true">是否保存当前会话？</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
+		<text key="titles.recent changes">最近修改</text>
 		<text key="user name">用户名</text>
 		<text key="wiki site list">维基站点列表</text>
 		<text key="wiki site name">站点名称</text>

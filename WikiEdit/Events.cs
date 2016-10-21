@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using Prism.Events;
+using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit
@@ -14,6 +15,14 @@ namespace WikiEdit
     /// raised with a <c>null</c> payload.
     /// </summary>
     public class ActiveDocumentChangedEvent : PubSubEvent<DocumentViewModel>
+    {
+    }
+
+    internal class SiteInfoRefreshedEvent : PubSubEvent<WikiSiteViewModel>
+    {
+    }
+
+    internal class AccountInfoRefreshedEvent : PubSubEvent<WikiSiteViewModel>
     {
     }
 }

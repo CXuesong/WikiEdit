@@ -11,6 +11,7 @@
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
             </ResourceDictionary.MergedDictionaries>
+
             <Style TargetType="Button">
                 <Setter Property="Padding" Value="10,4" />
                 <Setter Property="Margin" Value="10" />
@@ -37,6 +38,22 @@
                 <Setter Property="Background" Value="{DynamicResource ContextMenuBarBackgroundBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBarBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style x:Key="Heading1" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="#FF19478A" />
+                <Setter Property="FontSize" Value="28" />
+                <Setter Property="Margin" Value="0,15,0,5" />
+            </Style>
+            <Style x:Key="Heading2" TargetType="TextBlock" BasedOn="{StaticResource Heading1}">
+                <Setter Property="FontSize" Value="24" />
+            </Style>
+            <Style x:Key="Heading3" TargetType="TextBlock" BasedOn="{StaticResource Heading1}">
+                <Setter Property="FontSize" Value="18" />
+            </Style>
+            <Style x:Key="TipTextBox" TargetType="TextBox">
+                <Setter Property="Background" Value="{x:Static SystemColors.InfoBrush}" />
+                <Setter Property="Foreground" Value="{x:Static SystemColors.InfoTextBrush}" />
+                <Setter Property="IsReadOnly" Value="True" />
             </Style>
         </ResourceDictionary>
     </Application.Resources>
