@@ -3,15 +3,18 @@ using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Globalization;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
 using Newtonsoft.Json;
+using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using WikiClientLibrary;
 using Xceed.Wpf.AvalonDock.Controls;
@@ -141,60 +144,42 @@ namespace WikiEdit
         }
     }
 
+    /// <summary>
+    /// This converter serializes CookieContainer as binary string.
+    /// </summary>
     public class CookieContainerJsonConverter : JsonConverter
     {
+        private static readonly BinaryFormatter formatter = new BinaryFormatter();
+
         public override void WriteJson(JsonWriter writer, object value, JsonSerializer serializer)
         {
-            var fields =
-                typeof(CookieContainer).GetFields(BindingFlags.Instance | BindingFlags.Public | BindingFlags.NonPublic);
-            var cookieStoreField = fields.First(f => f.Name == "m_domainTable" || f.Name == "_domainTable");
-            var cookieStore = cookieStoreField.GetValue(value);
-            writer.WriteStartArray();
-            // dict<string, System.Net.PathList>
-            foreach (DictionaryEntry e in (IEnumerable) cookieStore)
+            var cc = (CookieContainer) value;
+            if (cc.Count == 0)
             {
-                // System.Net.PathList doesn't implement GetEnumerator
-                foreach (var c in new PathListWrapper(e.Value)
-                    .Cast<CookieCollection>()
-                    .SelectMany(cc => cc.Cast<Cookie>()))
-                    serializer.Serialize(writer, c);
+                writer.WriteValue("");
+                return;
             }
-            writer.WriteEndArray();
+            using (var ms = new MemoryStream())
+            {
+                formatter.Serialize(ms, cc);
+                writer.WriteValue(ms.ToArray());
+            }
         }
 
-        public override object ReadJson(JsonReader reader, Type objectType, object existingValue, JsonSerializer serializer)
+        public override object ReadJson(JsonReader reader, Type objectType, object existingValue,
+            JsonSerializer serializer)
         {
-            if (objectType != typeof(CookieContainer)) throw new NotSupportedException();
-            var cc = new CookieContainer();
-            var cookies = serializer.Deserialize<IList<Cookie>>(reader);
-            foreach (var cookie in cookies) cc.Add(cookie);
-            return cc;
+            var data = Convert.FromBase64String((string) reader.Value);
+            if (data.Length == 0) return new CookieContainer();
+            using (var ms = new MemoryStream(data))
+            {
+                return (CookieContainer)formatter.Deserialize(ms);
+            }
         }
 
         public override bool CanConvert(Type objectType)
         {
             return objectType == typeof(CookieContainer);
-        }
-
-        private class PathListWrapper : IEnumerable
-        {
-            private object target;
-
-            private static readonly Type pathListType = typeof(CookieContainer).Assembly.GetType("System.Net.PathList", true);
-
-            public PathListWrapper(object target)
-            {
-                if (target == null) throw new ArgumentNullException(nameof(target));
-                this.target = target;
-            }
-
-            public IEnumerator GetEnumerator()
-            {
-                var values = (IEnumerable) pathListType.InvokeMember("Values",
-                    BindingFlags.Instance | BindingFlags.Public | BindingFlags.GetProperty,
-                    null, target, null);
-                return values.GetEnumerator();
-            }
         }
     }
 

@@ -52,7 +52,7 @@ namespace WikiEdit.Controllers
 
         private static readonly JsonSerializer StorageSerializer = new JsonSerializer
         {
-            Converters = {new CookieContainerJsonConverter()}
+            Converters = {new CookieContainerJsonConverter()},
             // TraceWriter = new DiagnosticsTraceWriter() {LevelFilter = TraceLevel.Verbose},
         };
 
