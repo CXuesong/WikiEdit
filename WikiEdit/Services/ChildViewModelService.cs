@@ -23,7 +23,7 @@ namespace WikiEdit.Services
     /// </summary>
     internal class ChildViewModelService : BindableBase, IChildViewModelService
     {
-        private ActiveDocumentChangedEvent activeDocumentChangedEvent;
+        private readonly ActiveDocumentChangedEvent activeDocumentChangedEvent;
 
         public ChildViewModelService(IEventAggregator eventAggregator)
         {

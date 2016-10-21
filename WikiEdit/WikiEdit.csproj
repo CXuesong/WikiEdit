@@ -76,6 +76,10 @@
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Data" />
+    <Reference Include="System.Interactive.Async, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
+      <HintPath>..\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
+      <Private>True</Private>
+    </Reference>
     <Reference Include="System.Windows.Interactivity, Version=4.5.0.0, Culture=neutral, PublicKeyToken=31bf3856ad364e35, processorArchitecture=MSIL">
       <HintPath>..\packages\ControlzEx.2.1.2.3\lib\net45\System.Windows.Interactivity.dll</HintPath>
       <Private>True</Private>
@@ -111,13 +115,23 @@
     <Compile Include="Services\ChildViewModelService.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
     <Compile Include="ViewModels\Documents\WikiSiteOverviewViewModel.cs" />
+    <Compile Include="ViewModels\Primitives\Badges.cs" />
+    <Compile Include="ViewModels\Primitives\CommandLinkViewModel.cs" />
+    <Compile Include="ViewModels\RecentChangeViewModel.cs" />
     <Compile Include="Views\Documents\WikiSiteOverviewView.xaml.cs">
       <DependentUpon>WikiSiteOverviewView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\RecentChangeView.xaml.cs">
+      <DependentUpon>RecentChangeView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WikiSiteListView.xaml.cs">
       <DependentUpon>WikiSiteListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Page Include="Resources\Primitives.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\AccountProfileView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -153,6 +167,10 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\Documents\WikiSiteOverviewView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\RecentChangeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -207,7 +225,9 @@
       <Name>WikiClientLibrary</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Folder Include="Themes\" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

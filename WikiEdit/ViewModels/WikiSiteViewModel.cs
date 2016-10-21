@@ -132,6 +132,7 @@ namespace WikiEdit.ViewModels
                 catch (Exception ex)
                 {
                     Status = ex.Message;
+                    _EventAggregator.GetEvent<TaskFailedEvent>().Publish(this);
                 }
                 finally
                 {
@@ -156,6 +157,7 @@ namespace WikiEdit.ViewModels
                 catch (Exception ex)
                 {
                     Status = ex.ToString();
+                    _EventAggregator.GetEvent<TaskFailedEvent>().Publish(this);
                 }
                 finally
                 {
@@ -167,7 +169,6 @@ namespace WikiEdit.ViewModels
                 await InitializeAsync();
             }
         }
-
 
         public bool IsInitialized => _Site != null;
 

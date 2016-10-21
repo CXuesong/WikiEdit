@@ -3,7 +3,17 @@
 <translation xml:space="preserve">
 	<culture name="en" primary="true">
 		<text key="account profile">Account Profile</text>
+		<text key="badges.block">[block]</text>
+		<text key="badges.contribs">[contribs]</text>
+		<text key="badges.diff">[diff]</text>
+		<text key="badges.hist">[hist]</text>
+		<text key="badges.talk">[talk]</text>
 		<text key="cancel">Cancel</text>
+		<text key="changes.flags.bot">b</text>
+		<text key="changes.flags.minor">m</text>
+		<text key="changes.flags.new">N</text>
+		<text key="edit">Edit</text>
+		<text key="enter a page title here">Enter the title of a page…</text>
 		<text key="field is required">The field is required.</text>
 		<text key="last access time">Last access</text>
 		<text key="login">Login</text>
@@ -19,6 +29,7 @@
 		<text key="save session">Save session</text>
 		<text key="save session as">Save session as</text>
 		<text key="save session prompt">Before continuing, would you like to save current session?</text>
+		<text key="search">Search</text>
 		<text key="session file filter">Session file (*.json)|*.json|All files|*.*</text>
 		<text key="titles.recent changes">Recent Changes</text>
 		<text key="Tx:byte unit" comment="Default: B" />
@@ -229,7 +240,17 @@
 	</culture>
 	<culture name="zh">
 		<text key="account profile">账户信息</text>
+		<text key="badges.block">[封禁]</text>
+		<text key="badges.contribs">[贡献]</text>
+		<text key="badges.diff">[差异]</text>
+		<text key="badges.hist">[历史]</text>
+		<text key="badges.talk">[讨论]</text>
 		<text key="cancel">取消</text>
+		<text key="changes.flags.bot">机</text>
+		<text key="changes.flags.minor">小</text>
+		<text key="changes.flags.new">新</text>
+		<text key="edit">编辑</text>
+		<text key="enter a page title here" acceptpunctuation="true">在此键入页面标题……</text>
 		<text key="field is required" acceptpunctuation="true">此字段是必填项目。</text>
 		<text key="last access time">上次访问</text>
 		<text key="login">登录</text>
@@ -245,6 +266,7 @@
 		<text key="save session">保存会话</text>
 		<text key="save session as">会话另存为</text>
 		<text key="save session prompt" acceptpunctuation="true">是否保存当前会话？</text>
+		<text key="search">搜索</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
 		<text key="titles.recent changes">最近修改</text>
 		<text key="user name">用户名</text>

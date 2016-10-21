@@ -7,12 +7,14 @@ using System.IO;
 using System.Linq;
 using System.Net;
 using System.Reflection;
+using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
 using System.Windows.Media;
+using System.Windows.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
@@ -119,6 +121,21 @@ namespace WikiEdit
             } while (obj != null);
             return null;
         }
+
+        /// <summary>
+        /// Invoke this extension method on MAIN thread to explicitly
+        /// forget the task, leave it running. This method is used to
+        /// suppress CS4014 warning.
+        /// </summary>
+        /// <param name="task">The task to be forgotten.</param>
+        [MethodImpl(MethodImplOptions.AggressiveInlining)]
+        public static void Forget(this Task task)
+        {
+            if (task == null) throw new ArgumentNullException(nameof(task));
+            // This method should only be called from main thread to avoid possible deadlocks.
+            // See http://stackoverflow.com/questions/22629951/suppressing-warning-cs4014-because-this-call-is-not-awaited-execution-of-the#comment58040933_22630057 .
+            Debug.Assert(Application.Current.Dispatcher == Dispatcher.CurrentDispatcher);
+        }
     }
 
     /// <summary>
@@ -126,15 +143,29 @@ namespace WikiEdit
     /// </summary>
     public class UniversalBooleanConverter : IValueConverter
     {
+        private static bool HasFlag(object parameter, string testFlag)
+        {
+            if (parameter == null) return false;
+            var s = parameter.ToString();
+            // This is a simple test.
+            // For parameter, we recommend a style like
+            // flag1, flag2, flag3, ...
+            return s.Contains(testFlag);
+        }
+
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var v = value != null;
             if (value is bool) v = (bool)value;
-            if (parameter?.ToString() == "Inverse") v = !v;
+            if (value is string) v = !string.IsNullOrEmpty((string) value);
+            if (HasFlag(parameter, "Inverse")) v = !v;
             if (targetType == typeof(bool) || targetType == typeof(object))
                 return v;
             if (targetType == typeof(Visibility))
-                return v ? Visibility.Visible : Visibility.Collapsed;
+            {
+                if (v) return Visibility.Visible;
+                return HasFlag(parameter, "PreserveLayout") ? Visibility.Hidden : Visibility.Collapsed;
+            }
             throw new NotSupportedException();
         }
 

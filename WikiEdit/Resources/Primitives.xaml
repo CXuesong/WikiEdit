@@ -1,0 +1,26 @@
+﻿<ResourceDictionary xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+                    xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+                    xmlns:local="clr-namespace:WikiEdit"
+                    xmlns:vmp="clr-namespace:WikiEdit.ViewModels.Primitives"
+                    xmlns:Tx="http://unclassified.software/source/txtranslation">
+    <DataTemplate DataType="{x:Type vmp:PageTitleViewModel}">
+        <TextBlock>
+            <Hyperlink Command="{Binding TitleCommand}"><Run Text="{Binding Title}" /></Hyperlink>
+            <Hyperlink Command="{Binding DiffCommand}"><Run Text=" " /><Run Text="{Tx:T badges.diff}" /></Hyperlink>
+            <Hyperlink Command="{Binding HistoryCommand}"><Run Text=" " /><Run Text="{Tx:T badges.hist}" /></Hyperlink>
+        </TextBlock>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vmp:UserNameViewModel}">
+        <TextBlock>
+            <Hyperlink Command="{Binding UserNameCommand}"><Run Text="{Binding UserName}" /></Hyperlink>
+            <Hyperlink Command="{Binding TalkCommand}"><Run Text=" " /><Run Text="{Tx:T badges.talk}" /></Hyperlink>
+            <Hyperlink Command="{Binding ContributionsCommand}"><Run Text=" " /><Run Text="{Tx:T badges.contribs}" /></Hyperlink>
+            <Hyperlink Command="{Binding BlockCommand}"><Run Text=" " /><Run Text="{Tx:T badges.block}" /></Hyperlink>
+        </TextBlock>
+    </DataTemplate>
+    <DataTemplate DataType="{x:Type vmp:CommandLinkViewModel}">
+        <TextBlock>
+            <Hyperlink Command="{Binding Command}"><Run Text="{Binding Text}" /></Hyperlink>
+        </TextBlock>
+    </DataTemplate>
+</ResourceDictionary>

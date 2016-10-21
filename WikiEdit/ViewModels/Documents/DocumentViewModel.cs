@@ -2,7 +2,9 @@
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Linq;
+using System.Runtime.CompilerServices;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Prism.Commands;
 using Prism.Mvvm;
@@ -75,20 +77,26 @@ namespace WikiEdit.ViewModels.Documents
             {
                 if (_CloseCommand == null)
                 {
-                    _CloseCommand = new DelegateCommand(() =>
-                    {
-                        var e = new CancelEventArgs();
-                        OnClose(e);
-                        // Normally, ChildViewModelService will be responsible to close the document.
-                        if (!e.Cancel)
-                            OnClosed();
-                    });
+                    _CloseCommand = new DelegateCommand(() => Close());
                 }
                 return _CloseCommand;
             }
         }
 
         #endregion
+
+        public bool Close()
+        {
+            var e = new CancelEventArgs();
+            OnClosing(e);
+            // Normally, ChildViewModelService will be responsible to close the document.
+            if (!e.Cancel)
+            {
+                OnClosed();
+                return true;
+            }
+            return false;
+        }
 
         /// <summary>
         /// This proeprty is used identify the attached data
@@ -102,7 +110,7 @@ namespace WikiEdit.ViewModels.Documents
             Activated?.Invoke(this, EventArgs.Empty);
         }
 
-        protected virtual void OnClose(CancelEventArgs e)
+        protected virtual void OnClosing(CancelEventArgs e)
         {
             Closing?.Invoke(this, e);
         }

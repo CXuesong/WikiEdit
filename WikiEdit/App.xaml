@@ -5,11 +5,13 @@
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
              xmlns:v="clr-namespace:WikiEdit.Views"
              xmlns:vmd="clr-namespace:WikiEdit.ViewModels.Documents"
-             xmlns:vd="clr-namespace:WikiEdit.Views.Documents">
+             xmlns:vd="clr-namespace:WikiEdit.Views.Documents"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
                 <ResourceDictionary Source="pack://application:,,,/Fluent;Component/Themes/Generic.xaml" />
+                <ResourceDictionary Source="Resources/Primitives.xaml" />
             </ResourceDictionary.MergedDictionaries>
 
             <Style TargetType="Button">
@@ -24,6 +26,15 @@
                 <Setter Property="Padding" Value="0,4" />
                 <Setter Property="Margin" Value="4" />
             </Style>
+            <Style TargetType="Hyperlink">
+                <Setter Property="TextDecorations" Value="None" />
+                <Style.Triggers>
+                    <Trigger Property="IsMouseOver" Value="True">
+                        <Setter Property="TextDecorations" Value="{x:Static TextDecorations.Underline}" />
+                    </Trigger>
+                </Style.Triggers>
+            </Style>
+            
             <DataTemplate DataType="{x:Type vm:LoginViewModel}">
                 <v:LoginView />
             </DataTemplate>
@@ -33,11 +44,25 @@
             <DataTemplate DataType="{x:Type vmd:WikiSiteOverviewViewModel}">
                 <vd:WikiSiteOverviewView />
             </DataTemplate>
-
+            <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
+                <v:RecentChangeView />
+            </DataTemplate>
+            
             <Style x:Key="PopupContainerBorder" TargetType="Border">
                 <Setter Property="Background" Value="{DynamicResource ContextMenuBarBackgroundBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBarBorderBrush}" />
                 <Setter Property="BorderThickness" Value="1" />
+            </Style>
+            <Style x:Key="TextBoxHint" TargetType="TextBlock">
+                <!-- Usage: Bind TextBlock.DataContext to the TextBox -->
+                <Style.Resources>
+                    <local:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
+                </Style.Resources>
+                <Setter Property="Foreground" Value="{x:Static SystemColors.GrayTextBrush}" />
+                <Setter Property="IsHitTestVisible" Value="False" />
+                <Setter Property="Margin" Value="{Binding Margin}" />
+                <Setter Property="VerticalAlignment" Value="Center" />
+                <Setter Property="Visibility" Value="{Binding Text, ConverterParameter=Inverse, Converter={StaticResource UniversalBooleanConverter}}" />
             </Style>
             <Style x:Key="Heading1" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="#FF19478A" />

@@ -7,6 +7,7 @@
              xmlns:Tx="http://unclassified.software/source/txtranslation"
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
              xmlns:app="clr-namespace:WikiEdit" x:Class="WikiEdit.Views.AccountProfileView"
+             MinWidth="300"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance {x:Type vm:AccountProfileViewModel}}">

@@ -25,4 +25,9 @@ namespace WikiEdit
     internal class AccountInfoRefreshedEvent : PubSubEvent<WikiSiteViewModel>
     {
     }
+
+    internal class TaskFailedEvent : PubSubEvent<object>
+    {
+        
+    }
 }

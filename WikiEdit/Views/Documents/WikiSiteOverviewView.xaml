@@ -13,21 +13,53 @@
     <UserControl.Resources>
         <WikiEdit:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
     </UserControl.Resources>
-    <StackPanel>
+    <Grid Margin="5">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto" />
+            <RowDefinition />
+        </Grid.RowDefinitions>
         <StackPanel>
-            <TextBox Text="{Binding WikiSite.Status, Mode=OneWay}" Style="{DynamicResource TipTextBox}" Visibility="{Binding WikiSite.Status, Converter={StaticResource UniversalBooleanConverter}}" />
-            <ProgressBar IsIndeterminate="True" Visibility="{Binding WikiSite.IsBusy, Converter={StaticResource UniversalBooleanConverter}}"/>
-            <TextBlock Style="{DynamicResource Heading2}" Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+            <TextBox Text="{Binding Status, Mode=OneWay}" Style="{DynamicResource TipTextBox}"
+                     Visibility="{Binding WikiSite.Status, Converter={StaticResource UniversalBooleanConverter}}" />
+            <ProgressBar IsIndeterminate="True"
+                         Visibility="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}}" />
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition Width="Auto"/>
+                </Grid.ColumnDefinitions>
+                <TextBlock Style="{DynamicResource Heading2}"
+                    Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+                <Button Content="{Tx:T refresh}" Grid.Column="1" VerticalAlignment="Bottom" Visibility="{Binding IsEnabled, Converter={StaticResource UniversalBooleanConverter}, RelativeSource={RelativeSource Self}}" Command="{Binding ReinitializeSiteCommand, Mode=OneWay}" />
+            </Grid>
             <Separator />
-            <TextBlock><InlineUIContainer>
-                    <TextBlock Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
-                </InlineUIContainer><Run Text=" "/><Hyperlink NavigateUri="{Binding WikiSite.SiteUrl}"><InlineUIContainer>
-                        <TextBlock Text="{Binding WikiSite.SiteUrl}" />
-                    </InlineUIContainer></Hyperlink></TextBlock>
+            <TextBlock>
+                <TextBlock Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+                <TextBlock Text=" " />
+                <Hyperlink>
+                    <Run Text="{Binding WikiSite.SiteUrl}" />
+                </Hyperlink>
+            </TextBlock>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition Width="*" />
+                    <ColumnDefinition Width="Auto" />
+                </Grid.ColumnDefinitions>
+                <Grid VerticalAlignment="Center">
+                    <TextBox x:Name="EditPageTitleBox" Text="{Binding EditPageTitle}" />
+                    <TextBlock Text="{Tx:T enter a page title here}" DataContext="{Binding ElementName=EditPageTitleBox}" Style="{DynamicResource TextBoxHint}" />
+                </Grid>
+                <Button Content="{Tx:T edit}" Command="{Binding EditPageCommand}" Grid.Column="1" />
+            </Grid>
         </StackPanel>
-        <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
-        <ItemsControl>
-            
-        </ItemsControl>
-    </StackPanel>
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+            <StackPanel>
+                <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
+                <ItemsControl ItemsSource="{Binding RecentChanges}" />
+            </StackPanel>
+        </ScrollViewer>
+    </Grid>
 </UserControl>
+
+
+
