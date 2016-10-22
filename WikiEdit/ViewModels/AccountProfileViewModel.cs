@@ -14,7 +14,7 @@ using WikiEdit.Models;
 
 namespace WikiEdit.ViewModels
 {
-    internal class AccountProfileViewModel : BindableBase
+    public class AccountProfileViewModel : BindableBase
     {
         private string _UserName;
         private IReadOnlyList<string> _Groups;
@@ -174,7 +174,7 @@ namespace WikiEdit.ViewModels
         {
         }
 
-        public AccountProfileViewModel(IEventAggregator eventAggregator, WikiSiteViewModel siteVm, WikiSite siteModel)
+        internal AccountProfileViewModel(IEventAggregator eventAggregator, WikiSiteViewModel siteVm, WikiSite siteModel)
         {
             if (siteVm == null) throw new ArgumentNullException(nameof(siteVm));
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));

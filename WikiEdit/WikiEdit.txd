@@ -13,6 +13,8 @@
 		<text key="changes.flags.minor">m</text>
 		<text key="changes.flags.new">N</text>
 		<text key="edit">Edit</text>
+		<text key="editor.enter edit summary here">Enter the summary of your edit here…</text>
+		<text key="editor.save changes">Save changes</text>
 		<text key="enter a page title here">Enter the title of a page…</text>
 		<text key="field is required">The field is required.</text>
 		<text key="last access time">Last access</text>
@@ -250,6 +252,8 @@
 		<text key="changes.flags.minor">小</text>
 		<text key="changes.flags.new">新</text>
 		<text key="edit">编辑</text>
+		<text key="editor.enter edit summary here" acceptpunctuation="true">在此处键入编辑摘要……</text>
+		<text key="editor.save changes">保存修改</text>
 		<text key="enter a page title here" acceptpunctuation="true">在此键入页面标题……</text>
 		<text key="field is required" acceptpunctuation="true">此字段是必填项目。</text>
 		<text key="last access time">上次访问</text>

@@ -13,7 +13,7 @@ namespace WikiEdit.Services
 {
     internal interface IChildViewModelService
     {
-        DocumentViewModelCollection DocumentViewModels { get; }
+        DocumentViewModelCollection Documents { get; }
 
         DocumentViewModel ActiveDocument { get; set; }
     }
@@ -27,11 +27,11 @@ namespace WikiEdit.Services
 
         public ChildViewModelService(IEventAggregator eventAggregator)
         {
-            DocumentViewModels = new DocumentViewModelCollection(this);
+            Documents = new DocumentViewModelCollection(this);
             activeDocumentChangedEvent = eventAggregator.GetEvent<ActiveDocumentChangedEvent>();
         }
 
-        public DocumentViewModelCollection DocumentViewModels { get; }
+        public DocumentViewModelCollection Documents { get; }
 
 
         private DocumentViewModel _ActiveDocument;
@@ -63,7 +63,17 @@ namespace WikiEdit.Services
         }
 
         /// <summary>
-        /// Get an item with the specified <see cref="DocumentViewModel.ContentSource"/>,
+        /// Adds a document into the collection and activates it.
+        /// </summary>
+        public void AddAndActivate(DocumentViewModel newItem)
+        {
+            if (newItem == null) throw new ArgumentNullException(nameof(newItem));
+            Add(newItem);
+            newItem.IsActive = true;
+        }
+
+        /// <summary>
+        /// Get an item with the specified <see cref="DocumentViewModel.DocumentContext"/>,
         /// or create and add a new item.
         /// </summary>
         public T GetOrCreate<T>(object contextSource, Func<T> vmFactory)
@@ -71,7 +81,7 @@ namespace WikiEdit.Services
         {
             if (contextSource == null) throw new ArgumentNullException(nameof(contextSource));
             if (vmFactory == null) throw new ArgumentNullException(nameof(vmFactory));
-            var vm = this.OfType<T>().FirstOrDefault(vm1 => vm1.ContentSource == contextSource);
+            var vm = this.OfType<T>().FirstOrDefault(vm1 => vm1.DocumentContext == contextSource);
             if (vm == null)
             {
                 vm = vmFactory();

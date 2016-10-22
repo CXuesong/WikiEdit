@@ -13,7 +13,7 @@ using Unclassified.TxLib;
 
 namespace WikiEdit.ViewModels
 {
-    internal class LoginViewModel : BindableBase, INotifyDataErrorInfo
+    public class LoginViewModel : BindableBase, INotifyDataErrorInfo
     {
         /// <summary>
         /// The action used to close current login view.

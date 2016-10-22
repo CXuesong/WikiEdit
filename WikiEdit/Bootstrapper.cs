@@ -42,8 +42,8 @@ namespace WikiEdit
             var weController = Container.Resolve<WikiEditController>();
             weController.FillDemo();
             Container.Resolve<IChildViewModelService>()
-                .DocumentViewModels.Add(new WikiSiteOverviewViewModel(Container.Resolve<IEventAggregator>(),
-                    weController.WikiSites[0]));
+                .Documents.Add(Container.Resolve<WikiSiteOverviewViewModel>(
+                    new DependencyOverride<WikiSiteViewModel>(weController.WikiSites[0])));
 #endif
             Application.Current.DispatcherUnhandledException += App_DispatcherUnhandledException;
             Application.Current.MainWindow = (Window) Shell;

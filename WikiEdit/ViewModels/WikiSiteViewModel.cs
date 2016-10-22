@@ -13,7 +13,7 @@ using WikiEdit.Models;
 
 namespace WikiEdit.ViewModels
 {
-    internal class WikiSiteViewModel : BindableBase
+    public class WikiSiteViewModel : BindableBase
     {
         private readonly WikiEditController _Controller;
         private readonly IEventAggregator _EventAggregator;
@@ -124,6 +124,12 @@ namespace WikiEdit.ViewModels
             return entries;
         }
 
+        public Page GetPage(string title)
+        {
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            return new Page(Site, title);
+        }
+
         #endregion
 
         public async Task InitializeAsync()
@@ -199,7 +205,7 @@ namespace WikiEdit.ViewModels
             }
         }
 
-        public WikiSite ToModel() => new WikiSite
+        internal WikiSite ToModel() => new WikiSite
         {
             Name = _Name,
             SiteName = _SiteName,
@@ -211,7 +217,7 @@ namespace WikiEdit.ViewModels
         /// <summary>
         /// Create a new Wiki site instance.
         /// </summary>
-        public WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller)
+        internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller)
         {
             if (controller == null) throw new ArgumentNullException(nameof(controller));
             _Controller = controller;
@@ -222,7 +228,7 @@ namespace WikiEdit.ViewModels
         /// <summary>
         /// Create an instance from existing model.
         /// </summary>
-        public WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller, WikiSite model)
+        internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller, WikiSite model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
             if (controller == null) throw new ArgumentNullException(nameof(controller));

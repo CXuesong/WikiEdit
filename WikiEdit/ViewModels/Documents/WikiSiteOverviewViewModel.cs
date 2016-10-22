@@ -11,7 +11,9 @@ using Prism.Commands;
 using Prism.Common;
 using Prism.Events;
 using Unclassified.TxLib;
+using WikiClientLibrary;
 using WikiClientLibrary.Generators;
+using WikiEdit.Services;
 
 namespace WikiEdit.ViewModels.Documents
 {
@@ -19,9 +21,13 @@ namespace WikiEdit.ViewModels.Documents
     {
         private CancellationTokenSource reloadSiteInfoCts;
 
+        private readonly IChildViewModelService childViewModelService;
+
         public WikiSiteViewModel WikiSite { get; }
 
-        public override object ContentSource => WikiSite;
+        public override object DocumentContext => WikiSite;
+
+        public override WikiSiteViewModel SiteContext => WikiSite;
 
         public ObservableCollection<RecentChangeViewModel> RecentChanges { get; } =
             new ObservableCollection<RecentChangeViewModel>();
@@ -42,10 +48,14 @@ namespace WikiEdit.ViewModels.Documents
             set { SetProperty(ref _Status, value); }
         }
 
-        public WikiSiteOverviewViewModel(IEventAggregator eventAggregator, WikiSiteViewModel wikiSite)
+        public WikiSiteOverviewViewModel(IEventAggregator eventAggregator, IChildViewModelService childViewModelService,
+            WikiSiteViewModel wikiSite)
         {
+            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
+            if (childViewModelService == null) throw new ArgumentNullException(nameof(childViewModelService));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             WikiSite = wikiSite;
+            this.childViewModelService = childViewModelService;
             if (!wikiSite.IsInitialized)
             {
                 // Wait for site initialization
@@ -163,7 +173,10 @@ namespace WikiEdit.ViewModels.Documents
             set
             {
                 if (SetProperty(ref _EditPageTitle, value))
+                {
                     UpdateEditPageAutoCompletionItemsAsync().Forget();
+                    EditPageCommand.RaiseCanExecuteChanged();
+                }
             }
         }
 
@@ -199,8 +212,17 @@ namespace WikiEdit.ViewModels.Documents
                 {
                     _EditPageCommand = new DelegateCommand(() =>
                     {
-                        MessageBox.Show(EditPageTitle);
-                    });
+                        if (!WikiSite.IsInitialized) return;
+                        try
+                        {
+                            childViewModelService.Documents.AddAndActivate(
+                                new PageEditorViewModel(WikiSite, WikiSite.GetPage(EditPageTitle)));
+                        }
+                        catch (Exception ex)
+                        {
+                            Utility.ReportException(ex);
+                        }
+                    }, () => WikiSite.IsInitialized && !string.IsNullOrWhiteSpace(EditPageTitle));
                 }
                 return _EditPageCommand;
             }

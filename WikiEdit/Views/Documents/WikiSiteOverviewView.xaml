@@ -22,7 +22,7 @@
         </Grid.RowDefinitions>
         <StackPanel>
             <TextBox Text="{Binding Status, Mode=OneWay}" Style="{DynamicResource TipTextBox}"
-                     Visibility="{Binding WikiSite.Status, Converter={StaticResource UniversalBooleanConverter}}" />
+                     Visibility="{Binding Status, Converter={StaticResource UniversalBooleanConverter}}" />
             <ProgressBar IsIndeterminate="True"
                          Visibility="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}}" />
             <Grid>

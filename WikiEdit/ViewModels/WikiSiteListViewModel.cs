@@ -34,12 +34,12 @@ namespace WikiEdit.ViewModels
         public void NotifyWikiSiteDoubleClick(WikiSiteViewModel site)
         {
             if (site == null) return;
-            var doc = childVmService.DocumentViewModels.GetOrCreate(site, 
-                () => new WikiSiteOverviewViewModel(_EventAggregator, site));
+            var doc = childVmService.Documents.GetOrCreate(site, 
+                () => new WikiSiteOverviewViewModel(_EventAggregator, childVmService, site));
             doc.IsActive = true;
         }
 
-        public WikiSiteListViewModel(IEventAggregator eventAggregator, WikiEditController controller, IChildViewModelService childVmService)
+        public WikiSiteListViewModel(IEventAggregator eventAggregator, IChildViewModelService childVmService, WikiEditController controller)
         {
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             if (controller == null) throw new ArgumentNullException(nameof(controller));

@@ -51,7 +51,10 @@
             <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
                 <v:RecentChangeView />
             </DataTemplate>
-            
+            <DataTemplate DataType="{x:Type vmd:PageEditorViewModel}">
+                <vd:PageEditorView />
+            </DataTemplate>
+
             <Style x:Key="PopupContainerBorder" TargetType="Border">
                 <Setter Property="Background" Value="{DynamicResource ContextMenuBarBackgroundBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBarBorderBrush}" />

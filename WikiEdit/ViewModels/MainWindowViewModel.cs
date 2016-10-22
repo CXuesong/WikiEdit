@@ -26,7 +26,18 @@ namespace WikiEdit.ViewModels
         [Dependency]
         public WikiSiteListViewModel WikiSiteListViewModel { get; set; }
 
-        public ObservableCollection<DocumentViewModel> DocumentViewModels => childVmService.DocumentViewModels;
+        public ObservableCollection<DocumentViewModel> DocumentViewModels => childVmService.Documents;
+
+        public MainWindowViewModel(WikiEditController wikiEditController,
+            IChildViewModelService childVmService,
+            IEventAggregator eventAggregator)
+        {
+            if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
+            if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
+            this.wikiEditController = wikiEditController;
+            this.childVmService = childVmService;
+            eventAggregator.GetEvent<ActiveDocumentChangedEvent>().Subscribe(OnActiveDocumentChanged);
+        }
 
         #region Wiki Site
 
@@ -65,27 +76,10 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
-
-
-        public MainWindowViewModel(WikiEditController wikiEditController,
-            IChildViewModelService childVmService,
-            IEventAggregator eventAggregator)
-        {
-            if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
-            if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
-            this.wikiEditController = wikiEditController;
-            this.childVmService = childVmService;
-            eventAggregator.GetEvent<ActiveDocumentChangedEvent>().Subscribe(OnActiveDocumentChanged);
-        }
-
         private void OnActiveDocumentChanged(DocumentViewModel activeDocument)
         {
-            if (activeDocument == null)
-            {
-                CurrentWikiSite = null;
-                return;
-            }
-            CurrentWikiSite = activeDocument.ContentSource as WikiSiteViewModel;
+            // Track the active wiki site.
+            CurrentWikiSite = activeDocument?.SiteContext;
         }
 
         #region Session Persistence

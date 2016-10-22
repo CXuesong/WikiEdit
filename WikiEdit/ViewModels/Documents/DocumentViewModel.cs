@@ -22,6 +22,7 @@ namespace WikiEdit.ViewModels.Documents
         #region View Properties
 
         private string _Title;
+        private string _TitleToolTip;
         private bool _IsSelected;
         private bool _IsActive;
         private string _ContentId;
@@ -30,6 +31,12 @@ namespace WikiEdit.ViewModels.Documents
         {
             get { return _Title; }
             set { SetProperty(ref _Title, value); }
+        }
+
+        public string TitleToolTip
+        {
+            get { return _TitleToolTip; }
+            set { SetProperty(ref _TitleToolTip, value); }
         }
 
         public bool IsSelected
@@ -103,7 +110,12 @@ namespace WikiEdit.ViewModels.Documents
         /// source of the document, so that the document view model
         /// can be activated by e.g. WikiSiteViewModel .
         /// </summary>
-        public virtual object ContentSource => null;
+        public virtual object DocumentContext => null;
+
+        /// <summary>
+        /// The context <see cref="WikiSiteViewModel"/> of the document.
+        /// </summary>
+        public virtual WikiSiteViewModel SiteContext => null;
 
         protected virtual void OnActivated()
         {
