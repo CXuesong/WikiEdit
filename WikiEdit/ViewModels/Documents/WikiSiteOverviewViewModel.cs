@@ -6,6 +6,7 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
 using Prism.Commands;
 using Prism.Common;
 using Prism.Events;
@@ -159,7 +160,33 @@ namespace WikiEdit.ViewModels.Documents
         public string EditPageTitle
         {
             get { return _EditPageTitle; }
-            set { SetProperty(ref _EditPageTitle, value); }
+            set
+            {
+                if (SetProperty(ref _EditPageTitle, value))
+                    UpdateEditPageAutoCompletionItemsAsync().Forget();
+            }
+        }
+
+        private async Task UpdateEditPageAutoCompletionItemsAsync()
+        {
+            // TODO cache search results
+            if (string.IsNullOrWhiteSpace(_EditPageTitle)) return;
+            if (!WikiSite.IsInitialized) return;
+            var title = _EditPageTitle;
+            var items = await WikiSite.GetAutoCompletionItemsAsync(title);
+            if (title == _EditPageTitle)
+            {
+                // If we've fetched auto completion list fast enough...
+                EditPageAutoCompletionItems = items.Select(i => i.Title).ToArray();
+            }
+        }
+
+        private IList<string> _EditPageAutoCompletionItems;
+
+        public IList<string> EditPageAutoCompletionItems
+        {
+            get { return _EditPageAutoCompletionItems; }
+            set { SetProperty(ref _EditPageAutoCompletionItems, value); }
         }
 
         private DelegateCommand _EditPageCommand;
@@ -170,7 +197,10 @@ namespace WikiEdit.ViewModels.Documents
             {
                 if (_EditPageCommand == null)
                 {
-                    _EditPageCommand = new DelegateCommand(() => { });
+                    _EditPageCommand = new DelegateCommand(() =>
+                    {
+                        MessageBox.Show(EditPageTitle);
+                    });
                 }
                 return _EditPageCommand;
             }

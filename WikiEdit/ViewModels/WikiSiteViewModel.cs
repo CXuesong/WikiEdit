@@ -23,7 +23,7 @@ namespace WikiEdit.ViewModels
         private Site _Site;
         private string _SiteName;
         private string _SiteUrl;
-
+        
         #region User Settings
 
         /// <summary>
@@ -109,6 +109,22 @@ namespace WikiEdit.ViewModels
             get { return _Status; }
             set { SetProperty(ref _Status, value); }
         }
+
+        #region Actions
+
+        /// <summary>
+        /// Given the prefix of a page, asynchronously search for a list of titles for auto completion.
+        /// </summary>
+        public async Task<IList<OpenSearchResultEntry>> GetAutoCompletionItemsAsync(string expression)
+        {
+            if (expression == null) throw new ArgumentNullException(nameof(expression));
+            if (!IsInitialized) throw new InvalidOperationException();
+            var entries = await Site.OpenSearchAsync(expression);
+            // TODO cache results.
+            return entries;
+        }
+
+        #endregion
 
         public async Task InitializeAsync()
         {

@@ -7,6 +7,8 @@
              xmlns:dvm="clr-namespace:WikiEdit.ViewModels.Documents"
              xmlns:WikiEdit="clr-namespace:WikiEdit"
              xmlns:Tx="http://unclassified.software/source/txtranslation"
+             xmlns:wpfControls="http://wpfcontrols.com/"
+             xmlns:controls="clr-namespace:WikiEdit.Controls"
              x:Class="WikiEdit.Views.Documents.WikiSiteOverviewView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type dvm:WikiSiteOverviewViewModel}}">
@@ -46,10 +48,10 @@
                     <ColumnDefinition Width="Auto" />
                 </Grid.ColumnDefinitions>
                 <Grid VerticalAlignment="Center">
-                    <TextBox x:Name="EditPageTitleBox" Text="{Binding EditPageTitle}" />
+                    <controls:AutoCompleteTextBox x:Name="EditPageTitleBox" Text="{Binding EditPageTitle, UpdateSourceTrigger=PropertyChanged}" ItemsSource="{Binding EditPageAutoCompletionItems}" TextBinding="{Binding}" />
                     <TextBlock Text="{Tx:T enter a page title here}" DataContext="{Binding ElementName=EditPageTitleBox}" Style="{DynamicResource TextBoxHint}" />
                 </Grid>
-                <Button Content="{Tx:T edit}" Command="{Binding EditPageCommand}" Grid.Column="1" />
+                <Button Content="{Tx:T edit}" Command="{Binding EditPageCommand}" Grid.Column="1" IsDefault="True" />
             </Grid>
         </StackPanel>
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">

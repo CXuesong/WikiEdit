@@ -111,6 +111,7 @@
       <SubType>Designer</SubType>
     </ApplicationDefinition>
     <Compile Include="Controllers\WikiEditController.cs" />
+    <Compile Include="Controls\AutoCompleteTextBox.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="Services\ChildViewModelService.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
@@ -129,6 +130,10 @@
     </Compile>
     <Compile Include="Bootstrapper.cs" />
     <Page Include="Resources\Primitives.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Themes\Generic.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -225,9 +230,7 @@
       <Name>WikiClientLibrary</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup>
-    <Folder Include="Themes\" />
-  </ItemGroup>
+  <ItemGroup />
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.

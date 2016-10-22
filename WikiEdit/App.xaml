@@ -6,7 +6,7 @@
              xmlns:v="clr-namespace:WikiEdit.Views"
              xmlns:vmd="clr-namespace:WikiEdit.ViewModels.Documents"
              xmlns:vd="clr-namespace:WikiEdit.Views.Documents"
-             xmlns:sys="clr-namespace:System;assembly=mscorlib">
+             xmlns:controls="clr-namespace:WikiEdit.Controls">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -19,6 +19,10 @@
                 <Setter Property="Margin" Value="10" />
             </Style>
             <Style TargetType="TextBox">
+                <Setter Property="Padding" Value="0,4" />
+                <Setter Property="Margin" Value="4" />
+            </Style>
+            <Style TargetType="controls:AutoCompleteTextBox">
                 <Setter Property="Padding" Value="0,4" />
                 <Setter Property="Margin" Value="4" />
             </Style>
