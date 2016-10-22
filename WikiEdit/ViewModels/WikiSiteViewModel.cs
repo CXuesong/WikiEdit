@@ -171,7 +171,7 @@ namespace WikiEdit.ViewModels
                 try
                 {
                     IsBusy = true;
-                    Status = Tx.T("please wait");
+                    Status = Tx.T("account profile.fetching");
                     await Site.RefreshUserInfoAsync();
                     _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
                     Status = null;

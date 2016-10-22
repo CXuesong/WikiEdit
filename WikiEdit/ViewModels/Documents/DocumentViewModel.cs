@@ -77,6 +77,8 @@ namespace WikiEdit.ViewModels.Documents
         #region Commands
 
         private DelegateCommand _CloseCommand;
+        private bool _IsBusy;
+        private string _Status;
 
         public DelegateCommand CloseCommand
         {
@@ -116,6 +118,18 @@ namespace WikiEdit.ViewModels.Documents
         /// The context <see cref="WikiSiteViewModel"/> of the document.
         /// </summary>
         public virtual WikiSiteViewModel SiteContext => null;
+
+        public bool IsBusy
+        {
+            get { return _IsBusy; }
+            set { SetProperty(ref _IsBusy, value); }
+        }
+
+        public string Status
+        {
+            get { return _Status; }
+            set { SetProperty(ref _Status, value); }
+        }
 
         protected virtual void OnActivated()
         {

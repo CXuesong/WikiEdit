@@ -117,13 +117,17 @@
     <Compile Include="Controllers\WikiEditController.cs" />
     <Compile Include="Controls\AutoCompleteTextBox.cs" />
     <Compile Include="Events.cs" />
+    <Compile Include="GlobalConfigurations.cs" />
+    <Compile Include="Models\Settings.cs" />
     <Compile Include="Services\ChildViewModelService.cs" />
+    <Compile Include="Services\SettingsService.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
     <Compile Include="ViewModels\Documents\PageEditorViewModel.cs" />
     <Compile Include="ViewModels\Documents\WikiSiteOverviewViewModel.cs" />
     <Compile Include="ViewModels\Primitives\Badges.cs" />
     <Compile Include="ViewModels\Primitives\CommandLinkViewModel.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
+    <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="Views\Documents\PageEditorView.xaml.cs">
       <DependentUpon>PageEditorView.xaml</DependentUpon>
     </Compile>

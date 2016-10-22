@@ -1,6 +1,7 @@
 ﻿using System;
 using System.Collections;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Diagnostics;
 using System.Globalization;
 using System.IO;
@@ -103,10 +104,10 @@ namespace WikiEdit
         public static void ReportException(Exception ex, string prompt = null)
         {
 #if DEBUG
-            MessageBox.Show(prompt == null ? null : (prompt + "\n") + ex, ApplicationTitle,
+            MessageBox.Show((prompt == null ? null : prompt + "\n") + ex, ApplicationTitle,
                 MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #else
-            MessageBox.Show(prompt == null ? null : (prompt + "\n") + ex.Message,
+            MessageBox.Show((prompt == null ? null : (prompt + "\n")) + ex.Message,
                 ApplicationTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #endif
         }
@@ -238,6 +239,46 @@ namespace WikiEdit
         public void Error(Exception exception, string message)
         {
             System.Diagnostics.Trace.TraceError(message);
+        }
+    }
+
+    /// <summary>
+    /// An accessor helper that allows XAML bind to a value using the PropertyPath expression
+    /// like <c>Accessor[key]</c>.
+    /// </summary>
+    public sealed class ObservableItemAccessor<TValue> : INotifyPropertyChanged
+    {
+        public event PropertyChangedEventHandler PropertyChanged;
+
+        private readonly Func<string, TValue> _AccessorHandler;
+
+        /// <param name="accessorHandler">The function that is invoked by <see cref="this"/></param>
+        public ObservableItemAccessor(Func<string, TValue> accessorHandler)
+        {
+            if (accessorHandler == null) throw new ArgumentNullException(nameof(accessorHandler));
+            _AccessorHandler = accessorHandler;
+        }
+
+        // It's WPF's limitation that the key should only be string or object.
+
+        /// <summary>
+        /// Gets the value of the specified key.
+        /// </summary>
+        /// <returns>The value, or <c>default(TValue)</c> if the value doesn't exist.</returns>
+        public TValue this[string key] => _AccessorHandler(key);
+
+        /// <summary>
+        /// Notifies that one or more values of <see cref="this"/> has been changed.
+        /// </summary>
+        public void NotifyAccessorChanged()
+        {
+            // There's no way to tell the binding which item has been changed.
+            OnPropertyChanged(Binding.IndexerName);
+        }
+
+        private void OnPropertyChanged(string propertyName)
+        {
+            PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
     }
 }

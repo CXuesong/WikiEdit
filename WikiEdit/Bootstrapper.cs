@@ -23,11 +23,6 @@ namespace WikiEdit
 {
     internal class Bootstrapper : UnityBootstrapper
     {
-        private const string TranslationDictionaryFile = "WikiEdit.txd";
-
-        private const string SyntaxHighlighterDefinitionFolder = "SyntaxHighlighters";
-
-
         protected override void ConfigureContainer()
         {
             base.ConfigureContainer();
@@ -37,12 +32,15 @@ namespace WikiEdit
             Container.RegisterType<MainWindowViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IChildViewModelService, ChildViewModelService>(
                 new ContainerControlledLifetimeManager());
+            Container.RegisterType<SettingsService>(new ContainerControlledLifetimeManager());
         }
 
         protected override DependencyObject CreateShell()
         {
             // Let's do other initializations here.
-            Tx.LoadFromXmlFile(TranslationDictionaryFile);
+            var settings = Container.Resolve<SettingsService>();
+            settings.Load();
+            Tx.LoadFromXmlFile(GlobalConfigurations.TranslationDictionaryFile);
             LoadSyntaxHighlighters();
             return Container.Resolve<MainWindow>();
         }
@@ -72,7 +70,7 @@ namespace WikiEdit
         /// </summary>
         private void LoadSyntaxHighlighters()
         {
-            foreach (var fileName in Directory.EnumerateFiles(SyntaxHighlighterDefinitionFolder, "*.xshd"))
+            foreach (var fileName in Directory.EnumerateFiles(GlobalConfigurations.SyntaxHighlighterDefinitionFolder, "*.xshd"))
             {
                 var highLighterName = Path.GetFileName(fileName);
                 try

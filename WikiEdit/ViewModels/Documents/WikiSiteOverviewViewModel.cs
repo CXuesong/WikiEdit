@@ -21,7 +21,8 @@ namespace WikiEdit.ViewModels.Documents
     {
         private CancellationTokenSource reloadSiteInfoCts;
 
-        private readonly IChildViewModelService childViewModelService;
+        private readonly IChildViewModelService _ChildViewModelService;
+        private readonly SettingsService _SettingsService;
 
         public WikiSiteViewModel WikiSite { get; }
 
@@ -32,30 +33,19 @@ namespace WikiEdit.ViewModels.Documents
         public ObservableCollection<RecentChangeViewModel> RecentChanges { get; } =
             new ObservableCollection<RecentChangeViewModel>();
 
-        private bool _IsBusy;
-
-        public bool IsBusy
-        {
-            get { return _IsBusy; }
-            set { SetProperty(ref _IsBusy, value); }
-        }
-
-        private string _Status;
-
-        public string Status
-        {
-            get { return _Status; }
-            set { SetProperty(ref _Status, value); }
-        }
-
-        public WikiSiteOverviewViewModel(IEventAggregator eventAggregator, IChildViewModelService childViewModelService,
+        public WikiSiteOverviewViewModel(
+            IEventAggregator eventAggregator,
+            IChildViewModelService childViewModelService,
+            SettingsService settingsService,
             WikiSiteViewModel wikiSite)
         {
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             if (childViewModelService == null) throw new ArgumentNullException(nameof(childViewModelService));
+            if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             WikiSite = wikiSite;
-            this.childViewModelService = childViewModelService;
+            _ChildViewModelService = childViewModelService;
+            _SettingsService = settingsService;
             if (!wikiSite.IsInitialized)
             {
                 // Wait for site initialization
@@ -215,8 +205,8 @@ namespace WikiEdit.ViewModels.Documents
                         if (!WikiSite.IsInitialized) return;
                         try
                         {
-                            childViewModelService.Documents.AddAndActivate(
-                                new PageEditorViewModel(WikiSite, WikiSite.GetPage(EditPageTitle)));
+                            _ChildViewModelService.Documents.AddAndActivate(
+                                new PageEditorViewModel(_SettingsService, WikiSite, WikiSite.GetPage(EditPageTitle)));
                         }
                         catch (Exception ex)
                         {

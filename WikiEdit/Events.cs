@@ -30,4 +30,12 @@ namespace WikiEdit
     {
         
     }
+
+    /// <summary>
+    /// Raised when the application settings have been changed.
+    /// </summary>
+    public class SettingsChangedEvent : PubSubEvent
+    {
+
+    }
 }

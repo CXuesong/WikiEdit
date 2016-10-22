@@ -18,6 +18,7 @@ namespace WikiEdit.ViewModels
         private readonly IEventAggregator _EventAggregator;
         private readonly WikiEditController wikiEditController;
         private readonly IChildViewModelService childVmService;
+        private readonly SettingsService _SettingsService;
         private WikiSiteViewModel _SelectedWikiSite;
 
         public WikiSiteViewModel SelectedWikiSite
@@ -35,18 +36,24 @@ namespace WikiEdit.ViewModels
         {
             if (site == null) return;
             var doc = childVmService.Documents.GetOrCreate(site, 
-                () => new WikiSiteOverviewViewModel(_EventAggregator, childVmService, site));
+                () => new WikiSiteOverviewViewModel(_EventAggregator, childVmService, _SettingsService, site));
             doc.IsActive = true;
         }
 
-        public WikiSiteListViewModel(IEventAggregator eventAggregator, IChildViewModelService childVmService, WikiEditController controller)
+        public WikiSiteListViewModel(
+            IEventAggregator eventAggregator, 
+            IChildViewModelService childVmService,
+            SettingsService settingsService,
+            WikiEditController controller)
         {
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             if (controller == null) throw new ArgumentNullException(nameof(controller));
             if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
+            if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             _EventAggregator = eventAggregator;
             wikiEditController = controller;
             this.childVmService = childVmService;
+            _SettingsService = settingsService;
         }
     }
 }

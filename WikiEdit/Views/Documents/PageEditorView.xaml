@@ -10,7 +10,7 @@
              x:Class="WikiEdit.Views.Documents.PageEditorView"
              d:DataContext="{d:DesignInstance {x:Type dvm:PageEditorViewModel}}"
              mc:Ignorable="d" 
-             d:DesignHeight="300" d:DesignWidth="300">
+             d:DesignHeight="300" d:DesignWidth="400">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -19,10 +19,16 @@
         </Grid.RowDefinitions>
         <ToolBarTray>
             <ToolBar>
-                <Button Content="Test" />
+                <Label Content="{Binding LanguageSettings.LanguageName}" />
             </ToolBar>
         </ToolBarTray>
-        <avalonEdit:TextEditor Grid.Row="1" HorizontalScrollBarVisibility="Disabled" ShowLineNumbers="True" SyntaxHighlighting="Wikitext" />
+        <avalonEdit:TextEditor Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
+                               ShowLineNumbers="True"
+                               FontFamily="{Binding LanguageSettings.FontFamily}"
+                               FontSize="{Binding LanguageSettings.FontSize}"
+                               SyntaxHighlighting="{Binding PageContentHighlightingDefinition}"
+                               SnapsToDevicePixels="True"
+                               Document="{Binding PageContentDocument}" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -33,10 +39,14 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid VerticalAlignment="Center">
-                <TextBox x:Name="EditSummaryTextBox" Text="{Binding EditSummary}" />
+                <TextBox x:Name="EditSummaryTextBox" Text="{Binding EditorSummary}" />
                 <TextBlock Text="{Tx:T editor.enter edit summary here}" DataContext="{Binding ElementName=EditSummaryTextBox}" Style="{DynamicResource TextBoxHint}" />
             </Grid>
             <Button Content="{Tx:T editor.save changes}" Command="{Binding SubmitEditCommand}" Grid.Column="1" />
+            <WrapPanel Orientation="Horizontal" Grid.Row="1">
+                <CheckBox Content="{Tx:T editor.minor edit}" IsChecked="{Binding EditorMinor}" />
+                <CheckBox Content="{Tx:T editor.watch this page}" IsChecked="{Binding EditorWatch}" IsThreeState="True" />
+            </WrapPanel>
         </Grid>
     </Grid>
 </UserControl>
