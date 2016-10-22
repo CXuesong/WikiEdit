@@ -1,10 +1,14 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
+using System.Xml;
+using ICSharpCode.AvalonEdit.Highlighting;
+using ICSharpCode.AvalonEdit.Highlighting.Xshd;
 using Microsoft.Practices.Unity;
 using Prism.Events;
 using Prism.Unity;
@@ -19,6 +23,11 @@ namespace WikiEdit
 {
     internal class Bootstrapper : UnityBootstrapper
     {
+        private const string TranslationDictionaryFile = "WikiEdit.txd";
+
+        private const string SyntaxHighlighterDefinitionFolder = "SyntaxHighlighters";
+
+
         protected override void ConfigureContainer()
         {
             base.ConfigureContainer();
@@ -32,7 +41,9 @@ namespace WikiEdit
 
         protected override DependencyObject CreateShell()
         {
-            Tx.LoadFromXmlFile("WikiEdit.txd");
+            // Let's do other initializations here.
+            Tx.LoadFromXmlFile(TranslationDictionaryFile);
+            LoadSyntaxHighlighters();
             return Container.Resolve<MainWindow>();
         }
 
@@ -54,6 +65,33 @@ namespace WikiEdit
         {
             Utility.ReportException(e.Exception);
             e.Handled = true;
+        }
+
+        /// <summary>
+        /// Loads and registers syntax highlighting rules from the folder.
+        /// </summary>
+        private void LoadSyntaxHighlighters()
+        {
+            foreach (var fileName in Directory.EnumerateFiles(SyntaxHighlighterDefinitionFolder, "*.xshd"))
+            {
+                var highLighterName = Path.GetFileName(fileName);
+                try
+                {
+                    using (var s = File.OpenRead(fileName))
+                    using (XmlReader reader = new XmlTextReader(s))
+                    {
+                        var def = HighlightingLoader.Load(reader, HighlightingManager.Instance);
+                        highLighterName = def.Name;
+                        HighlightingManager.Instance.RegisterHighlighting(def.Name,
+                            def.Properties["FileExtensions"].Split('|'), def);
+                    }
+                }
+                catch (Exception ex)
+                {
+                    Utility.ReportException(ex, Tx.T("errors.syntax highlight definition", "name", highLighterName));
+                }
+            }
+
         }
     }
 }

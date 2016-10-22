@@ -22,7 +22,7 @@
                 <Button Content="Test" />
             </ToolBar>
         </ToolBarTray>
-        <avalonEdit:TextEditor Grid.Row="1" HorizontalScrollBarVisibility="Disabled" ShowLineNumbers="True" />
+        <avalonEdit:TextEditor Grid.Row="1" HorizontalScrollBarVisibility="Disabled" ShowLineNumbers="True" SyntaxHighlighting="Wikitext" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>

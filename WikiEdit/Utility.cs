@@ -100,12 +100,14 @@ namespace WikiEdit
             return null;
         }
 
-        public static void ReportException(Exception ex)
+        public static void ReportException(Exception ex, string prompt = null)
         {
 #if DEBUG
-            MessageBox.Show(ex.ToString(), ApplicationTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            MessageBox.Show(prompt == null ? null : (prompt + "\n") + ex, ApplicationTitle,
+                MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #else
-            MessageBox.Show(ex.Message, ApplicationTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+            MessageBox.Show(prompt == null ? null : (prompt + "\n") + ex.Message,
+                ApplicationTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #endif
         }
 

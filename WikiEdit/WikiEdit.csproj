@@ -220,6 +220,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Content Include="SyntaxHighlighters\Wikitext.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Images\Open.png" />
     <Resource Include="Images\OpenLG.png" />
     <Resource Include="Images\New.png" />

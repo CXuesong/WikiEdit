@@ -1,0 +1,16 @@
+﻿<?xml version="1.0" encoding="utf-8" ?>
+<SyntaxDefinition name="Wikitext"
+        xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
+  <Property name="FileExtensions" value=".wt" />
+  <Color name="Comment" foreground="Green" />
+  <Color name="Template" foreground="Red" />
+  <Color name="WikiLink" foreground="Blue" />
+  <Color name="ExternalLink" foreground="DarkBlue" />
+  <Color name="Heading" fontWeight="bold" />
+  <RuleSet>
+    <Span color="Comment" multiline="true" begin="&lt;!--" end="--&gt;" />
+    <Span color="Template" multiline="true" begin="\{\{" end="\}\}" />
+    <Span color="WikiLink" begin="\[\[" end="\]\]" />
+    <Span color="Heading" begin="^==" end="==" />
+  </RuleSet>
+</SyntaxDefinition>
