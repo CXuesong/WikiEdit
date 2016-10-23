@@ -5,13 +5,16 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Practices.Unity;
 using Prism.Events;
 using Prism.Mvvm;
+using WikiClientLibrary;
+using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit.Services
 {
-    internal interface IChildViewModelService
+    public interface IChildViewModelService
     {
         DocumentViewModelCollection Documents { get; }
 
@@ -27,12 +30,12 @@ namespace WikiEdit.Services
 
         public ChildViewModelService(IEventAggregator eventAggregator)
         {
+            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             Documents = new DocumentViewModelCollection(this);
             activeDocumentChangedEvent = eventAggregator.GetEvent<ActiveDocumentChangedEvent>();
         }
 
         public DocumentViewModelCollection Documents { get; }
-
 
         private DocumentViewModel _ActiveDocument;
 
@@ -49,14 +52,13 @@ namespace WikiEdit.Services
                 }
             }
         }
-
     }
 
-    internal class DocumentViewModelCollection : ObservableCollection<DocumentViewModel>
+    public class DocumentViewModelCollection : ObservableCollection<DocumentViewModel>
     {
         private readonly ChildViewModelService owner;
 
-        public DocumentViewModelCollection(ChildViewModelService owner)
+        internal DocumentViewModelCollection(ChildViewModelService owner)
         {
             if (owner == null) throw new ArgumentNullException(nameof(owner));
             this.owner = owner;
@@ -76,7 +78,7 @@ namespace WikiEdit.Services
         /// Get an item with the specified <see cref="DocumentViewModel.DocumentContext"/>,
         /// or create and add a new item.
         /// </summary>
-        public T GetOrCreate<T>(object contextSource, Func<T> vmFactory)
+        public T ActivateOrCreate<T>(object contextSource, Func<T> vmFactory)
             where T : DocumentViewModel
         {
             if (contextSource == null) throw new ArgumentNullException(nameof(contextSource));
@@ -87,6 +89,7 @@ namespace WikiEdit.Services
                 vm = vmFactory();
                 Add(vm);
             }
+            vm.IsActive = true;
             return vm;
         }
 

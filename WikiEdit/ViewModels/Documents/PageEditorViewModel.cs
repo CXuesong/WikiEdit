@@ -14,7 +14,7 @@ using WikiEdit.Services;
 
 namespace WikiEdit.ViewModels.Documents
 {
-    internal class PageEditorViewModel : DocumentViewModel
+    public class PageEditorViewModel : DocumentViewModel
     {
         private readonly SettingsService _SettingsService;
 
@@ -23,7 +23,7 @@ namespace WikiEdit.ViewModels.Documents
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiPage == null) throw new ArgumentNullException(nameof(wikiPage));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
-            Debug.Assert(wikiSite.Site == wikiPage.Site);
+            Debug.Assert(wikiSite.GetSiteAsync().Result == wikiPage.Site);
             _SettingsService = settingsService;
             WikiSite = wikiSite;
             WikiPage = wikiPage;

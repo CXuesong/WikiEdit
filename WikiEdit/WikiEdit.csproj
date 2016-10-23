@@ -120,6 +120,7 @@
     <Compile Include="GlobalConfigurations.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Services\ChildViewModelService.cs" />
+    <Compile Include="Services\ViewModelFactory.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
     <Compile Include="ViewModels\Documents\PageEditorViewModel.cs" />

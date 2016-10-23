@@ -6,7 +6,7 @@
         <Setter Property="controls:ListBoxItemBehavior.SelectOnMouseOver" Value="True"/>
         <Setter Property="FocusVisualStyle" Value="{x:Null}"/>
     </Style>
-    <Style TargetType="{x:Type controls:AutoCompleteTextBox}">
+    <Style TargetType="controls:AutoCompleteTextBox">
         <Setter Property="Background" Value="{DynamicResource {x:Static SystemColors.WindowBrushKey}}"/>
         <Setter Property="BorderBrush" Value="{StaticResource {x:Static SystemColors.ActiveBorderBrushKey}}"/>
         <Setter Property="Foreground" Value="{DynamicResource {x:Static SystemColors.ControlTextBrushKey}}"/>

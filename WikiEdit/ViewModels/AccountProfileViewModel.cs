@@ -81,9 +81,9 @@ namespace WikiEdit.ViewModels
         /// <summary>
         /// Refresh account information from <see cref="WikiSite"/>.
         /// </summary>
-        private void Reload()
+        private async Task ReloadAsync()
         {
-            var site = WikiSite.Site;
+            var site = await WikiSite.GetSiteAsync();
             UserName = site.UserInfo.Name;
             Groups = site.UserInfo.Groups.ToArray();
             HasLoggedIn = site.UserInfo.IsUser;
@@ -101,7 +101,17 @@ namespace WikiEdit.ViewModels
                 {
                     _RefreshCommand = new DelegateCommand(async () =>
                     {
-                        if (!WikiSite.IsBusy) await WikiSite.RefreshAccountInfoAsync();
+                        if (IsBusy) return;
+                        IsBusy = true;
+                        try
+                        {
+                            await WikiSite.RefreshAccountInfoAsync();
+                        }
+                        catch (Exception ex)
+                        {
+                            Status = ex.Message;
+                        }
+                        IsBusy = false;
                     });
                 }
                 return _RefreshCommand;
@@ -119,12 +129,15 @@ namespace WikiEdit.ViewModels
                     _LoginCommand = new DelegateCommand(() =>
                     {
                         if (LoginViewModel == null)
-                            LoginViewModel = new LoginViewModel(WikiSite,
-                                successful =>
-                                {
-                                    LoginViewModel = null;
-                                    if (successful) Reload();
-                                }) {UserName = UserName};
+                            LoginViewModel = new LoginViewModel(WikiSite, async successful =>
+                            {
+                                LoginViewModel = null;
+                                if (successful) await ReloadAsync();
+                            }, (b, s) =>
+                            {
+                                IsBusy = b;
+                                Status = s;
+                            }) {UserName = UserName};
                     }, () => _LoginViewModel == null && !HasLoggedIn);
                 }
                 return _LoginCommand;
@@ -141,25 +154,27 @@ namespace WikiEdit.ViewModels
                 {
                     _LogoutCommand = new DelegateCommand(async () =>
                     {
+                        if (IsBusy) return;
                         if (Utility.Confirm(Tx.T("logout confirmation")) == true)
                         {
-                            if (WikiSite.IsBusy) return;
-                            WikiSite.IsBusy = true;
-                            WikiSite.Status = Tx.T("please wait");
+                            if (IsBusy) return;
+                            IsBusy = true;
+                            Status = Tx.T("please wait");
                             try
                             {
-                                await WikiSite.Site.LogoutAsync();
-                                WikiSite.Status = null;
+                                var site = await WikiSite.GetSiteAsync();
+                                await site.LogoutAsync();
+                                Status = null;
                             }
                             catch (Exception ex)
                             {
-                                WikiSite.Status = ex.Message;
+                                Status = ex.Message;
                             }
                             finally
                             {
-                                WikiSite.IsBusy = false;
+                                IsBusy = false;
                             }
-                            Reload();
+                            await ReloadAsync();
                         }
                     }, () => _LoginViewModel == null && HasLoggedIn);
                 }
@@ -181,11 +196,11 @@ namespace WikiEdit.ViewModels
             WikiSite = siteVm;
             if (siteModel != null)
             {
-                _UserName = siteModel.UserName;
+                _UserName = siteVm.AccountProfile.UserName;
             }
-            eventAggregator.GetEvent<AccountInfoRefreshedEvent>().Subscribe(site =>
+            eventAggregator.GetEvent<AccountInfoRefreshedEvent>().Subscribe(async site =>
             {
-                if (site == WikiSite) Reload();
+                if (site == WikiSite) await ReloadAsync();
             });
         }
     }

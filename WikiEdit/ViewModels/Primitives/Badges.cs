@@ -15,14 +15,14 @@ namespace WikiEdit.ViewModels.Primitives
     internal class PageTitleViewModel : BindableBase
     {
         private string _Title;
-        private readonly Action TitleCommandHandler, DiffCommandHandler, HistoryCommandHandler;
+        private readonly Action _TitleCommandHandler, _DiffCommandHandler, _HistoryCommandHandler;
 
         public PageTitleViewModel(string title, Action titleCommandHandler, Action diffCommandHandler, Action historyCommandHandler)
         {
             _Title = title;
-            TitleCommandHandler = titleCommandHandler;
-            DiffCommandHandler = diffCommandHandler;
-            HistoryCommandHandler = historyCommandHandler;
+            _TitleCommandHandler = titleCommandHandler;
+            _DiffCommandHandler = diffCommandHandler;
+            _HistoryCommandHandler = historyCommandHandler;
         }
 
         /// <summary>
@@ -44,7 +44,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_TitleCommand == null)
                 {
-                    _TitleCommand = new DelegateCommand(() => TitleCommandHandler(), () => TitleCommandHandler != null);
+                    _TitleCommand = new DelegateCommand(() => _TitleCommandHandler(), () => _TitleCommandHandler != null);
                 }
                 return _TitleCommand;
             }
@@ -58,7 +58,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_DiffCommand == null)
                 {
-                    _DiffCommand = new DelegateCommand(() => DiffCommandHandler(), () => DiffCommandHandler != null);
+                    _DiffCommand = new DelegateCommand(() => _DiffCommandHandler(), () => _DiffCommandHandler != null);
                 }
                 return _DiffCommand;
             }
@@ -72,7 +72,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_HistoryCommand == null)
                 {
-                    _HistoryCommand = new DelegateCommand(() => HistoryCommandHandler(), () => HistoryCommandHandler != null);
+                    _HistoryCommand = new DelegateCommand(() => _HistoryCommandHandler(), () => _HistoryCommandHandler != null);
                 }
                 return _HistoryCommand;
             }
@@ -85,19 +85,19 @@ namespace WikiEdit.ViewModels.Primitives
     /// Represents a badge of user name.
     /// E.g. User [talk] [contribs] [block]
     /// </summary>
-    internal class UserNameViewModel : BindableBase
+    public class UserNameViewModel : BindableBase
     {
 
         private string _UserName;
-        private readonly Action UserNameCommandHandler, TalkCommandHandler, ContributionsCommandHandler, BlockCommandHandler;
+        private readonly Action _UserNameCommandHandler, _TalkCommandHandler, _ContributionsCommandHandler, _BlockCommandHandler;
 
         public UserNameViewModel(string userName, Action userNameCommandHandler, Action talkCommandHandler, Action contributionsCommandHandler, Action blockCommandHandler)
         {
             _UserName = userName;
-            UserNameCommandHandler = userNameCommandHandler;
-            TalkCommandHandler = talkCommandHandler;
-            ContributionsCommandHandler = contributionsCommandHandler;
-            BlockCommandHandler = blockCommandHandler;
+            _UserNameCommandHandler = userNameCommandHandler;
+            _TalkCommandHandler = talkCommandHandler;
+            _ContributionsCommandHandler = contributionsCommandHandler;
+            _BlockCommandHandler = blockCommandHandler;
         }
 
         /// <summary>
@@ -119,7 +119,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_UserNameCommand == null)
                 {
-                    _UserNameCommand = new DelegateCommand(() => UserNameCommandHandler(), () => UserNameCommandHandler != null);
+                    _UserNameCommand = new DelegateCommand(() => _UserNameCommandHandler(), () => _UserNameCommandHandler != null);
                 }
                 return _UserNameCommand;
             }
@@ -133,7 +133,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_TalkCommand == null)
                 {
-                    _TalkCommand = new DelegateCommand(() => TalkCommandHandler(), () => TalkCommandHandler != null);
+                    _TalkCommand = new DelegateCommand(() => _TalkCommandHandler(), () => _TalkCommandHandler != null);
                 }
                 return _TalkCommand;
             }
@@ -147,7 +147,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_ContributionsCommand == null)
                 {
-                    _ContributionsCommand = new DelegateCommand(() => ContributionsCommandHandler(), () => ContributionsCommandHandler != null);
+                    _ContributionsCommand = new DelegateCommand(() => _ContributionsCommandHandler(), () => _ContributionsCommandHandler != null);
                 }
                 return _ContributionsCommand;
             }
@@ -161,7 +161,7 @@ namespace WikiEdit.ViewModels.Primitives
             {
                 if (_BlockCommand == null)
                 {
-                    _BlockCommand = new DelegateCommand(() => BlockCommandHandler(), () => BlockCommandHandler != null);
+                    _BlockCommand = new DelegateCommand(() => _BlockCommandHandler(), () => _BlockCommandHandler != null);
                 }
                 return _BlockCommand;
             }

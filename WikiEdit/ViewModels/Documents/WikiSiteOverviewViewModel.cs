@@ -17,12 +17,10 @@ using WikiEdit.Services;
 
 namespace WikiEdit.ViewModels.Documents
 {
-    internal class WikiSiteOverviewViewModel : DocumentViewModel
+    public class WikiSiteOverviewViewModel : DocumentViewModel
     {
+        private readonly IViewModelFactory _ViewModelFactory;
         private CancellationTokenSource reloadSiteInfoCts;
-
-        private readonly IChildViewModelService _ChildViewModelService;
-        private readonly SettingsService _SettingsService;
 
         public WikiSiteViewModel WikiSite { get; }
 
@@ -33,75 +31,71 @@ namespace WikiEdit.ViewModels.Documents
         public ObservableCollection<RecentChangeViewModel> RecentChanges { get; } =
             new ObservableCollection<RecentChangeViewModel>();
 
-        public WikiSiteOverviewViewModel(
-            IEventAggregator eventAggregator,
-            IChildViewModelService childViewModelService,
-            SettingsService settingsService,
-            WikiSiteViewModel wikiSite)
+        public WikiSiteOverviewViewModel(IViewModelFactory viewModelFactory, SettingsService settingsService, WikiSiteViewModel wikiSite)
         {
-            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
-            if (childViewModelService == null) throw new ArgumentNullException(nameof(childViewModelService));
+            if (viewModelFactory == null) throw new ArgumentNullException(nameof(viewModelFactory));
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             WikiSite = wikiSite;
-            _ChildViewModelService = childViewModelService;
-            _SettingsService = settingsService;
-            if (!wikiSite.IsInitialized)
-            {
-                // Wait for site initialization
-                IsBusy = true;
-                Status = Tx.T("please wait");
-                if (!wikiSite.IsBusy)
-                    wikiSite.InitializeAsync().Forget();
-                eventAggregator.GetEvent<SiteInfoRefreshedEvent>().Subscribe(OnSiteInfoRefreshed);
-                eventAggregator.GetEvent<TaskFailedEvent>().Subscribe(OnSiteFailed);
-            }
+            _ViewModelFactory = viewModelFactory;
             Title = wikiSite.DisplayName;
             BuildContentId(wikiSite.ApiEndpoint);
+            InitializeAsync().Forget();
         }
 
-        #region Site Information
-
-        private void OnSiteInfoRefreshed(WikiSiteViewModel site)
-        {
-            if (site == WikiSite)
-            {
-                if (reloadSiteInfoCts != null)
-                {
-                    reloadSiteInfoCts.Cancel();
-                    reloadSiteInfoCts.Dispose();
-                }
-                reloadSiteInfoCts = new CancellationTokenSource();
-                RelaodSiteInfoAsync(reloadSiteInfoCts.Token).Forget();
-                NeedReinitializeSite = false;
-            }
-        }
-
-        private void OnSiteFailed(object sender)
-        {
-            if (sender == WikiSite)
-            {
-                IsBusy = false;
-                Status = WikiSite.Status;
-                NeedReinitializeSite = true;
-            }
-        }
-
-        private async Task RelaodSiteInfoAsync(CancellationToken cancellation)
+        private async Task InitializeAsync()
         {
             IsBusy = true;
             Status = Tx.T("please wait");
             try
             {
+                await WikiSite.GetSiteAsync();
                 Title = WikiSite.DisplayName;
+                NeedReinitializeSite = false;
+            }
+            catch (Exception ex)
+            {
+                Status = ex.Message;
+                NeedReinitializeSite = true;
+            }
+            IsBusy = false;
+            RefreshRecentActivities();
+        }
+
+        protected override void OnIsBusyChanged()
+        {
+            base.OnIsBusyChanged();
+            _ReinitializeSiteCommand?.RaiseCanExecuteChanged();
+            _EditPageCommand?.RaiseCanExecuteChanged();
+        }
+
+        #region Site Information
+
+        private void RefreshRecentActivities()
+        {
+            if (reloadSiteInfoCts != null)
+            {
+                reloadSiteInfoCts.Cancel();
+                reloadSiteInfoCts.Dispose();
+            }
+            reloadSiteInfoCts = new CancellationTokenSource();
+            RefreshRecentActivitiesAsync(reloadSiteInfoCts.Token).Forget();
+        }
+
+        private async Task RefreshRecentActivitiesAsync(CancellationToken cancellation)
+        {
+            IsBusy = true;
+            Status = Tx.T("please wait");
+            try
+            {
                 const int RecentChangesCount = 50;
-                var rcg = new RecentChangesGenerator(WikiSite.Site)
+                var rcg = new RecentChangesGenerator(await WikiSite.GetSiteAsync())
                 {
                     PagingSize = RecentChangesCount,
                 };
                 var rc = await rcg.EnumRecentChangesAsync()
                     .Take(RecentChangesCount)
-                    .Select(rce => new RecentChangeViewModel(rce))
+                    .Select(rce => _ViewModelFactory.CreateRecentChange(rce, WikiSite))
                     .ToArray(cancellation);
                 cancellation.ThrowIfCancellationRequested();
 
@@ -126,13 +120,7 @@ namespace WikiEdit.ViewModels.Documents
                 {
                     _ReinitializeSiteCommand = new DelegateCommand(() =>
                     {
-                        if (!WikiSite.IsInitialized)
-                        {
-                            IsBusy = true;
-                            Status = Tx.T("please wait");
-                            if (!WikiSite.IsBusy)
-                                WikiSite.InitializeAsync().Forget();
-                        }
+                        InitializeAsync().Forget();
                     }, () => _NeedReinitializeSite);
                 }
                 return _ReinitializeSiteCommand;
@@ -174,7 +162,6 @@ namespace WikiEdit.ViewModels.Documents
         {
             // TODO cache search results
             if (string.IsNullOrWhiteSpace(_EditPageTitle)) return;
-            if (!WikiSite.IsInitialized) return;
             var title = _EditPageTitle;
             var items = await WikiSite.GetAutoCompletionItemsAsync(title);
             if (title == _EditPageTitle)
@@ -200,19 +187,17 @@ namespace WikiEdit.ViewModels.Documents
             {
                 if (_EditPageCommand == null)
                 {
-                    _EditPageCommand = new DelegateCommand(() =>
+                    _EditPageCommand = new DelegateCommand(async () =>
                     {
-                        if (!WikiSite.IsInitialized) return;
                         try
                         {
-                            _ChildViewModelService.Documents.AddAndActivate(
-                                new PageEditorViewModel(_SettingsService, WikiSite, WikiSite.GetPage(EditPageTitle)));
+                            await _ViewModelFactory.OpenPageEditorAsync(WikiSite, EditPageTitle);
                         }
                         catch (Exception ex)
                         {
                             Utility.ReportException(ex);
                         }
-                    }, () => WikiSite.IsInitialized && !string.IsNullOrWhiteSpace(EditPageTitle));
+                    }, () => !IsBusy && !string.IsNullOrWhiteSpace(EditPageTitle));
                 }
                 return _EditPageCommand;
             }

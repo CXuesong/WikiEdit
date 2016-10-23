@@ -21,6 +21,7 @@
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
+            <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
         <Popup PopupAnimation="Slide" IsOpen="{Binding IsAccountProfileOpen}" StaysOpen="False" PlacementTarget="{x:Reference AccountProfileRibbonButton}" Placement="Bottom" AllowsTransparency="True">
             <Border Style="{DynamicResource PopupContainerBorder}">
@@ -89,5 +90,12 @@
                 </xcad:LayoutRoot>
             </xcad:DockingManager>
         </Grid>
+        <fluent:StatusBar Grid.Row="2">
+            <fluent:StatusBarItem Content="{Binding ActiveDocument.Status}" HorizontalAlignment="Left" />
+            <Separator HorizontalAlignment="Left" />
+            <fluent:StatusBarItem HorizontalAlignment="Right" VerticalAlignment="Stretch" Padding="0,4">
+                <ProgressBar IsIndeterminate="True" Width="150" Visibility="{Binding ActiveDocument.IsBusy, Converter={StaticResource ValueToVisibilityConverter}}" />
+            </fluent:StatusBarItem>
+        </fluent:StatusBar>
     </Grid>
 </fluent:RibbonWindow>

@@ -11,6 +11,11 @@
     <Span color="Comment" multiline="true" begin="&lt;!--" end="--&gt;" />
     <Span color="Template" multiline="true" begin="\{\{" end="\}\}" />
     <Span color="WikiLink" begin="\[\[" end="\]\]" />
+    <Span color="Heading" begin="^={6}" end="={6}" />
+    <Span color="Heading" begin="^={5}" end="={5}" />
+    <Span color="Heading" begin="^={4}" end="={4}" />
+    <Span color="Heading" begin="^===" end="===" />
     <Span color="Heading" begin="^==" end="==" />
+    <Span color="Heading" begin="^=" end="=" />
   </RuleSet>
 </SyntaxDefinition>

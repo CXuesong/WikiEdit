@@ -32,6 +32,8 @@ namespace WikiEdit
             Container.RegisterType<MainWindowViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IChildViewModelService, ChildViewModelService>(
                 new ContainerControlledLifetimeManager());
+            Container.RegisterType<IViewModelFactory, ViewModelFactory>(
+                new ContainerControlledLifetimeManager());
             Container.RegisterType<SettingsService>(new ContainerControlledLifetimeManager());
         }
 

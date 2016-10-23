@@ -26,11 +26,6 @@ namespace WikiEdit
     {
     }
 
-    internal class TaskFailedEvent : PubSubEvent<object>
-    {
-        
-    }
-
     /// <summary>
     /// Raised when the application settings have been changed.
     /// </summary>

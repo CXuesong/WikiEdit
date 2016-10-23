@@ -17,8 +17,8 @@
     <Grid IsEnabled="{Binding WikiSite.IsBusy, ConverterParameter=Inverse, Converter={StaticResource ValueToVisibilityConverter}}">
         <StackPanel Margin="10">
             <ContentPresenter Content="{Binding LoginViewModel}" />
-            <TextBlock Text="{Binding WikiSite.Status}" />
-            <ProgressBar IsIndeterminate="True" Visibility="{Binding WikiSite.IsBusy, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}"/>
+            <TextBlock Text="{Binding Status}" />
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}"/>
             <Grid HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>

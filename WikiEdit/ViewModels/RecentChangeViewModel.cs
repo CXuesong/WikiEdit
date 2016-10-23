@@ -7,12 +7,15 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiClientLibrary;
+using WikiEdit.Services;
 using WikiEdit.ViewModels.Primitives;
 
 namespace WikiEdit.ViewModels
 {
-    internal class RecentChangeViewModel : BindableBase
+    public class RecentChangeViewModel : BindableBase
     {
+        private readonly IViewModelFactory _ViewModelFactory;
+        private readonly IChildViewModelService _ChildViewModelService;
         public RecentChangesEntry RawEntry { get; }
 
         public bool NeedPatrol => RawEntry.PatrolStatus == PatrolStatus.Unpatrolled;
@@ -87,9 +90,13 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
-        public RecentChangeViewModel(RecentChangesEntry model)
+        public RecentChangeViewModel(IViewModelFactory viewModelFactory, 
+            WikiSiteViewModel wikiSite, RecentChangesEntry model)
         {
+            if (viewModelFactory == null) throw new ArgumentNullException(nameof(viewModelFactory));
+            if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             if (model == null) throw new ArgumentNullException(nameof(model));
+            _ViewModelFactory = viewModelFactory;
             RawEntry = model;
             switch (model.Type)
             {
@@ -98,7 +105,7 @@ namespace WikiEdit.ViewModels
                 case RecentChangesType.Move:
                     TargetBadge = new PageTitleViewModel(model.Title, () =>
                     {
-
+                        _ViewModelFactory.OpenPageEditorAsync(wikiSite, model.Title);
                     }, null, null);
                     break;
                 case RecentChangesType.Log:

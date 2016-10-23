@@ -122,7 +122,10 @@ namespace WikiEdit.ViewModels.Documents
         public bool IsBusy
         {
             get { return _IsBusy; }
-            set { SetProperty(ref _IsBusy, value); }
+            set
+            {
+                if (SetProperty(ref _IsBusy, value)) OnIsBusyChanged();
+            }
         }
 
         public string Status
@@ -144,6 +147,11 @@ namespace WikiEdit.ViewModels.Documents
         protected virtual void OnClosed()
         {
             Closed?.Invoke(this, EventArgs.Empty);
+        }
+
+        protected virtual void OnIsBusyChanged()
+        {
+            
         }
     }
 }

@@ -15,10 +15,9 @@ namespace WikiEdit.ViewModels
 {
     internal class WikiSiteListViewModel : BindableBase
     {
-        private readonly IEventAggregator _EventAggregator;
-        private readonly WikiEditController wikiEditController;
-        private readonly IChildViewModelService childVmService;
-        private readonly SettingsService _SettingsService;
+        private readonly WikiEditController _WikiEditController;
+        private readonly IChildViewModelService _ChildViewModelService;
+        private readonly IViewModelFactory _ViewModelFactory;
         private WikiSiteViewModel _SelectedWikiSite;
 
         public WikiSiteViewModel SelectedWikiSite
@@ -27,7 +26,7 @@ namespace WikiEdit.ViewModels
             set { SetProperty(ref _SelectedWikiSite, value); }
         }
 
-        public ObservableCollection<WikiSiteViewModel> WikiSites => wikiEditController.WikiSites;
+        public ObservableCollection<WikiSiteViewModel> WikiSites => _WikiEditController.WikiSites;
 
         /// <summary>
         /// Called from view, notifies that an item has been double-clicked.
@@ -35,25 +34,17 @@ namespace WikiEdit.ViewModels
         public void NotifyWikiSiteDoubleClick(WikiSiteViewModel site)
         {
             if (site == null) return;
-            var doc = childVmService.Documents.GetOrCreate(site, 
-                () => new WikiSiteOverviewViewModel(_EventAggregator, childVmService, _SettingsService, site));
-            doc.IsActive = true;
+            var doc = _ChildViewModelService.Documents.ActivateOrCreate(site,
+                () => _ViewModelFactory.CreateWikiSiteOverview(site));
         }
 
-        public WikiSiteListViewModel(
-            IEventAggregator eventAggregator, 
-            IChildViewModelService childVmService,
-            SettingsService settingsService,
+        public WikiSiteListViewModel(IChildViewModelService childViewModelService,
+            IViewModelFactory viewModelFactory,
             WikiEditController controller)
         {
-            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
-            if (controller == null) throw new ArgumentNullException(nameof(controller));
-            if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
-            if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
-            _EventAggregator = eventAggregator;
-            wikiEditController = controller;
-            this.childVmService = childVmService;
-            _SettingsService = settingsService;
+            _WikiEditController = controller;
+            _ViewModelFactory = viewModelFactory;
+            _ChildViewModelService = childViewModelService;
         }
     }
 }

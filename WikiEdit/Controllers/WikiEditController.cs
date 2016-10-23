@@ -113,7 +113,7 @@ namespace WikiEdit.Controllers
         {
             if (storage == null) storage = new WikiEditSession();
             // Save settings
-            storage.WikiSites = WikiSites.Select(s => s.ToModel()).ToArray();
+            storage.WikiSites = WikiSites.Select(s => s.GetModel()).ToArray();
             storage.SessionCookies = WikiClient.CookieContainer;
             // Persist
             using (var sw = new StreamWriter(path))

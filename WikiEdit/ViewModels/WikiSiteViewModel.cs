@@ -10,6 +10,8 @@ using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiEdit.Controllers;
 using WikiEdit.Models;
+using WikiEdit.Services;
+using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit.ViewModels
 {
@@ -17,13 +19,8 @@ namespace WikiEdit.ViewModels
     {
         private readonly WikiEditController _Controller;
         private readonly IEventAggregator _EventAggregator;
-        private string _Name;
-        private string _ApiEndpoint;
-        private DateTimeOffset _LastAccessTime;
-        private Site _Site;
-        private string _SiteName;
-        private string _SiteUrl;
-        
+        private readonly WikiSite _Model;
+
         #region User Settings
 
         /// <summary>
@@ -31,24 +28,35 @@ namespace WikiEdit.ViewModels
         /// </summary>
         public string Name
         {
-            get { return _Name; }
+            get { return _Model.Name; }
             set
             {
-                if (SetProperty(ref _Name, value))
-                    OnPropertyChanged(nameof(DisplayName));
+                if (_Model.Name == value) return;
+                _Model.Name = value;
+                OnPropertyChanged();
             }
         }
 
         public string ApiEndpoint
         {
-            get { return _ApiEndpoint; }
-            set { SetProperty(ref _ApiEndpoint, value); }
+            get { return _Model.ApiEndpoint; }
+            set
+            {
+                if (_Model.ApiEndpoint == value) return;
+                _Model.ApiEndpoint = value;
+                OnPropertyChanged();
+            }
         }
 
         public DateTimeOffset LastAccessTime
         {
-            get { return _LastAccessTime; }
-            set { SetProperty(ref _LastAccessTime, value); }
+            get { return _Model.LastAccessTime; }
+            set
+            {
+                if (_Model.LastAccessTime == value) return;
+                _Model.LastAccessTime = value;
+                OnPropertyChanged();
+            }
         }
 
         #endregion
@@ -60,11 +68,12 @@ namespace WikiEdit.ViewModels
         /// </summary>
         public string SiteName
         {
-            get { return _SiteName; }
+            get { return _Model.SiteName; }
             set
             {
-                if (SetProperty(ref _SiteName, value))
-                    OnPropertyChanged(nameof(DisplayName));
+                if (_Model.SiteName == value) return;
+                _Model.SiteName = value;
+                OnPropertyChanged();
             }
         }
 
@@ -74,40 +83,69 @@ namespace WikiEdit.ViewModels
         /// </summary>
         public string SiteUrl
         {
-            get { return _SiteUrl; }
-            set { SetProperty(ref _SiteUrl, value); }
+            get { return _Model.SiteUrl; }
+            private set
+            {
+                if (_Model.SiteUrl == value) return;
+                _Model.SiteUrl = value;
+                OnPropertyChanged();
+            }
         }
-
-
-        private string _MediaWikiVersion;
 
         public string MediaWikiVersion
         {
-            get { return _MediaWikiVersion; }
-            set { SetProperty(ref _MediaWikiVersion, value); }
+            get { return _Model.MediaWikiVersion; }
+            private set
+            {
+                if (_Model.MediaWikiVersion == value) return;
+                _Model.MediaWikiVersion = value;
+                OnPropertyChanged();
+            }
         }
 
 
         #endregion
 
-        public string DisplayName => string.IsNullOrWhiteSpace(_Name) ? _SiteName : _Name;
+        public string DisplayName => string.IsNullOrWhiteSpace(_Model.Name) ? _Model.SiteName : _Model.Name;
 
         public AccountProfileViewModel AccountProfile { get; }
 
-        private bool _IsBusy;
+        /// <summary>
+        /// DO NOT directly use this field. Use <see cref="GetSiteAsync"/> instead.
+        /// </summary>
+        private Site _Site;
+        private Task<Site> _GetSiteTask;
 
-        public bool IsBusy
+        /// <summary>
+        /// Asynchronously get/create a WCL Site instance.
+        /// </summary>
+        public Task<Site> GetSiteAsync()
         {
-            get { return _IsBusy; }
-            set { SetProperty(ref _IsBusy, value); }
+            if (_Site != null) return Task.FromResult(_Site);
+            if (_GetSiteTask == null)
+                _GetSiteTask = InitializeSiteAsync();
+            return _GetSiteTask;
         }
 
-        private string _Status;
-
-        public string Status
+        public void InvalidateSite()
         {
-            get { return _Status; }
-            set { SetProperty(ref _Status, value); }
+            _Site = null;
+        }
+
+        private async Task<Site> InitializeSiteAsync()
+        {
+            if (_Site == null)
+            {
+                _Site = await _Controller.CreateSiteAsync(_Model.ApiEndpoint);
+                // Load site information.
+                SiteName = _Site.SiteInfo.SiteName;
+                SiteUrl = _Site.SiteInfo.ServerUrl;
+                MediaWikiVersion = _Site.SiteInfo.Generator;
+                // Publish events.
+                _EventAggregator.GetEvent<SiteInfoRefreshedEvent>().Publish(this);
+                _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
+            }
+            return _Site;
         }
 
         #region Actions
@@ -118,101 +156,27 @@ namespace WikiEdit.ViewModels
         public async Task<IList<OpenSearchResultEntry>> GetAutoCompletionItemsAsync(string expression)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
-            if (!IsInitialized) throw new InvalidOperationException();
-            var entries = await Site.OpenSearchAsync(expression);
+            var site = await GetSiteAsync();
+            var entries = await site.OpenSearchAsync(expression);
             // TODO cache results.
             return entries;
         }
 
-        public Page GetPage(string title)
-        {
-            if (title == null) throw new ArgumentNullException(nameof(title));
-            return new Page(Site, title);
-        }
-
         #endregion
-
-        public async Task InitializeAsync()
-        {
-            if (_Site == null)
-            {
-                Status = Tx.T("please wait");
-                IsBusy = true;
-                try
-                {
-                    _Site = await _Controller.CreateSiteAsync(_ApiEndpoint);
-                    // Load site information.
-                    SiteName = _Site.SiteInfo.SiteName;
-                    SiteUrl = _Site.SiteInfo.ServerUrl;
-                    MediaWikiVersion = _Site.SiteInfo.Generator;
-                    // Publish events.
-                    _EventAggregator.GetEvent<SiteInfoRefreshedEvent>().Publish(this);
-                    _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
-                    OnPropertyChanged(nameof(IsInitialized));
-                    Status = null;
-                }
-                catch (Exception ex)
-                {
-                    Status = ex.Message;
-                    _EventAggregator.GetEvent<TaskFailedEvent>().Publish(this);
-                }
-                finally
-                {
-                    IsBusy = false;
-                }
-            }
-        }
 
         public async Task RefreshAccountInfoAsync()
         {
-            if (IsBusy) throw new InvalidOperationException();
-            if (IsInitialized)
+            if (_Site == null)
             {
-                try
-                {
-                    IsBusy = true;
-                    Status = Tx.T("account profile.fetching");
-                    await Site.RefreshUserInfoAsync();
-                    _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
-                    Status = null;
-                }
-                catch (Exception ex)
-                {
-                    Status = ex.ToString();
-                    _EventAggregator.GetEvent<TaskFailedEvent>().Publish(this);
-                }
-                finally
-                {
-                    IsBusy = false;
-                }
+                await GetSiteAsync();
+                return;
             }
-            else
-            {
-                await InitializeAsync();
-            }
+            var site = await GetSiteAsync();
+            await site.RefreshUserInfoAsync();
+            _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
         }
 
-        public bool IsInitialized => _Site != null;
-
-        public Site Site
-        {
-            get
-            {
-                if (_Site == null)
-                    throw new InvalidOperationException(
-                        "InitializeSiteAsync should have finished before trying to get the property value.");
-                return _Site;
-            }
-        }
-
-        internal WikiSite ToModel() => new WikiSite
-        {
-            Name = _Name,
-            SiteName = _SiteName,
-            ApiEndpoint = _ApiEndpoint,
-            LastAccessTime = _LastAccessTime,
-            UserName = AccountProfile.UserName,
-        };
+        internal WikiSite GetModel() => _Model;
 
         /// <summary>
         /// Create a new Wiki site instance.
@@ -220,6 +184,7 @@ namespace WikiEdit.ViewModels
         internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller)
         {
             if (controller == null) throw new ArgumentNullException(nameof(controller));
+            _Model = new WikiSite();
             _Controller = controller;
             _EventAggregator = eventAggregator;
             AccountProfile = new AccountProfileViewModel(eventAggregator, this);
@@ -233,10 +198,7 @@ namespace WikiEdit.ViewModels
             if (model == null) throw new ArgumentNullException(nameof(model));
             if (controller == null) throw new ArgumentNullException(nameof(controller));
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
-            _Name = model.Name;
-            _SiteName = model.SiteName;
-            _ApiEndpoint = model.ApiEndpoint;
-            _LastAccessTime = model.LastAccessTime;
+            _Model = model;
             _Controller = controller;
             _EventAggregator = eventAggregator;
             AccountProfile = new AccountProfileViewModel(eventAggregator, this, model);

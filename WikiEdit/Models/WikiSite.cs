@@ -8,8 +8,9 @@ namespace WikiEdit.Models
 {
     internal class WikiSite
     {
-        public string Name { get; set; }
+        public Guid Id { get; set; } = Guid.NewGuid();
 
+        public string Name { get; set; }
 
         public string ApiEndpoint { get; set; }
 
@@ -18,6 +19,10 @@ namespace WikiEdit.Models
         #region Site Information Cache
 
         public string SiteName { get; set; }
+
+        public string SiteUrl { get; set; }
+
+        public string MediaWikiVersion { get; set; }
 
         public string UserName { get; set; }
 

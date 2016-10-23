@@ -76,8 +76,19 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
+
+        private DocumentViewModel _ActiveDocument;
+
+        public DocumentViewModel ActiveDocument
+        {
+            get { return _ActiveDocument; }
+            private set { SetProperty(ref _ActiveDocument, value); }
+        }
+
+
         private void OnActiveDocumentChanged(DocumentViewModel activeDocument)
         {
+            ActiveDocument = activeDocument;
             // Track the active wiki site.
             CurrentWikiSite = activeDocument?.SiteContext;
         }

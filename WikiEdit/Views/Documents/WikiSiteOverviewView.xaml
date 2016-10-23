@@ -21,10 +21,6 @@
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel>
-            <TextBox Text="{Binding Status, Mode=OneWay}" Style="{DynamicResource TipTextBox}"
-                     Visibility="{Binding Status, Converter={StaticResource UniversalBooleanConverter}}" />
-            <ProgressBar IsIndeterminate="True"
-                         Visibility="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}}" />
             <Grid>
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
