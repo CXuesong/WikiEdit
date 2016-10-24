@@ -11,6 +11,7 @@ using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Data;
@@ -138,6 +139,24 @@ namespace WikiEdit
             // This method should only be called from main thread to avoid possible deadlocks.
             // See http://stackoverflow.com/questions/22629951/suppressing-warning-cs4014-because-this-call-is-not-awaited-execution-of-the#comment58040933_22630057 .
             Debug.Assert(Application.Current.Dispatcher == Dispatcher.CurrentDispatcher);
+        }
+
+        /// <summary>
+        /// Invoke a function from the given <see cref="Dispatcher"/>. If the current
+        /// dispatcher is the same as given one, the function is called directly.
+        /// </summary>
+        public static void AutoInvoke(this Dispatcher dispatcher, Action action)
+        {
+            if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+            if (Thread.CurrentThread == dispatcher.Thread)
+            {
+                action();
+            }
+            else
+            {
+                dispatcher.Invoke(action);
+            }
         }
     }
 

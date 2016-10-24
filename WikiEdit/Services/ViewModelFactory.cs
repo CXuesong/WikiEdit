@@ -31,14 +31,16 @@ namespace WikiEdit.Services
         private readonly IEventAggregator _EventAggregator;
         private readonly IChildViewModelService _ChildViewModelService;
         private readonly SettingsService _SettingsService;
+        private readonly ITextEditorFactory _TextEditorFactory;
 
         public ViewModelFactory(IEventAggregator eventAggregator,
             IChildViewModelService childViewModelService,
-            SettingsService settingsService)
+            SettingsService settingsService, ITextEditorFactory textEditorFactory)
         {
             _EventAggregator = eventAggregator;
             _ChildViewModelService = childViewModelService;
             _SettingsService = settingsService;
+            _TextEditorFactory = textEditorFactory;
         }
 
         public WikiSiteOverviewViewModel CreateWikiSiteOverview(WikiSiteViewModel wikiSite)
@@ -51,7 +53,7 @@ namespace WikiEdit.Services
         {
             if (page == null) throw new ArgumentNullException(nameof(page));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
-            return new PageEditorViewModel(_SettingsService, wikiSite, page);
+            return new PageEditorViewModel(_SettingsService, _TextEditorFactory, wikiSite, page);
         }
 
         public RecentChangeViewModel CreateRecentChange(RecentChangesEntry model, WikiSiteViewModel wikiSite)

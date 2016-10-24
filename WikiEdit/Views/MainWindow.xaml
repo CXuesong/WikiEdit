@@ -75,6 +75,9 @@
                             <xcad:LayoutAnchorable ContentId="AccountProfile" Title="{Tx:T wiki site list}">
                                 <v:WikiSiteListView DataContext="{Binding WikiSiteListViewModel}" />
                             </xcad:LayoutAnchorable>
+                            <xcad:LayoutAnchorable ContentId="DocumentOutline" Title="{Tx:T document outline}">
+                                <v:DocumentOutlineView DataContext="{Binding DocumentOutlineViewModel}" />
+                            </xcad:LayoutAnchorable>
                         </xcad:LayoutAnchorablePane>
                         <xcad:LayoutDocumentPaneGroup>
                             <xcad:LayoutDocumentPane>

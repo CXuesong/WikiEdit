@@ -11,24 +11,27 @@ using Prism.Commands;
 using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiEdit.Services;
+using WikiEdit.ViewModels.TextEditors;
 
 namespace WikiEdit.ViewModels.Documents
 {
     public class PageEditorViewModel : DocumentViewModel
     {
         private readonly SettingsService _SettingsService;
+        private readonly ITextEditorFactory _TextEditorFactory;
 
-        public PageEditorViewModel(SettingsService settingsService, WikiSiteViewModel wikiSite, Page wikiPage)
+        public PageEditorViewModel(SettingsService settingsService, ITextEditorFactory textEditorFactory,
+            WikiSiteViewModel wikiSite, Page wikiPage)
         {
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiPage == null) throw new ArgumentNullException(nameof(wikiPage));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             Debug.Assert(wikiSite.GetSiteAsync().Result == wikiPage.Site);
             _SettingsService = settingsService;
+            _TextEditorFactory = textEditorFactory;
             WikiSite = wikiSite;
             WikiPage = wikiPage;
             Title = WikiPage.Title;
-            LoadSettings();
             LoadPageAsync().Forget();
         }
 
@@ -43,21 +46,33 @@ namespace WikiEdit.ViewModels.Documents
 
         public override object DocumentContext => WikiPage;
 
-        private void LoadSettings()
-        {
-            LanguageSettings = _SettingsService.GetSettingsByWikiContentModel(WikiPage.ContentModel);
-            PageContentHighlightingDefinition = HighlightingManager.Instance.GetDefinition(LanguageSettings.LanguageName);
-        }
-
         private async Task LoadPageAsync()
         {
             Status = Tx.T("editor.fetching page", "title", WikiPage.Title);
             IsBusy = true;
             try
             {
+                var oldContentModel = WikiPage.ContentModel;
                 await WikiPage.RefreshAsync(PageQueryOptions.FetchContent);
-                PageContentDocument.Text = WikiPage.Content;
-                LoadSettings();
+                // Switch content model, if necessary.
+                if (oldContentModel != WikiPage.ContentModel)
+                {
+                    var ls = _SettingsService.GetSettingsByWikiContentModel(WikiPage.ContentModel);
+                    if (string.IsNullOrEmpty(ls.LanguageName))
+                    {
+                        TextEditor = null;
+                    }
+                    else
+                    {
+                        TextEditor = _TextEditorFactory.CreateTextEditor(ls.LanguageName);
+                        TextEditor.DocumentOutline = DocumentOutline;
+                    }
+                }
+                if (TextEditor != null)
+                {
+                    TextEditor.TextDocument.Text = WikiPage.Content;
+                    TextEditor.InvalidateDocumentOutline(true);
+                }
                 Status = null;
             }
             catch (Exception ex)
@@ -70,28 +85,23 @@ namespace WikiEdit.ViewModels.Documents
             }
         }
 
-        #region Editor
 
-        private RuntimeTextEditorLanguageSettings _LanguageSettings;
+        private string _EditorLanguage;
 
-        public RuntimeTextEditorLanguageSettings LanguageSettings
+        public string EditorLanguage
         {
-            get { return _LanguageSettings; }
-            set { SetProperty(ref _LanguageSettings, value); }
+            get { return _EditorLanguage; }
+            set { SetProperty(ref _EditorLanguage, value); }
         }
 
 
-        private IHighlightingDefinition _PageContentHighlightingDefinition;
+        private TextEditorViewModel _TextEditor;
 
-        public IHighlightingDefinition PageContentHighlightingDefinition
+        public TextEditorViewModel TextEditor
         {
-            get { return _PageContentHighlightingDefinition; }
-            set { SetProperty(ref _PageContentHighlightingDefinition, value); }
+            get { return _TextEditor; }
+            set { SetProperty(ref _TextEditor, value); }
         }
-
-        public TextDocument PageContentDocument { get; } = new TextDocument();
-
-        #endregion
 
         #region Edit Submission
 
@@ -106,7 +116,6 @@ namespace WikiEdit.ViewModels.Documents
                     SubmitEditCommand.RaiseCanExecuteChanged();
             }
         }
-
 
         private bool _EditorMinor;
 
@@ -136,9 +145,12 @@ namespace WikiEdit.ViewModels.Documents
                     _SubmitEditCommand = new DelegateCommand(async () =>
                         {
                             if (IsBusy) return;
-                            if (string.IsNullOrWhiteSpace(EditorSummary) && WikiPage.Content != PageContentDocument.Text)
+                            if (TextEditor == null) return;
+                            var oldContent = WikiPage.Content;
+                            var newContent = TextEditor.TextDocument.Text;
+                            if (string.IsNullOrWhiteSpace(EditorSummary) && newContent != oldContent)
                                 return;
-                            WikiPage.Content = PageContentDocument.Text;
+                            WikiPage.Content = newContent;
                             Status = Tx.T("editor.submitting your edit");
                             IsBusy = true;
                             try
@@ -155,6 +167,8 @@ namespace WikiEdit.ViewModels.Documents
                             }
                             catch (Exception ex)
                             {
+                                // Restore the content first.
+                                WikiPage.Content = oldContent;
                                 Status = ex.Message;
                             }
                             finally

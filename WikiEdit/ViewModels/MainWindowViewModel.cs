@@ -26,6 +26,9 @@ namespace WikiEdit.ViewModels
         [Dependency]
         public WikiSiteListViewModel WikiSiteListViewModel { get; set; }
 
+        [Dependency]
+        public DocumentOutlineViewModel DocumentOutlineViewModel { get; set; }
+
         public ObservableCollection<DocumentViewModel> DocumentViewModels => _ChildViewModelService.Documents;
 
         public MainWindowViewModel(WikiEditController wikiEditController,

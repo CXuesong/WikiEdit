@@ -17,18 +17,7 @@
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <ToolBarTray>
-            <ToolBar>
-                <Label Content="{Binding LanguageSettings.LanguageName}" />
-            </ToolBar>
-        </ToolBarTray>
-        <avalonEdit:TextEditor Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
-                               ShowLineNumbers="True"
-                               FontFamily="{Binding LanguageSettings.FontFamily}"
-                               FontSize="{Binding LanguageSettings.FontSize}"
-                               SyntaxHighlighting="{Binding PageContentHighlightingDefinition}"
-                               SnapsToDevicePixels="True"
-                               Document="{Binding PageContentDocument}" />
+        <ContentPresenter Content="{Binding TextEditor}" Grid.Row="1" />
         <Grid Grid.Row="2">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
@@ -50,3 +39,4 @@
         </Grid>
     </Grid>
 </UserControl>
+    

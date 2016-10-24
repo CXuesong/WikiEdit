@@ -91,9 +91,22 @@ namespace WikiEdit.Services
 
         #endregion
 
+        private readonly Dictionary<string, RuntimeTextEditorLanguageSettings> _LanguageSettings =
+            new Dictionary<string, RuntimeTextEditorLanguageSettings>();
 
         private readonly Dictionary<string, RuntimeTextEditorLanguageSettings> _WikiContentModelLanguageSettings =
             new Dictionary<string, RuntimeTextEditorLanguageSettings>();
+
+        /// <summary>
+        /// Get language settings from language name.
+        /// </summary>
+        /// <param name="languageName">Language name. Use <see cref="string.Empty"/> to get the base language settings.</param>
+        /// <returns>Language-specific settings or base settings (fallback).</returns>
+        public RuntimeTextEditorLanguageSettings GetSettingsByLanguage(string languageName)
+        {
+            if (languageName == null) return _LanguageSettings[""];
+            return _LanguageSettings.TryGetValue(languageName) ?? _LanguageSettings[""];
+        }
 
         /// <summary>
         /// Get language settings from wiki content model name.
@@ -114,10 +127,13 @@ namespace WikiEdit.Services
         {
             {
                 // Associates language settings with wiki ContentModels.
+                _LanguageSettings.Clear();
+                _WikiContentModelLanguageSettings.Clear();
                 var defaultLanguageSettings = _RawSettings.TextEditor.LanguageSettings[""];
                 foreach (var p in _RawSettings.TextEditor.LanguageSettings)
                 {
                     var settings = new RuntimeTextEditorLanguageSettings(p.Key, p.Value, defaultLanguageSettings);
+                    _LanguageSettings[p.Key] = settings;
                     if (p.Key == "")
                     {
                         _WikiContentModelLanguageSettings[""] = settings;
@@ -133,8 +149,7 @@ namespace WikiEdit.Services
             _EventAggregator.GetEvent<SettingsChangedEvent>().Publish();
         }
     }
-
-
+    
     public class RuntimeTextEditorLanguageSettings
     {
         private static readonly FontFamily DefaultFontFamily = (FontFamily)TextBlock.FontFamilyProperty.DefaultMetadata.DefaultValue;

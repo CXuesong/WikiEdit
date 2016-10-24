@@ -1,5 +1,6 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Collections.ObjectModel;
 using System.ComponentModel;
 using System.Linq;
 using System.Runtime.CompilerServices;
@@ -8,6 +9,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using Prism.Commands;
 using Prism.Mvvm;
+using WikiEdit.ViewModels.Primitives;
 
 namespace WikiEdit.ViewModels.Documents
 {
@@ -19,7 +21,7 @@ namespace WikiEdit.ViewModels.Documents
 
         public event EventHandler Closed;
 
-        #region View Properties
+        #region Docking View Properties
 
         private string _Title;
         private string _TitleToolTip;
@@ -133,6 +135,12 @@ namespace WikiEdit.ViewModels.Documents
             get { return _Status; }
             set { SetProperty(ref _Status, value); }
         }
+
+        /// <summary>
+        /// Items for document outline.
+        /// </summary>
+        public ObservableCollection<DocumentOutlineItem> DocumentOutline { get; } =
+            new ObservableCollection<DocumentOutlineItem>();
 
         protected virtual void OnActivated()
         {

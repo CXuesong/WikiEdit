@@ -30,7 +30,7 @@ namespace WikiEdit.Controllers
 
         public ObservableCollection<WikiSiteViewModel> WikiSites { get; } = new ObservableCollection<WikiSiteViewModel>();
 
-        public async Task<Site> CreateSiteAsync(string apiEndpoint)
+        internal async Task<Site> CreateSiteAsync(string apiEndpoint)
         {
             if (apiEndpoint == null) throw new ArgumentNullException(nameof(apiEndpoint));
             var site = await Site.CreateAsync(WikiClient, apiEndpoint);

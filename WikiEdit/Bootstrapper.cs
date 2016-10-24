@@ -17,6 +17,7 @@ using WikiEdit.Controllers;
 using WikiEdit.Services;
 using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
+using WikiEdit.ViewModels.TextEditors;
 using WikiEdit.Views;
 
 namespace WikiEdit
@@ -27,14 +28,18 @@ namespace WikiEdit
         {
             base.ConfigureContainer();
             // DI configuration
+            // Services
             Container.RegisterType<WikiEditController>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<MainWindow>(new ContainerControlledLifetimeManager());
-            Container.RegisterType<MainWindowViewModel>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IChildViewModelService, ChildViewModelService>(
                 new ContainerControlledLifetimeManager());
             Container.RegisterType<IViewModelFactory, ViewModelFactory>(
                 new ContainerControlledLifetimeManager());
+            Container.RegisterType<ITextEditorFactory, TextEditorFactory>(
+                new ContainerControlledLifetimeManager());
             Container.RegisterType<SettingsService>(new ContainerControlledLifetimeManager());
+            // Main Window
+            Container.RegisterType<MainWindow>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<MainWindowViewModel>(new ContainerControlledLifetimeManager());
         }
 
         protected override DependencyObject CreateShell()
@@ -44,6 +49,7 @@ namespace WikiEdit
             settings.Load();
             Tx.LoadFromXmlFile(GlobalConfigurations.TranslationDictionaryFile);
             LoadSyntaxHighlighters();
+            RegisterTextEditors();
             return Container.Resolve<MainWindow>();
         }
 
@@ -65,6 +71,13 @@ namespace WikiEdit
         {
             Utility.ReportException(e.Exception);
             e.Handled = true;
+        }
+
+        private void RegisterTextEditors()
+        {
+            var settings = Container.Resolve<SettingsService>();
+            var textEditors = Container.Resolve<ITextEditorFactory>();
+            textEditors.Register("Wikitext", () => new WikitextEditorViewModel(settings));
         }
 
         /// <summary>

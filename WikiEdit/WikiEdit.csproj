@@ -79,7 +79,6 @@
       <Private>True</Private>
     </Reference>
     <Reference Include="System" />
-    <Reference Include="System.Data" />
     <Reference Include="System.Interactive.Async, Version=3.0.0.0, Culture=neutral, PublicKeyToken=94bc3704cddfc263, processorArchitecture=MSIL">
       <HintPath>..\packages\System.Interactive.Async.3.0.0\lib\net45\System.Interactive.Async.dll</HintPath>
       <Private>True</Private>
@@ -92,7 +91,6 @@
     <Reference Include="Microsoft.CSharp" />
     <Reference Include="System.Core" />
     <Reference Include="System.Xml.Linq" />
-    <Reference Include="System.Data.DataSetExtensions" />
     <Reference Include="System.Net.Http" />
     <Reference Include="System.Xaml">
       <RequiredTargetFramework>4.0</RequiredTargetFramework>
@@ -114,21 +112,30 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
+    <Compile Include="Behaviors\TextEditorBehavior.cs" />
     <Compile Include="Controllers\WikiEditController.cs" />
     <Compile Include="Controls\AutoCompleteTextBox.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="GlobalConfigurations.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="Services\ChildViewModelService.cs" />
+    <Compile Include="Services\TextEditorFactory.cs" />
     <Compile Include="Services\ViewModelFactory.cs" />
     <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="ViewModels\DocumentOutlineViewModel.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
     <Compile Include="ViewModels\Documents\PageEditorViewModel.cs" />
     <Compile Include="ViewModels\Documents\WikiSiteOverviewViewModel.cs" />
     <Compile Include="ViewModels\Primitives\Badges.cs" />
     <Compile Include="ViewModels\Primitives\CommandLinkViewModel.cs" />
+    <Compile Include="ViewModels\Primitives\DocumentOutlineItem.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\TextEditorViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\WikitextEditorViewModel.cs" />
+    <Compile Include="Views\DocumentOutlineView.xaml.cs">
+      <DependentUpon>DocumentOutlineView.xaml</DependentUpon>
+    </Compile>
     <Compile Include="Views\Documents\PageEditorView.xaml.cs">
       <DependentUpon>PageEditorView.xaml</DependentUpon>
     </Compile>
@@ -137,6 +144,9 @@
     </Compile>
     <Compile Include="Views\RecentChangeView.xaml.cs">
       <DependentUpon>RecentChangeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TextEditors\WikitextEditorView.xaml.cs">
+      <DependentUpon>WikitextEditorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WikiSiteListView.xaml.cs">
       <DependentUpon>WikiSiteListView.xaml</DependentUpon>
@@ -151,6 +161,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\AccountProfileView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\DocumentOutlineView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
@@ -193,6 +207,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\RecentChangeView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\TextEditors\WikitextEditorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

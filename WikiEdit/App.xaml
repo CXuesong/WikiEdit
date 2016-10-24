@@ -6,7 +6,9 @@
              xmlns:v="clr-namespace:WikiEdit.Views"
              xmlns:vmd="clr-namespace:WikiEdit.ViewModels.Documents"
              xmlns:vd="clr-namespace:WikiEdit.Views.Documents"
-             xmlns:controls="clr-namespace:WikiEdit.Controls">
+             xmlns:controls="clr-namespace:WikiEdit.Controls"
+             xmlns:vmte="clr-namespace:WikiEdit.ViewModels.TextEditors"
+             xmlns:vte="clr-namespace:WikiEdit.Views.TextEditors">
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
@@ -57,7 +59,10 @@
             <DataTemplate DataType="{x:Type vmd:PageEditorViewModel}">
                 <vd:PageEditorView />
             </DataTemplate>
-
+            <DataTemplate DataType="{x:Type vmte:WikitextEditorViewModel}">
+                <vte:WikitextEditorView />
+            </DataTemplate>
+            
             <Style x:Key="PopupContainerBorder" TargetType="Border">
                 <Setter Property="Background" Value="{DynamicResource ContextMenuBarBackgroundBrush}" />
                 <Setter Property="BorderBrush" Value="{DynamicResource ContextMenuBarBorderBrush}" />
