@@ -53,7 +53,7 @@
         <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
             <StackPanel>
                 <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
-                <ItemsControl ItemsSource="{Binding RecentChanges}" />
+                <ItemsControl ItemsSource="{Binding RecentChanges}" VirtualizingStackPanel.IsVirtualizing="True" />
             </StackPanel>
         </ScrollViewer>
     </Grid>

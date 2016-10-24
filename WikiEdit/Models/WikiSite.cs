@@ -26,6 +26,8 @@ namespace WikiEdit.Models
 
         public string UserName { get; set; }
 
+        public IReadOnlyCollection<string> UserGroups { get; set; }
+
         #endregion
 
     }

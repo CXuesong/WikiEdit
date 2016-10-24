@@ -137,15 +137,25 @@ namespace WikiEdit.ViewModels
             if (_Site == null)
             {
                 _Site = await _Controller.CreateSiteAsync(_Model.ApiEndpoint);
-                // Load site information.
-                SiteName = _Site.SiteInfo.SiteName;
-                SiteUrl = _Site.SiteInfo.ServerUrl;
-                MediaWikiVersion = _Site.SiteInfo.Generator;
+                PullSiteInfo();
                 // Publish events.
                 _EventAggregator.GetEvent<SiteInfoRefreshedEvent>().Publish(this);
                 _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
             }
             return _Site;
+        }
+
+        private void PullSiteInfo()
+        {
+            Debug.Assert(_Site != null);
+            // Load site information.
+            SiteName = _Site.SiteInfo.SiteName;
+            SiteUrl = _Site.SiteInfo.ServerUrl;
+            MediaWikiVersion = _Site.SiteInfo.Generator;
+            // Load user information.
+            _Model.UserName = _Site.UserInfo.Name;
+            _Model.UserGroups = _Site.UserInfo.Groups;
+            LastAccessTime = DateTimeOffset.Now;
         }
 
         #region Actions

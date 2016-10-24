@@ -21,21 +21,21 @@ namespace WikiEdit.ViewModels
     {
         private readonly WikiEditController wikiEditController;
         private string _FileName;
-        private readonly IChildViewModelService childVmService;
+        private readonly IChildViewModelService _ChildViewModelService;
 
         [Dependency]
         public WikiSiteListViewModel WikiSiteListViewModel { get; set; }
 
-        public ObservableCollection<DocumentViewModel> DocumentViewModels => childVmService.Documents;
+        public ObservableCollection<DocumentViewModel> DocumentViewModels => _ChildViewModelService.Documents;
 
         public MainWindowViewModel(WikiEditController wikiEditController,
-            IChildViewModelService childVmService,
+            IChildViewModelService childViewModelService,
             IEventAggregator eventAggregator)
         {
             if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
-            if (childVmService == null) throw new ArgumentNullException(nameof(childVmService));
+            if (childViewModelService == null) throw new ArgumentNullException(nameof(childViewModelService));
             this.wikiEditController = wikiEditController;
-            this.childVmService = childVmService;
+            _ChildViewModelService = childViewModelService;
             eventAggregator.GetEvent<ActiveDocumentChangedEvent>().Subscribe(OnActiveDocumentChanged);
         }
 
@@ -85,7 +85,6 @@ namespace WikiEdit.ViewModels
             private set { SetProperty(ref _ActiveDocument, value); }
         }
 
-
         private void OnActiveDocumentChanged(DocumentViewModel activeDocument)
         {
             ActiveDocument = activeDocument;
@@ -104,6 +103,7 @@ namespace WikiEdit.ViewModels
         public bool OpenSession()
         {
             if (!PromptSaveSession()) return false;
+            if (!_ChildViewModelService.Documents.CloseAll()) return false;
             var ofd = new OpenFileDialog
             {
                 Filter = Tx.T("session file filter"),
@@ -180,7 +180,7 @@ namespace WikiEdit.ViewModels
                     _Commands.Add(key, new DelegateCommand(act, enabled));
             addCommand("New", () =>
             {
-                if (PromptSaveSession())
+                if (PromptSaveSession() && _ChildViewModelService.Documents.CloseAll())
                 {
                     wikiEditController.Clear();
                     FileName = null;

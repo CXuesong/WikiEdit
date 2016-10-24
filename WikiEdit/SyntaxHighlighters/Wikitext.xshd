@@ -2,20 +2,73 @@
 <SyntaxDefinition name="Wikitext"
         xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
   <Property name="FileExtensions" value=".wt" />
-  <Color name="Comment" foreground="Green" />
-  <Color name="Template" foreground="Red" />
+  <Color name="Comment" foreground="LightGreen" />
+  <Color name="Template" foreground="SeaGreen" />
   <Color name="WikiLink" foreground="Blue" />
   <Color name="ExternalLink" foreground="DarkBlue" />
-  <Color name="Heading" fontWeight="bold" />
+  <Color name="Heading" fontWeight="bold" background="LightYellow" />
+  <Color name="FormatSwitch" fontWeight="bold" />
+  <Color name="Tag" foreground="DarkBlue" />
+  <Color name="TagAttributeName" foreground="Indigo" />
+  <Color name="TagAttributeValue" foreground="Navy" />
+  <Color name="HtmlEntity" foreground="Green" />
+  <Color name="Error" foreground="Red" />
   <RuleSet>
+    <Import ruleSet="LineSet" />
+  </RuleSet>
+  <RuleSet name="LineSet">
+    <Span color="Heading" begin="^={6}(?!=)" end="={6}(?=\s|&lt;!--|$)" />
+    <Span color="Heading" begin="^={5}(?!=)" end="={5}(?=\s|&lt;!--|$)" />
+    <Span color="Heading" begin="^={4}(?!=)" end="={4}(?=\s|&lt;!--|$)" />
+    <Span color="Heading" begin="^={3}(?!=)" end="={3}(?=\s|&lt;!--|$)" />
+    <Span color="Heading" begin="^={2}(?!=)" end="={2}(?=\s|&lt;!--|$)" />
+    <Span color="Heading" begin="^=(?!=)" end="=(?=\s|&lt;!--|$)" />
+    <Import ruleSet="InlineSet"/>
+  </RuleSet>
+  <RuleSet name="InlineSet">
+    <Rule color="Template">\{\{(?!\{)|\}\}(?!\})</Rule>
+    <Span color="WikiLink" begin="\[\[" end="\]\]">
+      <RuleSet>
+        <Import ruleSet="BasicSet"/>
+      </RuleSet>
+    </Span>
+    <Import ruleSet="BasicSet"/>
+    <Import ruleSet="TagSet" />
+  </RuleSet>
+  <RuleSet name="TagSet">
+    <Span color="Tag" begin="&lt;" end="&gt;">
+      <RuleSet>
+        <!-- Treat the position before '<' as end, as that's not a valid character
+				     in attribute names and indicates the user forgot a closing quote. -->
+        <Span color="TagAttributeValue" multiline="true" ruleSet="EntitySet">
+          <Begin>"</Begin>
+          <End>"|(?=&lt;)</End>
+        </Span>
+        <Span color="TagAttributeValue" multiline="true" ruleSet="EntitySet">
+          <Begin>'</Begin>
+          <End>'|(?=&lt;)</End>
+        </Span>
+        <Rule color="TagAttributeName">[\d\w_\-\.]+(?=(\s*=))</Rule>
+        <Rule color="TagAttributeValue">=</Rule>
+      </RuleSet>
+    </Span>
+  </RuleSet>
+  <RuleSet name="BasicSet">
     <Span color="Comment" multiline="true" begin="&lt;!--" end="--&gt;" />
-    <Span color="Template" multiline="true" begin="\{\{" end="\}\}" />
-    <Span color="WikiLink" begin="\[\[" end="\]\]" />
-    <Span color="Heading" begin="^={6}" end="={6}" />
-    <Span color="Heading" begin="^={5}" end="={5}" />
-    <Span color="Heading" begin="^={4}" end="={4}" />
-    <Span color="Heading" begin="^===" end="===" />
-    <Span color="Heading" begin="^==" end="==" />
-    <Span color="Heading" begin="^=" end="=" />
+    <Rule color="FormatSwitch">('{5}|'''|'')(?!')</Rule>
+    <Import ruleSet="EntitySet" />
+  </RuleSet>
+  <RuleSet name="EntitySet">
+    <Rule color="HtmlEntity">
+      &amp;
+      [\w\d\#]+
+      ;
+    </Rule>
+
+    <Rule color="Error">
+      &amp;
+      [\w\d\#]*
+      #missing ;
+    </Rule>
   </RuleSet>
 </SyntaxDefinition>

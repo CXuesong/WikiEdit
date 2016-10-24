@@ -93,6 +93,20 @@ namespace WikiEdit.Services
             return vm;
         }
 
+        /// <summary>
+        /// Tries to close all the documents.
+        /// </summary>
+        public bool CloseAll()
+        {
+            var docs = Items.ToArray();
+            foreach (var d in docs)
+            {
+                if (!d.Close()) return false;
+            }
+            Debug.Assert(Items.Count == 0);
+            return true;
+        }
+
         protected override void InsertItem(int index, DocumentViewModel item)
         {
             if (item == null) throw new ArgumentNullException(nameof(item));

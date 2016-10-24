@@ -194,9 +194,11 @@ namespace WikiEdit.ViewModels
             if (siteVm == null) throw new ArgumentNullException(nameof(siteVm));
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             WikiSite = siteVm;
+            // Try to load cached account info
             if (siteModel != null)
             {
-                _UserName = siteVm.AccountProfile.UserName;
+                _UserName = siteModel.UserName;
+                _Groups = siteModel.UserGroups?.ToList();
             }
             eventAggregator.GetEvent<AccountInfoRefreshedEvent>().Subscribe(async site =>
             {

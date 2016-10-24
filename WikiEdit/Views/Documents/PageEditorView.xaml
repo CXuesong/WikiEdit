@@ -39,7 +39,7 @@
                 <RowDefinition/>
             </Grid.RowDefinitions>
             <Grid VerticalAlignment="Center">
-                <TextBox x:Name="EditSummaryTextBox" Text="{Binding EditorSummary}" />
+                <TextBox x:Name="EditSummaryTextBox" Text="{Binding EditorSummary, UpdateSourceTrigger=PropertyChanged}" />
                 <TextBlock Text="{Tx:T editor.enter edit summary here}" DataContext="{Binding ElementName=EditSummaryTextBox}" Style="{DynamicResource TextBoxHint}" />
             </Grid>
             <Button Content="{Tx:T editor.save changes}" Command="{Binding SubmitEditCommand}" Grid.Column="1" />
