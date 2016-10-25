@@ -243,6 +243,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Resource Include="Images\WebLG.png" />
+    <Resource Include="Images\UserLG.png" />
+    <Resource Include="Images\User.png" />
     <Content Include="SyntaxHighlighters\Wikitext.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

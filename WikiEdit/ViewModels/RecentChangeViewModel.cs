@@ -15,7 +15,7 @@ namespace WikiEdit.ViewModels
     public class RecentChangeViewModel : BindableBase
     {
         private readonly IViewModelFactory _ViewModelFactory;
-        private readonly IChildViewModelService _ChildViewModelService;
+
         public RecentChangesEntry RawEntry { get; }
 
         public bool NeedPatrol => RawEntry.PatrolStatus == PatrolStatus.Unpatrolled;

@@ -6,19 +6,34 @@
              xmlns:local="clr-namespace:WikiEdit.Views"
              xmlns:Tx="http://unclassified.software/source/txtranslation"
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
-             xmlns:app="clr-namespace:WikiEdit" x:Class="WikiEdit.Views.AccountProfileView"
+             xmlns:app="clr-namespace:WikiEdit" xmlns:ei="http://schemas.microsoft.com/expression/2010/interactions" x:Class="WikiEdit.Views.AccountProfileView"
              MinWidth="300"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
              d:DataContext="{d:DesignInstance {x:Type vm:AccountProfileViewModel}}">
     <UserControl.Resources>
-        <app:UniversalBooleanConverter x:Key="ValueToVisibilityConverter"/>
+        <app:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
     </UserControl.Resources>
-    <Grid IsEnabled="{Binding WikiSite.IsBusy, ConverterParameter=Inverse, Converter={StaticResource ValueToVisibilityConverter}}">
+    <Grid IsEnabled="{Binding WikiSite.IsBusy, ConverterParameter=Inverse, Converter={StaticResource UniversalBooleanConverter}}">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="LoginViewStates">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0:0:1"/>
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="LoginExpanded"/>
+                <VisualState x:Name="LoginCollapsed">
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="LoginView">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <StackPanel Margin="10">
-            <ContentPresenter Content="{Binding LoginViewModel}" />
+            <ContentPresenter x:Name="LoginView" Content="{Binding LoginViewModel}" DataContextChanged="LoginView_OnDataContextChanged" />
             <TextBlock Text="{Binding Status}" />
-            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}"/>
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}, Mode=OneWay}"/>
             <Grid HorizontalAlignment="Center">
                 <Grid.RowDefinitions>
                     <RowDefinition Height="Auto"/>
@@ -30,7 +45,7 @@
                     <ColumnDefinition Width="Auto"/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
-                <Image Grid.RowSpan="2" MinWidth="32"/>
+                <Image Grid.RowSpan="2" MinWidth="32" Source="/WikiEdit;component/Images/UserLG.png" Margin="4" />
                 <Label Content="{Binding UserName}" Grid.Column="1" FontWeight="Bold"/>
                 <ItemsControl ItemsSource="{Binding Groups}" Grid.Column="1" Grid.Row="1">
                     <ItemsControl.ItemsPanel>

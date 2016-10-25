@@ -23,6 +23,12 @@ namespace WikiEdit.Views
         public AccountProfileView()
         {
             InitializeComponent();
+            VisualStateManager.GoToState(this, "LoginCollapsed", false);
+        }
+
+        private void LoginView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            VisualStateManager.GoToState(this, LoginView.DataContext != null ? "LoginExpanded" : "LoginCollapsed", true);
         }
     }
 }
