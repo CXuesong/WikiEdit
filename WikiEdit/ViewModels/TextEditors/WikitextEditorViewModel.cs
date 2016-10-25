@@ -25,11 +25,16 @@ namespace WikiEdit.ViewModels.TextEditors
             base.OnRefreshDocumentOutline();
             var parser = new WikitextParser();
             var documentText = TextBox.Text;
-            var root = parser.Parse(documentText);
-            var headings = root.EnumDescendants().OfType<Heading>();
+            Heading[] headings = null;
+            if (!string.IsNullOrWhiteSpace(documentText))
+            {
+                var root = parser.Parse(documentText);
+                headings = root.EnumDescendants().OfType<Heading>().ToArray();
+            }
             Dispatcher.AutoInvoke(() =>
             {
                 DocumentOutline.Clear();
+                if (headings == null) return;
                 var levelStack = new Stack<Tuple<Heading, DocumentOutlineItem>>();
                 foreach (var h in headings)
                 {

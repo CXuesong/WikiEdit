@@ -6,19 +6,21 @@
              xmlns:local="clr-namespace:WikiEdit.Views"
              xmlns:vm="clr-namespace:WikiEdit.ViewModels"
              xmlns:Tx="http://unclassified.software/source/txtranslation"
+             xmlns:fluent="urn:fluent-ribbon"
              x:Class="WikiEdit.Views.WikiSiteListView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type vm:WikiSiteListViewModel}}"
              x:Name="ThisControl" >
-    <UserControl.Resources>
-        <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter"/>
-    </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
-            <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
+            <RowDefinition Height="*"/>
         </Grid.RowDefinitions>
-        <ListView ItemsSource="{Binding WikiSites}" SelectedItem="{Binding SelectedWikiSite}" MouseDoubleClick="WikiSitesList_MouseDoubleClick">
+        <fluent:RibbonToolBar HorizontalAlignment="Left">
+            <fluent:Button Size="Small" Icon="/WikiEdit;component/Images/Add.png" ToolTip="{Tx:T add}" Command="{Binding AddWikiSiteCommand}" />
+            <fluent:Button Size="Small" Icon="/WikiEdit;component/Images/Remove.png" ToolTip="{Tx:T remove}" Command="{Binding RemoveWikiSiteCommand}" />
+        </fluent:RibbonToolBar>
+        <ListView Grid.Row="1" ItemsSource="{Binding WikiSites}" SelectedItem="{Binding SelectedWikiSite}" MouseDoubleClick="WikiSitesList_MouseDoubleClick">
             <ListView.View>
                 <GridView>
                     <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="{Tx:T name}"/>

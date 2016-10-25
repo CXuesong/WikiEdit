@@ -80,7 +80,7 @@ namespace WikiEdit.ViewModels
             set
             {
                 if (SetProperty(ref _ApiEndpoint, value))
-                    InvalidateSiteInfo();
+                        InvalidateSiteInfo();
             }
         }
 
@@ -90,8 +90,16 @@ namespace WikiEdit.ViewModels
                 _NeedValidateApiEndpoint = false;
         }
 
+        private static bool BasicValidateApiEndpoint(string endpointUrl)
+        {
+            Uri u;
+            if (Uri.TryCreate(endpointUrl, UriKind.Absolute, out u)) return true;
+            if (Uri.TryCreate("http://" + endpointUrl, UriKind.Absolute, out u)) return true;
+            return false;
+        }
+
         public string SiteNameHint
-            => string.IsNullOrEmpty(SiteName) ? Tx.T("wiki site.use site configuration") : SiteName;
+            => Tx.T("wiki site.use site configuration") + " " + SiteName;
 
         private DelegateCommand _OkCommand;
 
@@ -154,6 +162,7 @@ namespace WikiEdit.ViewModels
         {
             var endPoint = ApiEndpoint;
             _NeedValidateApiEndpoint = true;
+            if (!BasicValidateApiEndpoint(endPoint)) return;
             Task.Delay(TimeSpan.FromSeconds(1))
                 .ContinueWith(t =>
                 {
@@ -179,8 +188,8 @@ namespace WikiEdit.ViewModels
                 var endPoint = await Site.SearchApiEndpointAsync(_WikiEditController.WikiClient, urlToValidate);
                 if (endPoint == null)
                 {
-                    _ErrorsContainer.SetErrors(nameof(ApiEndpoint), Tx.T("errors.cannot validate api endpoint"));
-                    Status = Tx.T("errors.cannot validate api endpoint");
+                    _ErrorsContainer.SetErrors(nameof(ApiEndpoint), Tx.T("errors.invalid api endpoint"));
+                    Status = Tx.T("errors.invalid api endpoint");
                     return;
                 }
                 Status = Tx.T("please wait");

@@ -83,10 +83,17 @@ namespace WikiEdit.ViewModels
         /// </summary>
         private async Task ReloadAsync()
         {
-            var site = await WikiSite.GetSiteAsync();
-            UserName = site.UserInfo.Name;
-            Groups = site.UserInfo.Groups.ToArray();
-            HasLoggedIn = site.UserInfo.IsUser;
+            try
+            {
+                var site = await WikiSite.GetSiteAsync();
+                UserName = site.UserInfo.Name;
+                Groups = site.UserInfo.Groups.ToArray();
+                HasLoggedIn = site.UserInfo.IsUser;
+            }
+            catch (Exception ex)
+            {
+                Status = Utility.GetExceptionMessage(ex);
+            }
         }
 
         #region Commands
@@ -155,7 +162,7 @@ namespace WikiEdit.ViewModels
                     _LogoutCommand = new DelegateCommand(async () =>
                     {
                         if (IsBusy) return;
-                        if (Utility.Confirm(Tx.T("logout confirmation")) == true)
+                        if (Utility.Confirm(Tx.T("confirm.logout")) == true)
                         {
                             if (IsBusy) return;
                             IsBusy = true;

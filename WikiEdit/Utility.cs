@@ -200,6 +200,17 @@ namespace WikiEdit
             if (errorsContainer == null) throw new ArgumentNullException(nameof(errorsContainer));
             errorsContainer.SetErrors(propertyName, (IEnumerable<T>) errors);
         }
+
+        /// <summary>
+        /// Do some simple validations on the provided API endpoint URL.
+        /// </summary>
+        public static bool ValidateApiEndpointBasic(string endpointUrl)
+        {
+            Uri u;
+            if (!Uri.TryCreate(endpointUrl, UriKind.Absolute, out u)) return false;
+            if (!string.IsNullOrEmpty(u.Query)) return false;
+            return true;
+        }
     }
 
     /// <summary>

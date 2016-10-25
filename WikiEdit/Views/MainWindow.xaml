@@ -94,10 +94,10 @@
             </xcad:DockingManager>
         </Grid>
         <fluent:StatusBar Grid.Row="2">
-            <fluent:StatusBarItem Content="{Binding ActiveDocument.Status}" HorizontalAlignment="Left" />
+            <fluent:StatusBarItem Margin="4" Content="{Binding ActiveDocument.Status}" HorizontalAlignment="Left" />
             <Separator HorizontalAlignment="Left" />
             <fluent:StatusBarItem HorizontalAlignment="Right" VerticalAlignment="Stretch" Padding="0,4">
-                <ProgressBar IsIndeterminate="True" Width="150" Visibility="{Binding ActiveDocument.IsBusy, Converter={StaticResource ValueToVisibilityConverter}}" />
+                <ProgressBar IsIndeterminate="True" Width="150" Visibility="{Binding ActiveDocument.IsBusy, Converter={StaticResource ValueToVisibilityConverter}, FallbackValue={x:Static Visibility.Collapsed}}" />
             </fluent:StatusBarItem>
         </fluent:StatusBar>
     </Grid>

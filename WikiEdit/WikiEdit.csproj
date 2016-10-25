@@ -117,6 +117,7 @@
     <Compile Include="Events.cs" />
     <Compile Include="GlobalConfigurations.cs" />
     <Compile Include="Models\Settings.cs" />
+    <Compile Include="ServiceExtensions.cs" />
     <Compile Include="Services\ChildViewModelService.cs" />
     <Compile Include="Services\TextEditorFactory.cs" />
     <Compile Include="Services\ViewModelFactory.cs" />
@@ -257,6 +258,8 @@
     <Resource Include="Images\PencilLG.png" />
     <Resource Include="Images\Pencil.png" />
     <Resource Include="Images\Refresh.png" />
+    <Resource Include="Images\Add.png" />
+    <Resource Include="Images\Remove.png" />
     <Content Include="SyntaxHighlighters\Wikitext.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

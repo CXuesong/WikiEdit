@@ -6,6 +6,7 @@ using System.Threading.Tasks;
 using Prism.Events;
 using WikiClientLibrary;
 using WikiEdit.Controllers;
+using WikiEdit.Models;
 using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
 using WikiEdit.Views.Documents;
@@ -22,7 +23,13 @@ namespace WikiEdit.Services
 
         WikiSiteOverviewViewModel CreateWikiSiteOverview(WikiSiteViewModel wikiSite);
 
-        PageEditorViewModel CreatePageEditor(Page page, WikiSiteViewModel wikiSite);
+        PageEditorViewModel CreatePageEditor(WikiSiteViewModel wikiSite);
+
+        #endregion
+
+        #region Encapsulated Models
+
+        WikiSiteViewModel CreateWikiSiteViewModel();
 
         #endregion
 
@@ -59,11 +66,16 @@ namespace WikiEdit.Services
             return new WikiSiteOverviewViewModel(this, _SettingsService, wikiSite);
         }
 
-        public PageEditorViewModel CreatePageEditor(Page page, WikiSiteViewModel wikiSite)
+        public PageEditorViewModel CreatePageEditor(WikiSiteViewModel wikiSite)
         {
-            if (page == null) throw new ArgumentNullException(nameof(page));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
-            return new PageEditorViewModel(_SettingsService, _TextEditorFactory, wikiSite, page);
+            return new PageEditorViewModel(_SettingsService, _TextEditorFactory, wikiSite);
+        }
+
+        /// <inheritdoc />
+        public WikiSiteViewModel CreateWikiSiteViewModel()
+        {
+            return new WikiSiteViewModel(_EventAggregator, _WikiEditController);
         }
 
         public RecentChangeViewModel CreateRecentChange(RecentChangesEntry model, WikiSiteViewModel wikiSite)
@@ -76,13 +88,15 @@ namespace WikiEdit.Services
         {
             var site = await wikiSite.GetSiteAsync();
             var normalizedTitle = WikiLink.NormalizeWikiLink(site, pageTitle);
-            var editor = _ChildViewModelService.Documents.OfType<PageEditorViewModel>()
+            var editor = _ChildViewModelService.Documents
+                .OfType<PageEditorViewModel>()
+                .Where(vm => vm.SiteContext == wikiSite)
                 .FirstOrDefault(vm => vm.WikiPage.Title == normalizedTitle);
             if (editor == null)
             {
-                var page = new Page(site, normalizedTitle);
-                editor = CreatePageEditor(page, wikiSite);
-                _ChildViewModelService.Documents.AddAndActivate(editor);
+                editor = CreatePageEditor(wikiSite);
+                editor.SetWikiPageAsync(pageTitle).Forget();
+                _ChildViewModelService.Documents.Add(editor);
             }
             editor.IsActive = true;
             return editor;

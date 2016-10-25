@@ -51,25 +51,25 @@ namespace WikiEdit.ViewModels.Documents
             {
                 await WikiSite.GetSiteAsync();
                 Title = WikiSite.DisplayName;
+                RefreshRecentActivities();
             }
             catch (Exception ex)
             {
                 Status = Utility.GetExceptionMessage(ex);
             }
             IsBusy = false;
-            RefreshRecentActivities();
         }
 
         protected override void OnIsBusyChanged()
         {
             base.OnIsBusyChanged();
-            _ReinitializeSiteCommand?.RaiseCanExecuteChanged();
+            _RefreshSiteCommand?.RaiseCanExecuteChanged();
             _EditPageCommand?.RaiseCanExecuteChanged();
         }
 
         #region Site Information
 
-        private DelegateCommand _ReinitializeSiteCommand;
+        private DelegateCommand _RefreshSiteCommand;
 
         private void RefreshRecentActivities()
         {
@@ -109,20 +109,20 @@ namespace WikiEdit.ViewModels.Documents
             }
         }
 
-        public DelegateCommand ReinitializeSiteCommand
+        public DelegateCommand RefreshSiteCommand
         {
             get
             {
-                if (_ReinitializeSiteCommand == null)
+                if (_RefreshSiteCommand == null)
                 {
-                    _ReinitializeSiteCommand = new DelegateCommand(() =>
+                    _RefreshSiteCommand = new DelegateCommand(() =>
                     {
                         //WikiSite.InvalidateSite();
                         // We'll also invalidate all the opened page editors.
                         RefreshSiteInfoAsync().Forget();
                     }, () => !IsBusy);
                 }
-                return _ReinitializeSiteCommand;
+                return _RefreshSiteCommand;
             }
         }
         private WikiSiteEditingViewModel _WikiSiteEditor;

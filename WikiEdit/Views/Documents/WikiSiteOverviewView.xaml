@@ -46,7 +46,7 @@
                 <TextBlock Style="{DynamicResource Heading2}"
                     Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10" VerticalAlignment="Bottom">
-                    <fluent:Button Command="{Binding ReinitializeSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Refresh.png" Size="Small" ToolTip="{Tx:T refresh}"/>
+                    <fluent:Button Command="{Binding RefreshSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Refresh.png" Size="Small" ToolTip="{Tx:T refresh}"/>
                     <fluent:Button Command="{Binding EditWikiSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Pencil.png" Size="Small" ToolTip="{Tx:T edit}" />
                 </StackPanel>
             </Grid>

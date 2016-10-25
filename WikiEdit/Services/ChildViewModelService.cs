@@ -94,17 +94,29 @@ namespace WikiEdit.Services
         }
 
         /// <summary>
-        /// Tries to close all the documents.
+        /// Tries to close all documents that satisfy the predicate.
         /// </summary>
-        public bool CloseAll()
+        /// <param name="predicate">A predicate, or <n>null</n> to close all the documents.</param>
+        public bool CloseAll(Predicate<DocumentViewModel> predicate)
         {
             var docs = Items.ToArray();
             foreach (var d in docs)
             {
-                if (!d.Close()) return false;
+                if (predicate == null || predicate(d))
+                {
+                    if (!d.Close()) return false;
+                }
             }
-            Debug.Assert(Items.Count == 0);
+            Debug.Assert(predicate != null || Items.Count == 0);
             return true;
+        }
+
+        /// <summary>
+        /// Tries to close all the documents.
+        /// </summary>
+        public bool CloseAll()
+        {
+            return CloseAll(null);
         }
 
         protected override void InsertItem(int index, DocumentViewModel item)

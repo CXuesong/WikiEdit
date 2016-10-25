@@ -51,6 +51,7 @@ namespace WikiEdit.ViewModels
                 if (_Model.Name == value) return;
                 _Model.Name = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(DisplayName));
             }
         }
 
@@ -91,6 +92,7 @@ namespace WikiEdit.ViewModels
                 if (_Model.SiteName == value) return;
                 _Model.SiteName = value;
                 OnPropertyChanged();
+                OnPropertyChanged(nameof(DisplayName));
             }
         }
 
@@ -142,6 +144,8 @@ namespace WikiEdit.ViewModels
             if (_GetSiteTask == null)
             {
                 _GetSiteTaskCts?.Dispose();
+                if (!Utility.ValidateApiEndpointBasic(_Model.ApiEndpoint))
+                    throw new InvalidOperationException(Tx.T("errors.invalid api endpoint"));
                 _GetSiteTaskCts = new CancellationTokenSource();
                 _GetSiteTask = InitializeSiteAsync(_GetSiteTaskCts.Token);
             }
