@@ -23,6 +23,14 @@ namespace WikiEdit.Views.Documents
         public WikiSiteOverviewView()
         {
             InitializeComponent();
+            VisualStateManager.GoToState(this, "SiteEditorCollapsed", false);
+        }
+
+        private void SiteEditor_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            VisualStateManager.GoToState(this,
+                SiteEditor.DataContext != null ? "SiteEditorExpanded" : "SiteEditorCollapsed",
+                true);
         }
     }
 }

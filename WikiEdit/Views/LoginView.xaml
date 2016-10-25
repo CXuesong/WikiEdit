@@ -16,11 +16,10 @@
             <RowDefinition/>
             <RowDefinition Height="Auto"/>
         </Grid.RowDefinitions>
-        <TextBlock Style="{DynamicResource Heading3}">
-            <TextBlock Text="{Tx:T login into wiki}" />
-            <LineBreak />
-            <TextBlock Text="{Binding WikiSite.DisplayName}" Style="{DynamicResource Heading2}" />
-        </TextBlock>
+        <StackPanel Orientation="Vertical">
+            <TextBlock Text="{Tx:T login into wiki}" Style="{DynamicResource Heading3}" />
+            <TextBlock Text="{Binding WikiSite.DisplayName}" Style="{DynamicResource Heading2}" Margin="0" />
+        </StackPanel>
         <Grid Grid.Row="1">
             <Grid.RowDefinitions>
                 <RowDefinition Height="Auto"/>

@@ -20,15 +20,18 @@
                 <Setter Property="Padding" Value="10,4" />
                 <Setter Property="Margin" Value="10" />
             </Style>
-            <Style TargetType="TextBox">
-                <Setter Property="Padding" Value="0,4" />
-                <Setter Property="Margin" Value="4" />
+            <Style TargetType="Label">
+                <Setter Property="Padding" Value="5,6,5,4" />
             </Style>
-            <Style TargetType="CheckBox">
+            <Style TargetType="TextBox">
+                <Setter Property="Padding" Value="0,6,0,4" />
                 <Setter Property="Margin" Value="4" />
             </Style>
             <Style TargetType="controls:AutoCompleteTextBox">
-                <Setter Property="Padding" Value="0,4" />
+                <Setter Property="Padding" Value="0,6,0,4" />
+                <Setter Property="Margin" Value="4" />
+            </Style>
+            <Style TargetType="CheckBox">
                 <Setter Property="Margin" Value="4" />
             </Style>
             <Style TargetType="PasswordBox">
@@ -52,6 +55,9 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vmd:WikiSiteOverviewViewModel}">
                 <vd:WikiSiteOverviewView />
+            </DataTemplate>
+            <DataTemplate DataType="{x:Type vm:WikiSiteEditingViewModel}">
+                <v:WikiSiteEditingVIew />
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
                 <v:RecentChangeView />
@@ -78,6 +84,15 @@
                 <Setter Property="Margin" Value="{Binding Margin}" />
                 <Setter Property="VerticalAlignment" Value="Center" />
                 <Setter Property="Visibility" Value="{Binding Text, ConverterParameter=Inverse, Converter={StaticResource UniversalBooleanConverter}}" />
+            </Style>
+            <Style x:Key="HelpBlock" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="{x:Static SystemColors.GrayTextBrush}" />
+            </Style>
+            <Style x:Key="TextBlock.DT" TargetType="TextBlock">
+                <Setter Property="FontWeight" Value="Bold"/>
+            </Style>
+            <Style x:Key="TextBlock.DD" TargetType="TextBlock">
+                <Setter Property="Margin" Value="4,0,0,0" />
             </Style>
             <Style x:Key="Heading1" TargetType="TextBlock">
                 <Setter Property="Foreground" Value="#FF19478A" />

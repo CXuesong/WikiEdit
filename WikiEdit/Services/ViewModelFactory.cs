@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Events;
 using WikiClientLibrary;
+using WikiEdit.Controllers;
 using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
 using WikiEdit.Views.Documents;
@@ -15,15 +16,21 @@ namespace WikiEdit.Services
     /// This factory interface is used to create various kinds of document view models.
     /// This interface is responsible for injecting the dependencies of these view models.
     /// </summary>
-    public interface IViewModelFactory
+    internal interface IViewModelFactory
     {
+        #region Documents
+
         WikiSiteOverviewViewModel CreateWikiSiteOverview(WikiSiteViewModel wikiSite);
 
         PageEditorViewModel CreatePageEditor(Page page, WikiSiteViewModel wikiSite);
 
+        #endregion
+
         RecentChangeViewModel CreateRecentChange(RecentChangesEntry model, WikiSiteViewModel wikiSite);
 
         Task<PageEditorViewModel> OpenPageEditorAsync(WikiSiteViewModel wikiSite, string pageTitle);
+
+        WikiSiteEditingViewModel CreateWikiSiteEditingViewModel(Action accpentCallback, Action cancelCallback);
     }
 
     internal class ViewModelFactory : IViewModelFactory
@@ -32,15 +39,18 @@ namespace WikiEdit.Services
         private readonly IChildViewModelService _ChildViewModelService;
         private readonly SettingsService _SettingsService;
         private readonly ITextEditorFactory _TextEditorFactory;
+        private readonly WikiEditController _WikiEditController;
 
         public ViewModelFactory(IEventAggregator eventAggregator,
             IChildViewModelService childViewModelService,
-            SettingsService settingsService, ITextEditorFactory textEditorFactory)
+            SettingsService settingsService, ITextEditorFactory textEditorFactory, 
+            WikiEditController wikiEditController)
         {
             _EventAggregator = eventAggregator;
             _ChildViewModelService = childViewModelService;
             _SettingsService = settingsService;
             _TextEditorFactory = textEditorFactory;
+            _WikiEditController = wikiEditController;
         }
 
         public WikiSiteOverviewViewModel CreateWikiSiteOverview(WikiSiteViewModel wikiSite)
@@ -76,6 +86,12 @@ namespace WikiEdit.Services
             }
             editor.IsActive = true;
             return editor;
+        }
+
+        /// <inheritdoc />
+        public WikiSiteEditingViewModel CreateWikiSiteEditingViewModel(Action accpentCallback, Action cancelCallback)
+        {
+            return new WikiSiteEditingViewModel(_WikiEditController, accpentCallback, cancelCallback);
         }
     }
 }

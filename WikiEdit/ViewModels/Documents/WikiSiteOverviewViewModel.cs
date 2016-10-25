@@ -17,7 +17,7 @@ using WikiEdit.Services;
 
 namespace WikiEdit.ViewModels.Documents
 {
-    public class WikiSiteOverviewViewModel : DocumentViewModel
+    internal class WikiSiteOverviewViewModel : DocumentViewModel
     {
         private readonly IViewModelFactory _ViewModelFactory;
         private CancellationTokenSource reloadSiteInfoCts;
@@ -40,10 +40,10 @@ namespace WikiEdit.ViewModels.Documents
             _ViewModelFactory = viewModelFactory;
             Title = wikiSite.DisplayName;
             BuildContentId(wikiSite.ApiEndpoint);
-            InitializeAsync().Forget();
+            RefreshSiteInfoAsync().Forget();
         }
 
-        private async Task InitializeAsync()
+        private async Task RefreshSiteInfoAsync()
         {
             IsBusy = true;
             Status = Tx.T("please wait");
@@ -51,12 +51,10 @@ namespace WikiEdit.ViewModels.Documents
             {
                 await WikiSite.GetSiteAsync();
                 Title = WikiSite.DisplayName;
-                NeedReinitializeSite = false;
             }
             catch (Exception ex)
             {
-                Status = ex.Message;
-                NeedReinitializeSite = true;
+                Status = Utility.GetExceptionMessage(ex);
             }
             IsBusy = false;
             RefreshRecentActivities();
@@ -70,6 +68,8 @@ namespace WikiEdit.ViewModels.Documents
         }
 
         #region Site Information
+
+        private DelegateCommand _ReinitializeSiteCommand;
 
         private void RefreshRecentActivities()
         {
@@ -109,9 +109,6 @@ namespace WikiEdit.ViewModels.Documents
             }
         }
 
-
-        private DelegateCommand _ReinitializeSiteCommand;
-
         public DelegateCommand ReinitializeSiteCommand
         {
             get
@@ -120,22 +117,46 @@ namespace WikiEdit.ViewModels.Documents
                 {
                     _ReinitializeSiteCommand = new DelegateCommand(() =>
                     {
-                        InitializeAsync().Forget();
-                    }, () => _NeedReinitializeSite);
+                        //WikiSite.InvalidateSite();
+                        // We'll also invalidate all the opened page editors.
+                        RefreshSiteInfoAsync().Forget();
+                    }, () => !IsBusy);
                 }
                 return _ReinitializeSiteCommand;
             }
         }
+        private WikiSiteEditingViewModel _WikiSiteEditor;
 
-        private bool _NeedReinitializeSite;
-
-        public bool NeedReinitializeSite
+        public WikiSiteEditingViewModel WikiSiteEditor
         {
-            get { return _NeedReinitializeSite; }
-            set
+            get { return _WikiSiteEditor; }
+            private set { SetProperty(ref _WikiSiteEditor, value); }
+        }
+
+        private DelegateCommand _EditWikiSiteCommand;
+
+        public DelegateCommand EditWikiSiteCommand
+        {
+            get
             {
-                if (SetProperty(ref _NeedReinitializeSite, value))
-                    _ReinitializeSiteCommand?.RaiseCanExecuteChanged();
+                if (_EditWikiSiteCommand == null)
+                {
+                    _EditWikiSiteCommand = new DelegateCommand(() =>
+                    {
+                        if (WikiSiteEditor != null) return;
+                        WikiSiteEditor = _ViewModelFactory.CreateWikiSiteEditingViewModel(
+                            () =>
+                            {
+                                WikiSite.Name = WikiSiteEditor.Name;
+                                WikiSite.ApiEndpoint = WikiSiteEditor.ApiEndpoint;
+                                WikiSite.InvalidateSite();
+                                RefreshSiteInfoAsync().Forget();
+                                WikiSiteEditor = null;
+                            }, () => WikiSiteEditor = null);
+                        WikiSiteEditor.LoadFromWikiSite(WikiSite);
+                    }, () => WikiSiteEditor == null);
+                }
+                return _EditWikiSiteCommand;
             }
         }
 

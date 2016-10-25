@@ -76,7 +76,7 @@ namespace WikiEdit.ViewModels
                         }
                         catch (Exception ex)
                         {
-                            Status = ex.Message;
+                            Status = Utility.GetExceptionMessage(ex);
                         }
                         finally
                         {
@@ -90,7 +90,7 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
-        public RecentChangeViewModel(IViewModelFactory viewModelFactory, 
+        internal RecentChangeViewModel(IViewModelFactory viewModelFactory, 
             WikiSiteViewModel wikiSite, RecentChangesEntry model)
         {
             if (viewModelFactory == null) throw new ArgumentNullException(nameof(viewModelFactory));

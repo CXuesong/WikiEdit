@@ -28,7 +28,6 @@ namespace WikiEdit.ViewModels
 
         public string Heading => Tx.T("login into wikiname", "name", WikiSite.DisplayName);
 
-
         public string UserName
         {
             get { return _UserName; }
@@ -37,7 +36,7 @@ namespace WikiEdit.ViewModels
                 if (SetProperty(ref _UserName, value))
                 {
                     if (string.IsNullOrEmpty(value))
-                        errors.SetErrors(nameof(UserName), new[] {Tx.T("field is required")});
+                        errors.SetErrors(nameof(UserName), new[] {Tx.T("errors.field is required")});
                     else
                         errors.ClearErrors(nameof(UserName));
                 }

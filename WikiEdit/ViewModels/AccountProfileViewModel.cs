@@ -109,7 +109,7 @@ namespace WikiEdit.ViewModels
                         }
                         catch (Exception ex)
                         {
-                            Status = ex.Message;
+                            Status = Utility.GetExceptionMessage(ex);
                         }
                         IsBusy = false;
                     });
@@ -168,7 +168,7 @@ namespace WikiEdit.ViewModels
                             }
                             catch (Exception ex)
                             {
-                                Status = ex.Message;
+                                Status = Utility.GetExceptionMessage(ex);
                             }
                             finally
                             {
@@ -189,21 +189,18 @@ namespace WikiEdit.ViewModels
         {
         }
 
-        internal AccountProfileViewModel(IEventAggregator eventAggregator, WikiSiteViewModel siteVm, WikiSite siteModel)
+        internal AccountProfileViewModel(IEventAggregator eventAggregator, WikiSiteViewModel wikiSite, WikiSite siteModel)
         {
-            if (siteVm == null) throw new ArgumentNullException(nameof(siteVm));
+            if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
-            WikiSite = siteVm;
+            WikiSite = wikiSite;
             // Try to load cached account info
             if (siteModel != null)
             {
                 _UserName = siteModel.UserName;
                 _Groups = siteModel.UserGroups?.ToList();
             }
-            eventAggregator.GetEvent<AccountInfoRefreshedEvent>().Subscribe(async site =>
-            {
-                if (site == WikiSite) await ReloadAsync();
-            });
+            wikiSite.AccountRefreshedEvent.Subscribe(() => ReloadAsync().Forget());
         }
     }
 }

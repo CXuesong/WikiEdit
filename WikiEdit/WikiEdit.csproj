@@ -133,6 +133,7 @@
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\TextEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\WikitextEditorViewModel.cs" />
+    <Compile Include="ViewModels\WikiSiteEditingViewModel.cs" />
     <Compile Include="Views\DocumentOutlineView.xaml.cs">
       <DependentUpon>DocumentOutlineView.xaml</DependentUpon>
     </Compile>
@@ -147,6 +148,9 @@
     </Compile>
     <Compile Include="Views\TextEditors\WikitextEditorView.xaml.cs">
       <DependentUpon>WikitextEditorView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\WikiSiteEditingVIew.xaml.cs">
+      <DependentUpon>WikiSiteEditingVIew.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\WikiSiteListView.xaml.cs">
       <DependentUpon>WikiSiteListView.xaml</DependentUpon>
@@ -214,6 +218,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\WikiSiteEditingVIew.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\WikiSiteListView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -246,6 +254,9 @@
     <Resource Include="Images\WebLG.png" />
     <Resource Include="Images\UserLG.png" />
     <Resource Include="Images\User.png" />
+    <Resource Include="Images\PencilLG.png" />
+    <Resource Include="Images\Pencil.png" />
+    <Resource Include="Images\Refresh.png" />
     <Content Include="SyntaxHighlighters\Wikitext.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

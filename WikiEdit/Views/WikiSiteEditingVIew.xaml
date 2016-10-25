@@ -1,0 +1,51 @@
+﻿<UserControl
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WikiEdit.Views"
+             xmlns:Tx="http://unclassified.software/source/txtranslation"
+             xmlns:vm="clr-namespace:WikiEdit.ViewModels"
+             xmlns:WikiEdit="clr-namespace:WikiEdit" x:Class="WikiEdit.Views.WikiSiteEditingVIew"
+             mc:Ignorable="d" 
+             d:DesignHeight="200" d:DesignWidth="500"
+             d:DataContext="{d:DesignInstance {x:Type vm:WikiSiteEditingViewModel}}">
+    <UserControl.Resources>
+        <WikiEdit:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
+    </UserControl.Resources>
+    <Grid>
+        <Grid.RowDefinitions>
+            <RowDefinition/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="2*"/>
+            <ColumnDefinition Width="4"/>
+            <ColumnDefinition Width="*"/>
+        </Grid.ColumnDefinitions>
+        <StackPanel>
+            <Label Content="{Tx:T wiki site.name}" />
+            <Grid>
+                <TextBox x:Name="NameTextBox" Text="{Binding Name}" />
+                <TextBlock Text="{Binding DataContext.SiteNameHint, ElementName=NameTextBox}" DataContext="{Binding ElementName=NameTextBox}" Style="{DynamicResource TextBoxHint}" />
+            </Grid>
+            <Label Content="{Tx:T wiki site.api endpoint}" />
+            <TextBox Text="{Binding ApiEndpoint, UpdateSourceTrigger=PropertyChanged}"/>
+            <TextBlock TextWrapping="Wrap" Text="{Tx:T wiki site.api endpoint hint}" Style="{DynamicResource HelpBlock}"/>
+        </StackPanel>
+        <StackPanel Grid.Row="1" Orientation="Horizontal" HorizontalAlignment="Center">
+            <Button Content="{Tx:T ok}" IsDefault="True" Command="{Binding OkCommand}" />
+            <Button Content="{Tx:T cancel}" IsCancel="True" Command="{Binding CancelCommand}" />
+        </StackPanel>
+        <StackPanel Grid.Column="2" Grid.RowSpan="2">
+            <ProgressBar IsIndeterminate="True" Visibility="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}}" />
+            <TextBlock TextWrapping="Wrap" Text="{Binding Status}" />
+            <Separator />
+            <TextBlock Text="{Tx:T wiki site.name}" Style="{DynamicResource TextBlock.DT}" />
+            <TextBlock Text="{Binding SiteName}" Style="{DynamicResource TextBlock.DD}" />
+            <TextBlock Text="{Tx:T account.name}" Style="{DynamicResource TextBlock.DT}" />
+            <TextBlock Text="{Binding UserName}" Style="{DynamicResource TextBlock.DD}" />
+        </StackPanel>
+    </Grid>
+</UserControl>
+

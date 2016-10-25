@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using Prism.Events;
 using Prism.Mvvm;
@@ -20,6 +21,22 @@ namespace WikiEdit.ViewModels
         private readonly WikiEditController _Controller;
         private readonly IEventAggregator _EventAggregator;
         private readonly WikiSite _Model;
+
+        // We need some weak event listeners… PubSubEvent can do this.
+        /// <summary>
+        /// Fires when the <see cref="Site"/> instance has been invalidated.
+        /// </summary>
+        public readonly PubSubEvent SiteInvalidatedEvent = new PubSubEvent();
+
+        /// <summary>
+        /// Fires when the <see cref="Site"/> instance/content has been refreshed.
+        /// </summary>
+        public readonly PubSubEvent SiteRefreshedEvent = new PubSubEvent();
+
+        /// <summary>
+        /// Fires when the account information has been refreshed.
+        /// </summary>
+        public readonly PubSubEvent AccountRefreshedEvent = new PubSubEvent();
 
         #region User Settings
 
@@ -103,7 +120,6 @@ namespace WikiEdit.ViewModels
             }
         }
 
-
         #endregion
 
         public string DisplayName => string.IsNullOrWhiteSpace(_Model.Name) ? _Model.SiteName : _Model.Name;
@@ -115,6 +131,7 @@ namespace WikiEdit.ViewModels
         /// </summary>
         private Site _Site;
         private Task<Site> _GetSiteTask;
+        private CancellationTokenSource _GetSiteTaskCts;
 
         /// <summary>
         /// Asynchronously get/create a WCL Site instance.
@@ -123,26 +140,47 @@ namespace WikiEdit.ViewModels
         {
             if (_Site != null) return Task.FromResult(_Site);
             if (_GetSiteTask == null)
-                _GetSiteTask = InitializeSiteAsync();
+            {
+                _GetSiteTaskCts?.Dispose();
+                _GetSiteTaskCts = new CancellationTokenSource();
+                _GetSiteTask = InitializeSiteAsync(_GetSiteTaskCts.Token);
+            }
             return _GetSiteTask;
         }
 
+        /// <summary>
+        /// Invalidates the current <see cref="Site"/> instance maintined
+        /// by the view model.
+        /// </summary>
         public void InvalidateSite()
         {
+            _GetSiteTaskCts?.Cancel();
+            if (_Site == null) return;
             _Site = null;
+            SiteInvalidatedEvent.Publish();
         }
 
-        private async Task<Site> InitializeSiteAsync()
+        private async Task<Site> InitializeSiteAsync(CancellationToken ct)
         {
-            if (_Site == null)
+            try
             {
-                _Site = await _Controller.CreateSiteAsync(_Model.ApiEndpoint);
+                Debug.Assert(_Site == null);
+                var s = await _Controller.CreateSiteAsync(_Model.ApiEndpoint);
+                ct.ThrowIfCancellationRequested();
+                Debug.Assert(_Site == null);
+                _Site = s;
                 PullSiteInfo();
                 // Publish events.
-                _EventAggregator.GetEvent<SiteInfoRefreshedEvent>().Publish(this);
-                _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
+                SiteRefreshedEvent.Publish();
+                AccountRefreshedEvent.Publish();
+                return _Site;
             }
-            return _Site;
+            finally
+            {
+                _GetSiteTaskCts.Dispose();
+                _GetSiteTaskCts = null;
+                _GetSiteTask = null;
+            }
         }
 
         private void PullSiteInfo()
@@ -183,7 +221,7 @@ namespace WikiEdit.ViewModels
             }
             var site = await GetSiteAsync();
             await site.RefreshUserInfoAsync();
-            _EventAggregator.GetEvent<AccountInfoRefreshedEvent>().Publish(this);
+            AccountRefreshedEvent.Publish();
         }
 
         internal WikiSite GetModel() => _Model;

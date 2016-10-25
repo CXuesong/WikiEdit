@@ -18,14 +18,6 @@ namespace WikiEdit
     {
     }
 
-    internal class SiteInfoRefreshedEvent : PubSubEvent<WikiSiteViewModel>
-    {
-    }
-
-    internal class AccountInfoRefreshedEvent : PubSubEvent<WikiSiteViewModel>
-    {
-    }
-
     /// <summary>
     /// Raised when the application settings have been changed.
     /// </summary>

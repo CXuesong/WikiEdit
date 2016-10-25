@@ -9,6 +9,7 @@
              xmlns:Tx="http://unclassified.software/source/txtranslation"
              xmlns:wpfControls="http://wpfcontrols.com/"
              xmlns:controls="clr-namespace:WikiEdit.Controls"
+             xmlns:fluent="urn:fluent-ribbon"
              x:Class="WikiEdit.Views.Documents.WikiSiteOverviewView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type dvm:WikiSiteOverviewViewModel}}">
@@ -16,19 +17,38 @@
         <WikiEdit:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
     </UserControl.Resources>
     <Grid Margin="5">
+        <VisualStateManager.VisualStateGroups>
+            <VisualStateGroup x:Name="SiteEditorStates">
+                <VisualStateGroup.Transitions>
+                    <VisualTransition GeneratedDuration="0:0:1"/>
+                </VisualStateGroup.Transitions>
+                <VisualState x:Name="SiteEditorExpanded"/>
+                <VisualState x:Name="SiteEditorCollapsed">
+                    <Storyboard>
+                        <DoubleAnimationUsingKeyFrames Storyboard.TargetProperty="(UIElement.Opacity)" Storyboard.TargetName="SiteEditor">
+                            <EasingDoubleKeyFrame KeyTime="0" Value="0"/>
+                        </DoubleAnimationUsingKeyFrames>
+                    </Storyboard>
+                </VisualState>
+            </VisualStateGroup>
+        </VisualStateManager.VisualStateGroups>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto" />
             <RowDefinition />
         </Grid.RowDefinitions>
         <StackPanel>
-            <Grid>
+            <ContentPresenter x:Name="SiteEditor" Content="{Binding WikiSiteEditor}" DataContextChanged="SiteEditor_OnDataContextChanged" />
+            <Grid x:Name="SiteBannerPanel">
                 <Grid.ColumnDefinitions>
                     <ColumnDefinition/>
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Style="{DynamicResource Heading2}"
                     Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
-                <Button Content="{Tx:T refresh}" Grid.Column="1" VerticalAlignment="Bottom" Visibility="{Binding IsEnabled, Converter={StaticResource UniversalBooleanConverter}, RelativeSource={RelativeSource Self}}" Command="{Binding ReinitializeSiteCommand, Mode=OneWay}" />
+                <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10" VerticalAlignment="Bottom">
+                    <fluent:Button Command="{Binding ReinitializeSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Refresh.png" Size="Small" ToolTip="{Tx:T refresh}"/>
+                    <fluent:Button Command="{Binding EditWikiSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Pencil.png" Size="Small" ToolTip="{Tx:T edit}" />
+                </StackPanel>
             </Grid>
             <Separator />
             <TextBlock>

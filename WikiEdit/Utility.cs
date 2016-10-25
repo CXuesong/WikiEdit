@@ -7,6 +7,7 @@ using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Net;
+using System.Net.Http;
 using System.Reflection;
 using System.Runtime.CompilerServices;
 using System.Runtime.Serialization.Formatters.Binary;
@@ -20,6 +21,7 @@ using System.Windows.Threading;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
+using Prism.Mvvm;
 using WikiClientLibrary;
 using Xceed.Wpf.AvalonDock.Controls;
 
@@ -102,13 +104,27 @@ namespace WikiEdit
             return null;
         }
 
+        /// <summary>
+        /// Makes exception messages easier to read.
+        /// </summary>
+        public static string GetExceptionMessage(Exception ex)
+        {
+            if (ex == null) throw new ArgumentNullException(nameof(ex));
+            var ae = ex as AggregateException;
+            if (ae != null)
+                return string.Join(" ", ae.InnerExceptions.Select(GetExceptionMessage));
+            if (ex is HttpRequestException) // The description is usually useless
+                return ex.InnerException?.Message ?? ex.Message;
+            return ex.Message;
+        }
+
         public static void ReportException(Exception ex, string prompt = null)
         {
 #if DEBUG
             MessageBox.Show((prompt == null ? null : prompt + "\n") + ex, ApplicationTitle,
                 MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #else
-            MessageBox.Show((prompt == null ? null : (prompt + "\n")) + ex.Message,
+            MessageBox.Show((prompt == null ? null : (prompt + "\n")) + GetExceptionMessage(ex),
                 ApplicationTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
 #endif
         }
@@ -138,7 +154,8 @@ namespace WikiEdit
             if (task == null) throw new ArgumentNullException(nameof(task));
             // This method should only be called from main thread to avoid possible deadlocks.
             // See http://stackoverflow.com/questions/22629951/suppressing-warning-cs4014-because-this-call-is-not-awaited-execution-of-the#comment58040933_22630057 .
-            Debug.Assert(Application.Current.Dispatcher == Dispatcher.CurrentDispatcher);
+            Debug.Assert(Application.Current.Dispatcher == Dispatcher.CurrentDispatcher,
+                "Attempting to forget a Task when the invoker is not on the main thread.");
         }
 
         /// <summary>
@@ -176,6 +193,12 @@ namespace WikiEdit
             {
                 return dispatcher.Invoke(action);
             }
+        }
+
+        public static void SetErrors<T>(this ErrorsContainer<T> errorsContainer, string propertyName, params T[] errors)
+        {
+            if (errorsContainer == null) throw new ArgumentNullException(nameof(errorsContainer));
+            errorsContainer.SetErrors(propertyName, (IEnumerable<T>) errors);
         }
     }
 

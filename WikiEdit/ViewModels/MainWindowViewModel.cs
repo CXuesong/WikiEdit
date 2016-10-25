@@ -22,6 +22,7 @@ namespace WikiEdit.ViewModels
         private readonly WikiEditController wikiEditController;
         private string _FileName;
         private readonly IChildViewModelService _ChildViewModelService;
+        private readonly IViewModelFactory _ViewModelFactory;
 
         [Dependency]
         public WikiSiteListViewModel WikiSiteListViewModel { get; set; }
@@ -33,12 +34,13 @@ namespace WikiEdit.ViewModels
 
         public MainWindowViewModel(WikiEditController wikiEditController,
             IChildViewModelService childViewModelService,
-            IEventAggregator eventAggregator)
+            IEventAggregator eventAggregator, IViewModelFactory viewModelFactory)
         {
             if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
             if (childViewModelService == null) throw new ArgumentNullException(nameof(childViewModelService));
             this.wikiEditController = wikiEditController;
             _ChildViewModelService = childViewModelService;
+            _ViewModelFactory = viewModelFactory;
             eventAggregator.GetEvent<ActiveDocumentChangedEvent>().Subscribe(OnActiveDocumentChanged);
         }
 
@@ -50,7 +52,14 @@ namespace WikiEdit.ViewModels
         public WikiSiteViewModel CurrentWikiSite
         {
             get { return _CurrentWikiSite; }
-            private set { SetProperty(ref _CurrentWikiSite, value); }
+            private set
+            {
+                if (SetProperty(ref _CurrentWikiSite, value))
+                {
+                    _ShowWikiSiteCommand?.RaiseCanExecuteChanged();
+                    _ShowAccountProfileCommand?.RaiseCanExecuteChanged();
+                }
+            }
         }
 
         public bool IsAccountProfileOpen
@@ -59,21 +68,41 @@ namespace WikiEdit.ViewModels
             set { SetProperty(ref _IsAccountProfileOpen, value); }
         }
 
-        private DelegateCommand _ShowAccountProfile;
 
-        public DelegateCommand ShowAccountProfile
+        private DelegateCommand _ShowWikiSiteCommand;
+
+        public DelegateCommand ShowWikiSiteCommand
         {
             get
             {
-                if (_ShowAccountProfile == null)
+                if (_ShowWikiSiteCommand == null)
                 {
-                    _ShowAccountProfile = new DelegateCommand(() =>
+                    _ShowWikiSiteCommand = new DelegateCommand(() =>
+                    {
+                        if (CurrentWikiSite == null) return;
+                        _ChildViewModelService.Documents.ActivateOrCreate(CurrentWikiSite,
+                            () => _ViewModelFactory.CreateWikiSiteOverview(CurrentWikiSite));
+                    }, () => CurrentWikiSite != null);
+                }
+                return _ShowWikiSiteCommand;
+            }
+        }
+
+        private DelegateCommand _ShowAccountProfileCommand;
+
+        public DelegateCommand ShowAccountProfileCommand
+        {
+            get
+            {
+                if (_ShowAccountProfileCommand == null)
+                {
+                    _ShowAccountProfileCommand = new DelegateCommand(() =>
                     {
                         if (CurrentWikiSite == null) IsAccountProfileOpen = false;
                         IsAccountProfileOpen = !IsAccountProfileOpen;
-                    });
+                    }, () => CurrentWikiSite != null);
                 }
-                return _ShowAccountProfile;
+                return _ShowAccountProfileCommand;
             }
         }
 

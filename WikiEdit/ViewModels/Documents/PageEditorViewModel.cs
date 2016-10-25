@@ -77,7 +77,7 @@ namespace WikiEdit.ViewModels.Documents
             }
             catch (Exception ex)
             {
-                Status = ex.Message;
+                Status = Utility.GetExceptionMessage(ex);
             }
             finally
             {
@@ -169,7 +169,7 @@ namespace WikiEdit.ViewModels.Documents
                             {
                                 // Restore the content first.
                                 WikiPage.Content = oldContent;
-                                Status = ex.Message;
+                                Status = Utility.GetExceptionMessage(ex);
                             }
                             finally
                             {

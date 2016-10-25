@@ -45,8 +45,8 @@
                 </fluent:Backstage>
             </fluent:Ribbon.Menu>
             <fluent:Ribbon.ToolBarItems>
-                <fluent:Button Size="Middle" Header="{Binding CurrentWikiSite.Name}" Visibility="{Binding CurrentWikiSite, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}" ToolTip="{Tx:T wiki site name}" Icon="/WikiEdit;component/Images/WebLG.png" LargeIcon="/WikiEdit;component/Images/WebLG.png" />
-                <fluent:Button x:Name="AccountProfileRibbonButton" Size="Middle" Header="{Binding CurrentWikiSite.AccountProfile.UserName}" Command="{Binding ShowAccountProfile}"  Visibility="{Binding CurrentWikiSite, Converter={StaticResource ValueToVisibilityConverter}, Mode=OneWay}" ToolTip="{Tx:T account profile}" Icon="/WikiEdit;component/Images/User.png" LargeIcon="/WikiEdit;component/Images/UserLG.png" />
+                <fluent:Button Size="Middle" x:Name="WikiSiteRibbonButton" Header="{Binding CurrentWikiSite.Name}" Command="{Binding ShowWikiSiteCommand}" ToolTip="{Tx:T wiki site}" Icon="/WikiEdit;component/Images/WebLG.png" LargeIcon="/WikiEdit;component/Images/WebLG.png" />
+                <fluent:Button Size="Middle" x:Name="AccountProfileRibbonButton" Header="{Binding CurrentWikiSite.AccountProfile.UserName}" Command="{Binding ShowAccountProfileCommand}" ToolTip="{Tx:T account}" Icon="/WikiEdit;component/Images/User.png" LargeIcon="/WikiEdit;component/Images/UserLG.png" />
             </fluent:Ribbon.ToolBarItems>
             <fluent:RibbonTabItem Header="General">
                 <fluent:RibbonGroupBox>
@@ -73,7 +73,7 @@
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutAnchorablePane DockWidth="300">
                             <xcad:LayoutAnchorable ContentId="AccountProfile" Title="{Tx:T wiki site list}">
-
+                                <v:WikiSiteListView DataContext="{Binding WikiSiteListViewModel}" />
                             </xcad:LayoutAnchorable>
                             <xcad:LayoutAnchorable ContentId="DocumentOutline" Title="{Tx:T document outline}">
                                 <v:DocumentOutlineView DataContext="{Binding DocumentOutlineViewModel}" />
