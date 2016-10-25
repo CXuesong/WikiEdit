@@ -260,6 +260,8 @@
     <Resource Include="Images\Refresh.png" />
     <Resource Include="Images\Add.png" />
     <Resource Include="Images\Remove.png" />
+    <Resource Include="Images\Clock.png" />
+    <Resource Include="Images\Comment.png" />
     <Content Include="SyntaxHighlighters\Wikitext.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

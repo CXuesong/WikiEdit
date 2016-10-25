@@ -87,12 +87,14 @@ namespace WikiEdit.ViewModels.Documents
         protected void ReloadPageInformation()
         {
             Title = WikiPage.Title;
+            // Notifies VM that the "content" of wikipage has been changed.
+            OnPropertyChanged(nameof(WikiPage));
         }
 
         protected void ReloadPageContent()
         {
             // Switch content model, if necessary.
-            if (_EditorContentModel != WikiPage.ContentModel)
+            if (EditorContentModel != WikiPage.ContentModel)
             {
                 var ls = _SettingsService.GetSettingsByWikiContentModel(WikiPage.ContentModel);
                 if (string.IsNullOrEmpty(ls.LanguageName))
@@ -104,7 +106,7 @@ namespace WikiEdit.ViewModels.Documents
                     TextEditor = _TextEditorFactory.CreateTextEditor(ls.LanguageName);
                     TextEditor.DocumentOutline = DocumentOutline;
                 }
-                _EditorContentModel = WikiPage.ContentModel;
+                EditorContentModel = WikiPage.ContentModel;
             }
             if (TextEditor != null)
             {

@@ -39,6 +39,10 @@
 		<text key="new session">New session</text>
 		<text key="ok">Ok</text>
 		<text key="open session">Open session</text>
+		<text key="page.content model" comment="Page content model e.g. wikitext, it's an attribute of MediaWiki pages.">Content model</text>
+		<text key="page.last revision by">Last revision by</text>
+		<text key="page.last revision summary">Last revision summary</text>
+		<text key="page.last revision time">Last revision time</text>
 		<text key="password">Password</text>
 		<text key="please wait">Please wait…</text>
 		<text key="refresh">Refresh</text>
@@ -299,6 +303,10 @@
 		<text key="new session">新建会话</text>
 		<text key="ok">确定</text>
 		<text key="open session">打开会话</text>
+		<text key="page.content model">内容模型</text>
+		<text key="page.last revision by">最后修订者</text>
+		<text key="page.last revision summary">最后修订摘要</text>
+		<text key="page.last revision time">最后修订时间</text>
 		<text key="password">密码</text>
 		<text key="please wait" acceptpunctuation="true">请稍后……</text>
 		<text key="refresh">刷新</text>

@@ -52,7 +52,7 @@
             </Grid>
             <Separator />
             <TextBlock>
-                <TextBlock Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+                <TextBlock Text="{Binding WikiSite.Name, FallbackValue=Wiki Site}" />
                 <TextBlock Text=" " />
                 <Hyperlink>
                     <Run Text="{Binding WikiSite.SiteUrl}" />

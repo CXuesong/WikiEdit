@@ -24,5 +24,10 @@ namespace WikiEdit.Views.Documents
         {
             InitializeComponent();
         }
+
+        private void LastRevisionCommentButton_OnClick(object sender, RoutedEventArgs e)
+        {
+            LastRevisionCommentPopup.IsOpen = true;
+        }
     }
 }
