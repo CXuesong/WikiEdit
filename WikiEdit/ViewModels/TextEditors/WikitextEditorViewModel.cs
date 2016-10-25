@@ -24,8 +24,7 @@ namespace WikiEdit.ViewModels.TextEditors
         {
             base.OnRefreshDocumentOutline();
             var parser = new WikitextParser();
-            string documentText = null;
-            Dispatcher.AutoInvoke(() => documentText = TextDocument.Text);
+            var documentText = TextBox.Text;
             var root = parser.Parse(documentText);
             var headings = root.EnumDescendants().OfType<Heading>();
             Dispatcher.AutoInvoke(() =>
@@ -34,7 +33,11 @@ namespace WikiEdit.ViewModels.TextEditors
                 var levelStack = new Stack<Tuple<Heading, DocumentOutlineItem>>();
                 foreach (var h in headings)
                 {
-                    var outline = new DocumentOutlineItem {Text = string.Join(null, h.Inlines), OutlineContext = h};
+                    var outline = new DocumentOutlineItem
+                    {
+                        Text = string.Join(null, h.Inlines).Trim(),
+                        OutlineContext = h
+                    };
                     outline.DoubleClick += OutlineItem_DoubleClick;
                     while (levelStack.Count > 0)
                     {
@@ -62,11 +65,11 @@ namespace WikiEdit.ViewModels.TextEditors
             // Navigates to the selected node.
             var outline = (DocumentOutlineItem) sender;
             var span = (IWikitextSpanInfo) outline.OutlineContext;
+            var line = (IWikitextLineInfo) outline.OutlineContext;
             if (span.HasSpanInfo)
-            {
-                SelectionStart = span.Start;
-                SelectionLength = span.Length;
-            }
+                TextBox.Select(span.Start, span.Length);
+            if (line.HasLineInfo())
+                TextBox.ScrollTo(line.LineNumber, line.LinePosition);
         }
     }
 }

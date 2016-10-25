@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WikiEdit.ViewModels.TextEditors;
 
 namespace WikiEdit.Views.TextEditors
 {
@@ -23,6 +24,12 @@ namespace WikiEdit.Views.TextEditors
         public WikitextEditorView()
         {
             InitializeComponent();
+        }
+
+        private void WikitextEditorView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var vm = e.NewValue as TextEditorViewModel;
+            vm?.InitializeTextEditor(TextEditor);
         }
     }
 }

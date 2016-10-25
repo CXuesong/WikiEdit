@@ -112,7 +112,6 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Behaviors\TextEditorBehavior.cs" />
     <Compile Include="Controllers\WikiEditController.cs" />
     <Compile Include="Controls\AutoCompleteTextBox.cs" />
     <Compile Include="Events.cs" />
@@ -129,6 +128,7 @@
     <Compile Include="ViewModels\Primitives\Badges.cs" />
     <Compile Include="ViewModels\Primitives\CommandLinkViewModel.cs" />
     <Compile Include="ViewModels\Primitives\DocumentOutlineItem.cs" />
+    <Compile Include="ViewModels\Primitives\TextBoxViewModelAdapter.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\TextEditorViewModel.cs" />

@@ -21,7 +21,7 @@
                 <Style TargetType="TreeViewItem">
                     <Setter Property="IsSelected" Value="{Binding IsSelected}" />
                     <Setter Property="IsExpanded" Value="True" />
-                    <EventSetter Event="MouseDoubleClick" Handler="DocumentOutlineItem_OnMouseDoubleClick" />
+                    <EventSetter Event="PreviewMouseDoubleClick" Handler="DocumentOutlineItem_OnPreviewMouseDoubleClick" />
                 </Style>
             </TreeView.ItemContainerStyle>
         </TreeView>

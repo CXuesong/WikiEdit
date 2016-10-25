@@ -70,7 +70,7 @@ namespace WikiEdit.ViewModels.Documents
                 }
                 if (TextEditor != null)
                 {
-                    TextEditor.TextDocument.Text = WikiPage.Content;
+                    TextEditor.TextBox.Text = WikiPage.Content;
                     TextEditor.InvalidateDocumentOutline(true);
                 }
                 Status = null;
@@ -147,7 +147,7 @@ namespace WikiEdit.ViewModels.Documents
                             if (IsBusy) return;
                             if (TextEditor == null) return;
                             var oldContent = WikiPage.Content;
-                            var newContent = TextEditor.TextDocument.Text;
+                            var newContent = TextEditor.TextBox.Text;
                             if (string.IsNullOrWhiteSpace(EditorSummary) && newContent != oldContent)
                                 return;
                             WikiPage.Content = newContent;

@@ -26,11 +26,13 @@ namespace WikiEdit.Views
             InitializeComponent();
         }
 
-        private void DocumentOutlineItem_OnMouseDoubleClick(object sender, MouseButtonEventArgs e)
+        private void DocumentOutlineItem_OnPreviewMouseDoubleClick(object sender, MouseButtonEventArgs e)
         {
-            var dc = ((FrameworkElement) sender).DataContext as DocumentOutlineItem;
+            var dc = ((FrameworkElement)sender).DataContext as DocumentOutlineItem;
             if (dc == null) return;
             dc.NotifyDoubleClick();
+            // We do not want to fire the same event on parent nodes
+            e.Handled = true;
         }
     }
 }

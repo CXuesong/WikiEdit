@@ -6,11 +6,10 @@
              xmlns:local="clr-namespace:WikiEdit.Views.TextEditors"
              xmlns:avalonedit="http://icsharpcode.net/sharpdevelop/avalonedit"
              xmlns:textEditors="clr-namespace:WikiEdit.ViewModels.TextEditors"
-             xmlns:behaviors="clr-namespace:WikiEdit.Behaviors"
-             xmlns:i="http://schemas.microsoft.com/expression/2010/interactivity"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300"
-             d:DataContext="{d:DesignInstance {x:Type textEditors:WikitextEditorViewModel}}">
+             d:DataContext="{d:DesignInstance {x:Type textEditors:WikitextEditorViewModel}}"
+             DataContextChanged="WikitextEditorView_OnDataContextChanged">
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition Height="Auto"/>
@@ -21,15 +20,10 @@
                 <Label Content="Wikitext" />
             </ToolBar>
         </ToolBarTray>
-        <avalonedit:TextEditor Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
+        <avalonedit:TextEditor x:Name="TextEditor" Grid.Row="1" HorizontalScrollBarVisibility="Disabled"
                                ShowLineNumbers="True"
                                FontFamily="{Binding LanguageSettings.FontFamily}"
                                FontSize="{Binding LanguageSettings.FontSize}"
-                               SyntaxHighlighting="Wikitext"
-                               Document="{Binding TextDocument}">
-            <i:Interaction.Behaviors>
-                <behaviors:TextEditorBehavior SelectionStart="{Binding SelectionStart}" SelectionLength="{Binding SelectionLength}" />
-            </i:Interaction.Behaviors>
-        </avalonedit:TextEditor>
+                               SyntaxHighlighting="Wikitext" />
     </Grid>
 </UserControl>

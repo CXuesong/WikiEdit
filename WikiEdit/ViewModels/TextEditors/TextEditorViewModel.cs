@@ -1,11 +1,13 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.ComponentModel;
 using System.Linq;
 using System.Text;
 using System.Text.RegularExpressions;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Prism.Mvvm;
@@ -25,13 +27,22 @@ namespace WikiEdit.ViewModels.TextEditors
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             _SettingsService = settingsService;
             Dispatcher = Dispatcher.CurrentDispatcher;
-            TextDocument.Changed += TextDocument_Changed;
             LoadSettings();
         }
 
         public event EventHandler IsActiveChanged;
 
-        public TextDocument TextDocument { get; } = new TextDocument();
+        public TextBoxViewModelAdapter TextBox { get; } = new TextBoxViewModelAdapter();
+
+        /// <summary>
+        /// Invoked from View.
+        /// </summary>
+        public void InitializeTextEditor(TextEditor textEditor)
+        {
+            if (textEditor == null) throw new ArgumentNullException(nameof(textEditor));
+            TextBox.Adaptee = textEditor;
+            TextBox.PropertyChanged += TextBox_PropertyChanged;
+        }
 
         private IList<DocumentOutlineItem> _DocumentOutline;
 
@@ -45,22 +56,6 @@ namespace WikiEdit.ViewModels.TextEditors
                     InvalidateDocumentOutline(true);
                 }
             }
-        }
-
-        private int _SelectionStart;
-
-        public int SelectionStart
-        {
-            get { return _SelectionStart; }
-            set { SetProperty(ref _SelectionStart, value); }
-        }
-
-        private int _SelectionLength;
-
-        public int SelectionLength
-        {
-            get { return _SelectionLength; }
-            set { SetProperty(ref _SelectionLength, value); }
         }
 
         /// <summary>
@@ -90,13 +85,16 @@ namespace WikiEdit.ViewModels.TextEditors
             LanguageSettings = _SettingsService.GetSettingsByLanguage("Wikitext");
         }
 
-        public static readonly TimeSpan DocumentAnalysisDelay = TimeSpan.FromSeconds(5);
+        public static readonly TimeSpan DocumentAnalysisDelay = TimeSpan.FromSeconds(1);
 
         private CancellationTokenSource impendingAnalysisCts;
 
-        private void TextDocument_Changed(object sender, DocumentChangeEventArgs e)
+        private void TextBox_PropertyChanged(object sender, PropertyChangedEventArgs e)
         {
-            InvalidateDocumentOutline();
+            if (e.PropertyName == nameof(TextBox.Text))
+            {
+                InvalidateDocumentOutline();
+            }
         }
 
         public void InvalidateDocumentOutline()

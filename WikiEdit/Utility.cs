@@ -158,6 +158,25 @@ namespace WikiEdit
                 dispatcher.Invoke(action);
             }
         }
+
+
+        /// <summary>
+        /// Invoke a function from the given <see cref="Dispatcher"/>. If the current
+        /// dispatcher is the same as given one, the function is called directly.
+        /// </summary>
+        public static T AutoInvoke<T>(this Dispatcher dispatcher, Func<T> action)
+        {
+            if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
+            if (action == null) throw new ArgumentNullException(nameof(action));
+            if (Thread.CurrentThread == dispatcher.Thread)
+            {
+                return action();
+            }
+            else
+            {
+                return dispatcher.Invoke(action);
+            }
+        }
     }
 
     /// <summary>
