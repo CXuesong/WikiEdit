@@ -44,6 +44,10 @@
 		<text key="page.last revision by">Last revision by</text>
 		<text key="page.last revision summary">Last revision summary</text>
 		<text key="page.last revision time">Last revision time</text>
+		<text key="page.title">Page title</text>
+		<text key="page diff.fetching">Fetching revisions: {revs} for diff…</text>
+		<text key="page diff.general title">{name1} - {name2}:Difference between revisions</text>
+		<text key="page diff.title">{name}: Difference between revisions</text>
 		<text key="password">Password</text>
 		<text key="please wait">Please wait…</text>
 		<text key="refresh">Refresh</text>
@@ -309,6 +313,10 @@
 		<text key="page.last revision by">最后修订者</text>
 		<text key="page.last revision summary">最后修订摘要</text>
 		<text key="page.last revision time">最后修订时间</text>
+		<text key="page.title">页面标题</text>
+		<text key="page diff.fetching" acceptpunctuation="true">正在获取修订版本以进行比对：{revs}……</text>
+		<text key="page diff.general title">{name1} - {name2}：版本间差异</text>
+		<text key="page diff.title">{name}：版本间差异</text>
 		<text key="password">密码</text>
 		<text key="please wait" acceptpunctuation="true">请稍后……</text>
 		<text key="refresh">刷新</text>
@@ -319,6 +327,8 @@
 		<text key="search">搜索</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
 		<text key="titles.recent changes">最近修改</text>
+		<text key="Tx:enum.and.combiner">、</text>
+		<text key="Tx:enum.and.last combiner">和</text>
 		<text key="user name">用户名</text>
 		<text key="wiki site">维基站点</text>
 		<text key="wiki site.api endpoint">API终结点地址</text>

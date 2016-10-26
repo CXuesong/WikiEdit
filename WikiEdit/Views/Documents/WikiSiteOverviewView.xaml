@@ -44,7 +44,7 @@
                     <ColumnDefinition Width="Auto"/>
                 </Grid.ColumnDefinitions>
                 <TextBlock Style="{DynamicResource Heading2}"
-                    Text="{Binding WikiSite.DisplayName, FallbackValue=Wiki Site}" />
+                    Text="{Binding SiteContext.DisplayName, FallbackValue=Wiki Site}" />
                 <StackPanel Grid.Column="1" Orientation="Horizontal" Margin="10" VerticalAlignment="Bottom">
                     <fluent:Button Command="{Binding RefreshSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Refresh.png" Size="Small" ToolTip="{Tx:T refresh}"/>
                     <fluent:Button Command="{Binding EditWikiSiteCommand, Mode=OneWay}" Icon="/WikiEdit;component/Images/Pencil.png" Size="Small" ToolTip="{Tx:T edit}" />
@@ -52,10 +52,10 @@
             </Grid>
             <Separator />
             <TextBlock>
-                <TextBlock Text="{Binding WikiSite.Name, FallbackValue=Wiki Site}" />
+                <TextBlock Text="{Binding SiteContext.Name, FallbackValue=Wiki Site}" />
                 <TextBlock Text=" " />
                 <Hyperlink>
-                    <Run Text="{Binding WikiSite.SiteUrl}" />
+                    <Run Text="{Binding SiteContext.SiteUrl}" />
                 </Hyperlink>
             </TextBlock>
             <Grid>

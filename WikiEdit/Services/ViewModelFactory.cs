@@ -38,6 +38,10 @@ namespace WikiEdit.Services
         Task<PageEditorViewModel> OpenPageEditorAsync(WikiSiteViewModel wikiSite, string pageTitle);
 
         WikiSiteEditingViewModel CreateWikiSiteEditingViewModel(Action accpentCallback, Action cancelCallback);
+
+        PageDiffViewModel CreatePageDiffViewModel(WikiSiteViewModel wikiSite);
+
+        PageDiffViewModel OpenPageDiffViewModel(WikiSiteViewModel wikiSite, int revisionId1, int revisionId2);
     }
 
     internal class ViewModelFactory : IViewModelFactory
@@ -106,6 +110,29 @@ namespace WikiEdit.Services
         public WikiSiteEditingViewModel CreateWikiSiteEditingViewModel(Action accpentCallback, Action cancelCallback)
         {
             return new WikiSiteEditingViewModel(_WikiEditController, accpentCallback, cancelCallback);
+        }
+
+        /// <inheritdoc />
+        public PageDiffViewModel CreatePageDiffViewModel(WikiSiteViewModel wikiSite)
+        {
+            return new PageDiffViewModel(wikiSite);
+        }
+
+        /// <inheritdoc />
+        public PageDiffViewModel OpenPageDiffViewModel(WikiSiteViewModel wikiSite, int revisionId1, int revisionId2)
+        {
+            if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
+            var viewer = _ChildViewModelService.Documents
+                .OfType<PageDiffViewModel>().FirstOrDefault(vm =>
+                        vm.SiteContext == wikiSite && vm.RevisionId1 == revisionId1 && vm.RevisionId2 == revisionId2);
+            if (viewer == null)
+            {
+                viewer = CreatePageDiffViewModel(wikiSite);
+                viewer.SetRevisionsAsync(revisionId1, revisionId2).Forget();
+                _ChildViewModelService.Documents.Add(viewer);
+            }
+            viewer.IsActive = true;
+            return viewer;
         }
     }
 }

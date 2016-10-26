@@ -106,7 +106,10 @@ namespace WikiEdit.ViewModels
                     TargetBadge = new PageTitleViewModel(model.Title, () =>
                     {
                         _ViewModelFactory.OpenPageEditorAsync(wikiSite, model.Title);
-                    }, null, null);
+                    }, () =>
+                    {
+                        _ViewModelFactory.OpenPageDiffViewModel(wikiSite, model.OldRevisionId, model.RevisionId);
+                    }, null);
                     break;
                 case RecentChangesType.Log:
                     TargetBadge = new CommandLinkViewModel(model.LogAction, () => { });

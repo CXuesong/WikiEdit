@@ -21,6 +21,8 @@ namespace WikiEdit.ViewModels.Documents
 
         public event EventHandler Closed;
 
+        private WikiSiteViewModel _SiteContext;
+
         #region Docking View Properties
 
         private string _Title;
@@ -119,7 +121,13 @@ namespace WikiEdit.ViewModels.Documents
         /// <summary>
         /// The context <see cref="WikiSiteViewModel"/> of the document.
         /// </summary>
-        public virtual WikiSiteViewModel SiteContext => null;
+        /// <value>If the document has no such context, the value can be <c>null</c>.</value>
+        public WikiSiteViewModel SiteContext
+        {
+            get { return _SiteContext; }
+            set { SetProperty(ref _SiteContext, value); }
+        }
+
 
         public bool IsBusy
         {

@@ -28,7 +28,7 @@ namespace WikiEdit.ViewModels.Documents
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             _SettingsService = settingsService;
             _TextEditorFactory = textEditorFactory;
-            WikiSite = wikiSite;
+            SiteContext = wikiSite;
         }
 
         /// <summary>
@@ -41,7 +41,7 @@ namespace WikiEdit.ViewModels.Documents
             try
             {
                 Title = title;
-                var site = await WikiSite.GetSiteAsync();
+                var site = await SiteContext.GetSiteAsync();
                 WikiPage = new Page(site, title);
                 Title = WikiPage.Title;
                 await RefetchPageAsync();
@@ -53,14 +53,10 @@ namespace WikiEdit.ViewModels.Documents
             IsBusy = false;
         }
 
-        public WikiSiteViewModel WikiSite { get; }
-
         /// <summary>
         /// The page to be edited.
         /// </summary>
         public Page WikiPage { get; private set; }
-
-        public override WikiSiteViewModel SiteContext => WikiSite;
 
         public override object DocumentContext => WikiPage;
 

@@ -66,7 +66,8 @@ namespace WikiEdit.Controls
         private static void TextChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             var v = (TextDiffViewer)sender;
-            v.InvalidateDiffDocumentAsync();
+            if (v._PresenterTextBox != null)
+                v.InvalidateDiffDocumentAsync();
         }
 
         private bool updatingDiff;
@@ -78,13 +79,13 @@ namespace WikiEdit.Controls
             try
             {
                 RETRY:
-                await Task.Yield();
-                var diff = new diff_match_patch();
+                await Task.Delay(100);
                 var text1 = Text1;
                 var text2 = Text2;
                 List<Diff> diffs = null;
                 Action diffAction = () =>
                 {
+                    var diff = new diff_match_patch();
                     diffs = diff.diff_main(Text1 ?? "", Text2 ?? "");
                     diff.diff_cleanupSemantic(diffs);
                 };
@@ -153,8 +154,8 @@ namespace WikiEdit.Controls
         {
             base.OnApplyTemplate();
             _PresenterTextBox = GetTemplateChild("PART_Presenter") as RichTextBox;
-            if (_PresenterTextBox != null && diffDocument != null)
-                _PresenterTextBox.Document = diffDocument;
+            if (_PresenterTextBox != null && diffDocument == null)
+                InvalidateDiffDocumentAsync();
         }
 
         static TextDiffViewer()

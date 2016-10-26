@@ -22,11 +22,7 @@ namespace WikiEdit.ViewModels.Documents
         private readonly IViewModelFactory _ViewModelFactory;
         private CancellationTokenSource reloadSiteInfoCts;
 
-        public WikiSiteViewModel WikiSite { get; }
-
-        public override object DocumentContext => WikiSite;
-
-        public override WikiSiteViewModel SiteContext => WikiSite;
+        public override object DocumentContext => SiteContext;
 
         public ObservableCollection<RecentChangeViewModel> RecentChanges { get; } =
             new ObservableCollection<RecentChangeViewModel>();
@@ -36,7 +32,7 @@ namespace WikiEdit.ViewModels.Documents
             if (viewModelFactory == null) throw new ArgumentNullException(nameof(viewModelFactory));
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
-            WikiSite = wikiSite;
+            SiteContext = wikiSite;
             _ViewModelFactory = viewModelFactory;
             Title = wikiSite.DisplayName;
             BuildContentId(wikiSite.ApiEndpoint);
@@ -49,8 +45,8 @@ namespace WikiEdit.ViewModels.Documents
             Status = Tx.T("please wait");
             try
             {
-                await WikiSite.GetSiteAsync();
-                Title = WikiSite.DisplayName;
+                await SiteContext.GetSiteAsync();
+                Title = SiteContext.DisplayName;
                 RefreshRecentActivities();
             }
             catch (Exception ex)
@@ -89,13 +85,13 @@ namespace WikiEdit.ViewModels.Documents
             try
             {
                 const int RecentChangesCount = 50;
-                var rcg = new RecentChangesGenerator(await WikiSite.GetSiteAsync())
+                var rcg = new RecentChangesGenerator(await SiteContext.GetSiteAsync())
                 {
                     PagingSize = RecentChangesCount,
                 };
                 var rc = await rcg.EnumRecentChangesAsync()
                     .Take(RecentChangesCount)
-                    .Select(rce => _ViewModelFactory.CreateRecentChange(rce, WikiSite))
+                    .Select(rce => _ViewModelFactory.CreateRecentChange(rce, SiteContext))
                     .ToArray(cancellation);
                 cancellation.ThrowIfCancellationRequested();
 
@@ -117,7 +113,7 @@ namespace WikiEdit.ViewModels.Documents
                 {
                     _RefreshSiteCommand = new DelegateCommand(() =>
                     {
-                        //WikiSite.InvalidateSite();
+                        //SiteContext.InvalidateSite();
                         // We'll also invalidate all the opened page editors.
                         RefreshSiteInfoAsync().Forget();
                     }, () => !IsBusy);
@@ -147,13 +143,13 @@ namespace WikiEdit.ViewModels.Documents
                         WikiSiteEditor = _ViewModelFactory.CreateWikiSiteEditingViewModel(
                             () =>
                             {
-                                WikiSite.Name = WikiSiteEditor.Name;
-                                WikiSite.ApiEndpoint = WikiSiteEditor.ApiEndpoint;
-                                WikiSite.InvalidateSite();
+                                SiteContext.Name = WikiSiteEditor.Name;
+                                SiteContext.ApiEndpoint = WikiSiteEditor.ApiEndpoint;
+                                SiteContext.InvalidateSite();
                                 RefreshSiteInfoAsync().Forget();
                                 WikiSiteEditor = null;
                             }, () => WikiSiteEditor = null);
-                        WikiSiteEditor.LoadFromWikiSite(WikiSite);
+                        WikiSiteEditor.LoadFromWikiSite(SiteContext);
                     }, () => WikiSiteEditor == null);
                 }
                 return _EditWikiSiteCommand;
@@ -184,7 +180,7 @@ namespace WikiEdit.ViewModels.Documents
             // TODO cache search results
             if (string.IsNullOrWhiteSpace(_EditPageTitle)) return;
             var title = _EditPageTitle;
-            var items = await WikiSite.GetAutoCompletionItemsAsync(title);
+            var items = await SiteContext.GetAutoCompletionItemsAsync(title);
             if (title == _EditPageTitle)
             {
                 // If we've fetched auto completion list fast enough...
@@ -212,7 +208,7 @@ namespace WikiEdit.ViewModels.Documents
                     {
                         try
                         {
-                            await _ViewModelFactory.OpenPageEditorAsync(WikiSite, EditPageTitle);
+                            await _ViewModelFactory.OpenPageEditorAsync(SiteContext, EditPageTitle);
                         }
                         catch (Exception ex)
                         {

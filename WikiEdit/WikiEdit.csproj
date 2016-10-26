@@ -127,6 +127,7 @@
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="ViewModels\DocumentOutlineViewModel.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
+    <Compile Include="ViewModels\Documents\PageDiffViewModel.cs" />
     <Compile Include="ViewModels\Documents\PageEditorViewModel.cs" />
     <Compile Include="ViewModels\Documents\WikiSiteOverviewViewModel.cs" />
     <Compile Include="ViewModels\Primitives\Badges.cs" />
@@ -141,6 +142,9 @@
     <Compile Include="ViewModels\WikiSiteEditingViewModel.cs" />
     <Compile Include="Views\DocumentOutlineView.xaml.cs">
       <DependentUpon>DocumentOutlineView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\Documents\PageDiffView.xaml.cs">
+      <DependentUpon>PageDiffView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\Documents\PageEditorView.xaml.cs">
       <DependentUpon>PageEditorView.xaml</DependentUpon>
@@ -177,6 +181,10 @@
       <Generator>MSBuild:Compile</Generator>
     </Page>
     <Page Include="Views\DocumentOutlineView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
+    <Page Include="Views\Documents\PageDiffView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
