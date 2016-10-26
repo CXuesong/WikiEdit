@@ -103,7 +103,7 @@ namespace WikiEdit.ViewModels.Documents
                 }
                 else
                 {
-                    TextEditor = _TextEditorFactory.CreateTextEditor(ls.LanguageName);
+                    TextEditor = _TextEditorFactory.CreateTextEditor(ls.LanguageName, true);
                     TextEditor.DocumentOutline = DocumentOutline;
                 }
                 EditorContentModel = WikiPage.ContentModel;

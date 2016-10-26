@@ -28,6 +28,7 @@ namespace WikiEdit.ViewModels.TextEditors
             _SettingsService = settingsService;
             Dispatcher = Dispatcher.CurrentDispatcher;
             LoadSettings();
+            TextBox.PropertyChanged += TextBox_PropertyChanged;
         }
 
         public event EventHandler IsActiveChanged;
@@ -41,7 +42,6 @@ namespace WikiEdit.ViewModels.TextEditors
         {
             if (textEditor == null) throw new ArgumentNullException(nameof(textEditor));
             TextBox.Adaptee = textEditor;
-            TextBox.PropertyChanged += TextBox_PropertyChanged;
         }
 
         private IList<DocumentOutlineItem> _DocumentOutline;

@@ -76,11 +76,13 @@ namespace WikiEdit.ViewModels.Primitives
                 {
                     // Allows to set text before attached to TextEdit
                     _Text = value;
+                    OnPropertyChanged();
                 }
                 else
                 {
                     _Adaptee.Dispatcher.AutoInvoke(() => _Adaptee.Text = value);
                     Debug.Assert(ReferenceEquals(_Text, INVALIDATED_STRING));
+                    _Text = value;
                 }
             }
         }

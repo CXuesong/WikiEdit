@@ -77,6 +77,7 @@ namespace WikiEdit
         {
             var settings = Container.Resolve<SettingsService>();
             var textEditors = Container.Resolve<ITextEditorFactory>();
+            textEditors.Register("", () => new RawTextEditorViewModel(settings));
             textEditors.Register("Wikitext", () => new WikitextEditorViewModel(settings));
         }
 

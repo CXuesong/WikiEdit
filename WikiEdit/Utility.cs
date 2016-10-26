@@ -251,6 +251,24 @@ namespace WikiEdit
     }
 
     /// <summary>
+    /// There seems to be a bug with
+    /// </summary>
+    public class FluentHeaderCompatibleConverter : IValueConverter
+    {
+        /// <inheritdoc />
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            return value.ToString();
+        }
+
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotSupportedException();
+        }
+    }
+
+    /// <summary>
     /// This converter serializes CookieContainer as binary string.
     /// </summary>
     public class CookieContainerJsonConverter : JsonConverter
@@ -279,7 +297,7 @@ namespace WikiEdit
             if (data.Length == 0) return new CookieContainer();
             using (var ms = new MemoryStream(data))
             {
-                return (CookieContainer)formatter.Deserialize(ms);
+                return (CookieContainer) formatter.Deserialize(ms);
             }
         }
 

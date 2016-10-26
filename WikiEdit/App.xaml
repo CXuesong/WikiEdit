@@ -65,6 +65,9 @@
             <DataTemplate DataType="{x:Type vmd:PageEditorViewModel}">
                 <vd:PageEditorView />
             </DataTemplate>
+            <DataTemplate DataType="{x:Type vmte:RawTextEditorViewModel}">
+                <vte:RawTextEditorView />
+            </DataTemplate>
             <DataTemplate DataType="{x:Type vmte:WikitextEditorViewModel}">
                 <vte:WikitextEditorView />
             </DataTemplate>

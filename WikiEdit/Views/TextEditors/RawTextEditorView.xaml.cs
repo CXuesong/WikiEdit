@@ -12,22 +12,24 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WikiEdit.ViewModels.TextEditors;
 
-namespace WikiEdit.Views.Documents
+namespace WikiEdit.Views.TextEditors
 {
     /// <summary>
-    /// PageEditorView.xaml 的交互逻辑
+    /// RawTextEditorView.xaml 的交互逻辑
     /// </summary>
-    public partial class PageEditorView : UserControl
+    public partial class RawTextEditorView : UserControl
     {
-        public PageEditorView()
+        public RawTextEditorView()
         {
             InitializeComponent();
         }
 
-        private void LastRevisionCommentButton_OnClick(object sender, RoutedEventArgs e)
+        private void WikitextEditorView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
         {
-            LastRevisionCommentPopup.IsOpen = !LastRevisionCommentPopup.IsOpen;
+            var vm = e.NewValue as TextEditorViewModel;
+            vm?.InitializeTextEditor(TextEditor);
         }
     }
 }

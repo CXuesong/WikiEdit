@@ -13,6 +13,8 @@
     <FileAlignment>512</FileAlignment>
     <ProjectTypeGuids>{60dc8134-eba5-43b8-bcc9-bb4bc16c2548};{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}</ProjectTypeGuids>
     <WarningLevel>4</WarningLevel>
+    <NuGetPackageImportStamp>
+    </NuGetPackageImportStamp>
   </PropertyGroup>
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Debug|AnyCPU' ">
     <PlatformTarget>AnyCPU</PlatformTarget>
@@ -114,6 +116,7 @@
     </ApplicationDefinition>
     <Compile Include="Controllers\WikiEditController.cs" />
     <Compile Include="Controls\AutoCompleteTextBox.cs" />
+    <Compile Include="Controls\TextDiffViewer.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="GlobalConfigurations.cs" />
     <Compile Include="Models\Settings.cs" />
@@ -132,6 +135,7 @@
     <Compile Include="ViewModels\Primitives\TextBoxViewModelAdapter.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\RawTextEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\TextEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\WikitextEditorViewModel.cs" />
     <Compile Include="ViewModels\WikiSiteEditingViewModel.cs" />
@@ -146,6 +150,9 @@
     </Compile>
     <Compile Include="Views\RecentChangeView.xaml.cs">
       <DependentUpon>RecentChangeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\TextEditors\RawTextEditorView.xaml.cs">
+      <DependentUpon>RawTextEditorView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TextEditors\WikitextEditorView.xaml.cs">
       <DependentUpon>WikitextEditorView.xaml</DependentUpon>
@@ -215,6 +222,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\TextEditors\RawTextEditorView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TextEditors\WikitextEditorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -278,6 +289,10 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\DiffMatchPatch\DiffMatchPatch.csproj">
+      <Project>{047ea12e-3060-4e1e-ad70-e3eea240f90e}</Project>
+      <Name>DiffMatchPatch</Name>
+    </ProjectReference>
     <ProjectReference Include="..\modules\MwParserFromScratch\MwParserFromScratch\MwParserFromScratch.csproj">
       <Project>{daeda93e-e048-4c63-9d9d-7222dc6f8f5a}</Project>
       <Name>MwParserFromScratch</Name>
