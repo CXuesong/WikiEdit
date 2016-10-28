@@ -5,6 +5,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows.Media;
+using System.Windows.Threading;
 using ICSharpCode.AvalonEdit.Document;
 using ICSharpCode.AvalonEdit.Highlighting;
 using Prism.Commands;
@@ -19,6 +20,9 @@ namespace WikiEdit.ViewModels.Documents
     {
         private readonly SettingsService _SettingsService;
         private readonly ITextEditorFactory _TextEditorFactory;
+        private readonly DispatcherTimer autoRefetchTimer;
+        private readonly DispatcherTimer relativeDatesUpdateTimer;
+        private DateTime lastRefreshTime;
 
         public PageEditorViewModel(SettingsService settingsService,
             ITextEditorFactory textEditorFactory,
@@ -29,14 +33,29 @@ namespace WikiEdit.ViewModels.Documents
             _SettingsService = settingsService;
             _TextEditorFactory = textEditorFactory;
             SiteContext = wikiSite;
+            autoRefetchTimer = new DispatcherTimer();
+            relativeDatesUpdateTimer = new DispatcherTimer();
+            autoRefetchTimer.Tick += AutoRefetchTimer_Tick;
+            relativeDatesUpdateTimer.Interval = TimeSpan.FromSeconds(10);
+            relativeDatesUpdateTimer.Tick += (_, e) => UpdateRelativeDates();
+            LoadSettings();
+            settingsService.SettingsChangedEvent.Subscribe(LoadSettings);
         }
 
-        private string _TipText;
+        private string _ProtectionAlertText;
 
-        public string TipText
+        public string ProtectionAlertText
         {
-            get { return _TipText; }
-            set { SetProperty(ref _TipText, value); }
+            get { return _ProtectionAlertText; }
+            set { SetProperty(ref _ProtectionAlertText, value); }
+        }
+
+        private string _AlertText;
+
+        public string AlertText
+        {
+            get { return _AlertText; }
+            set { SetProperty(ref _AlertText, value); }
         }
 
         /// <summary>
@@ -52,7 +71,8 @@ namespace WikiEdit.ViewModels.Documents
                 var site = await SiteContext.GetSiteAsync();
                 WikiPage = new Page(site, title);
                 Title = WikiPage.Title;
-                await RefetchPageAsync();
+                TitleToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
+                await RefetchPageAsync(true, true);
             }
             catch (Exception ex)
             {
@@ -68,15 +88,17 @@ namespace WikiEdit.ViewModels.Documents
 
         public override object DocumentContext => WikiPage;
 
-        private async Task RefetchPageAsync()
+        private async Task RefetchPageAsync(bool fetchContent, bool replaceContent = false)
         {
             Status = Tx.T("editor.fetching page", "title", WikiPage.Title);
             IsBusy = true;
             try
             {
-                await WikiPage.RefreshAsync(PageQueryOptions.FetchContent);
+                await WikiPage.RefreshAsync(fetchContent ? PageQueryOptions.FetchContent : PageQueryOptions.None);
+                lastRefreshTime = DateTime.Now;
+                UpdateRelativeDates();
                 ReloadPageInformation();
-                ReloadPageContent();
+                if (fetchContent && replaceContent) ReloadPageContent();
                 Status = null;
             }
             catch (Exception ex)
@@ -91,6 +113,20 @@ namespace WikiEdit.ViewModels.Documents
         protected void ReloadPageInformation()
         {
             Title = WikiPage.Title;
+            TitleToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
+            if (WikiPage.Protections.Count == 0)
+            {
+                ProtectionAlertText = null;
+            }
+            else
+            {
+                ProtectionAlertText = Tx.T("page.protected prompt")
+                                      + string.Join(null, WikiPage.Protections.Select(p =>
+                                          Tx.T("page.protected prompt.1",
+                                              "expiry", Tx.Time(p.Expiry, TxTime.YearMonthDay | TxTime.HourMinute),
+                                              "group", p.Level,
+                                              "action", Tx.SafeText("page actions:" + p.Type))));
+            }
             // Notifies VM that the "content" of wikipage has been changed.
             OnPropertyChanged(nameof(WikiPage));
         }
@@ -173,7 +209,6 @@ namespace WikiEdit.ViewModels.Documents
             set { SetProperty(ref _EditorWatch, value); }
         }
 
-
         private DelegateCommand _SubmitEditCommand;
 
         public DelegateCommand SubmitEditCommand
@@ -190,9 +225,9 @@ namespace WikiEdit.ViewModels.Documents
                             var newContent = TextEditor.TextBox.Text;
                             if (string.IsNullOrWhiteSpace(EditorSummary) && newContent != oldContent)
                                 return;
-                            WikiPage.Content = newContent;
-                            TipText = Status = Tx.T("editor.submitting your edit");
+                            AlertText = Status = Tx.T("editor.submitting your edit");
                             IsBusy = true;
+                            WikiPage.Content = newContent;
                             try
                             {
                                 await WikiPage.UpdateContentAsync(EditorSummary, _EditorMinor, false,
@@ -201,12 +236,11 @@ namespace WikiEdit.ViewModels.Documents
                                         : _EditorWatch == false
                                             ? AutoWatchBehavior.None
                                             : AutoWatchBehavior.Default);
-                                TipText = Status = Tx.T("editor.submission success", "title", WikiPage.Title, "revid",
+                                AlertText = Status = Tx.T("editor.submission success", "title", WikiPage.Title, "revid",
                                     Convert.ToString(WikiPage.LastRevisionId));
                                 // refetch page information
                                 Status = Tx.T("editor.fetching page", "title", WikiPage.Title);
-                                await WikiPage.RefreshAsync();
-                                ReloadPageInformation();
+                                await RefetchPageAsync(false);
                                 Status = null;
                             }
                             catch (Exception ex)
@@ -214,18 +248,121 @@ namespace WikiEdit.ViewModels.Documents
                                 // Restore the content first.
                                 WikiPage.Content = oldContent;
                                 Status = Utility.GetExceptionMessage(ex);
+                                // Edit conflict detected.
+                                if (ex is OperationConflictException)
+                                {
+                                    await DetectExternalRevisionAsync();
+                                }
                             }
                             finally
                             {
                                 IsBusy = false;
                             }
                         },
-                        () => !string.IsNullOrWhiteSpace(_EditorSummary));
+                        () => !IsBusy && !string.IsNullOrWhiteSpace(_EditorSummary));
                 }
                 return _SubmitEditCommand;
             }
         }
 
         #endregion
+
+        public void UpdateRelativeDates()
+        {
+            relativeDatesUpdateTimer.Interval = Utility.FitRelativeDateUpdateInterval(DateTime.Now - lastRefreshTime);
+            OnPropertyChanged(nameof(LastFetchedTimeExpression));
+        }
+
+        #region Revision Refetching
+
+        public string LastFetchedTimeExpression
+            => Tx.TC("editor.last fetched at") + Tx.RelativeTime(lastRefreshTime);
+
+        private DelegateCommand _RefetchLastRevisionCommand;
+
+        public DelegateCommand RefetchLastRevisionCommand
+        {
+            get
+            {
+                if (_RefetchLastRevisionCommand == null)
+                {
+                    _RefetchLastRevisionCommand = new DelegateCommand(() =>
+                    {
+                        if (IsBusy) return;
+                        DetectExternalRevisionAsync().Forget();
+                    }, () => !IsBusy);
+                }
+                return _RefetchLastRevisionCommand;
+            }
+        }
+
+        public async Task DetectExternalRevisionAsync()
+        {
+            if (WikiPage == null) return;
+            var revision = WikiPage.LastRevisionId;
+            if (revision == 0) return;
+            await RefetchPageAsync(false);
+            if (WikiPage.LastRevisionId != revision)
+            {
+                AlertText = Tx.T("editor.external revision detected",
+                    "time", Tx.Time(WikiPage.LastRevision.TimeStamp, TxTime.YearMonthDay | TxTime.HourMinuteSecond),
+                    "user", WikiPage.LastRevision.UserName);
+                await RefetchPageAsync(true);
+            }
+        }
+
+        private void AutoRefetchTimer_Tick(object sender, EventArgs e)
+        {
+            if (!IsBusy)
+            {
+                DetectExternalRevisionAsync().Forget();
+            }
+        }
+
+        #endregion
+
+        #region Overrides of DocumentViewModel
+
+        /// <inheritdoc />
+        protected override void OnIsBusyChanged()
+        {
+            base.OnIsBusyChanged();
+            _SubmitEditCommand?.RaiseCanExecuteChanged();
+            _RefetchLastRevisionCommand?.RaiseCanExecuteChanged();
+        }
+
+        #endregion
+
+        /// <inheritdoc />
+        protected override void OnPropertyChanged(string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+            if (propertyName == nameof(IsSelected))
+            {
+                autoRefetchTimer.IsEnabled = IsSelected;
+                relativeDatesUpdateTimer.IsEnabled = IsSelected;
+                if (IsSelected)
+                {
+                    UpdateRelativeDates();
+                    if (DateTime.Now - lastRefreshTime > autoRefetchTimer.Interval && !IsBusy)
+                        DetectExternalRevisionAsync().Forget();
+                }
+            }
+        }
+
+        public void LoadSettings()
+        {
+            var interval = _SettingsService.RawSettings.TextEditor.LastRevisionAutoRefetchInterval;
+            if (interval < TimeSpan.FromSeconds(10)) interval = TimeSpan.FromSeconds(30);
+            autoRefetchTimer.Interval = interval;
+        }
+
+        /// <inheritdoc />
+        protected override void OnClosed()
+        {
+            base.OnClosed();
+            autoRefetchTimer.Stop();
+        }
+
     }
 }

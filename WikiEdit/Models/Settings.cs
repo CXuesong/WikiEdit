@@ -21,6 +21,8 @@ namespace WikiEdit.Models
         /// </summary>
         /// <remarks><c>LanguageSettings[""]</c> means the language defaults.</remarks>
         public IDictionary<string, TextEditorLanguageSettings> LanguageSettings { get; set; }
+
+        public TimeSpan LastRevisionAutoRefetchInterval { get; set; }
     }
 
     /// <summary>

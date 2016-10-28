@@ -47,13 +47,16 @@ namespace WikiEdit.ViewModels.Documents
             {
                 await SiteContext.GetSiteAsync();
                 Title = SiteContext.DisplayName;
-                RefreshRecentActivities();
             }
             catch (Exception ex)
             {
                 Status = Utility.GetExceptionMessage(ex);
             }
-            IsBusy = false;
+            finally
+            {
+                IsBusy = false;
+            }
+            await RefreshRecentActivitiesAsync();
         }
 
         protected override void OnIsBusyChanged()
@@ -67,18 +70,7 @@ namespace WikiEdit.ViewModels.Documents
 
         private DelegateCommand _RefreshSiteCommand;
 
-        private void RefreshRecentActivities()
-        {
-            if (reloadSiteInfoCts != null)
-            {
-                reloadSiteInfoCts.Cancel();
-                reloadSiteInfoCts.Dispose();
-            }
-            reloadSiteInfoCts = new CancellationTokenSource();
-            RefreshRecentActivitiesAsync(reloadSiteInfoCts.Token).Forget();
-        }
-
-        private async Task RefreshRecentActivitiesAsync(CancellationToken cancellation)
+        private async Task RefreshRecentActivitiesAsync()
         {
             IsBusy = true;
             Status = Tx.T("please wait");
@@ -92,9 +84,7 @@ namespace WikiEdit.ViewModels.Documents
                 var rc = await rcg.EnumRecentChangesAsync()
                     .Take(RecentChangesCount)
                     .Select(rce => _ViewModelFactory.CreateRecentChange(rce, SiteContext))
-                    .ToArray(cancellation);
-                cancellation.ThrowIfCancellationRequested();
-
+                    .ToArray();
                 RecentChanges.Clear();
                 RecentChanges.AddRange(rc);
             }

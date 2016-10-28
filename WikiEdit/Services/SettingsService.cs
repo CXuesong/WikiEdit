@@ -16,12 +16,11 @@ namespace WikiEdit.Services
     public class SettingsService : BindableBase
     {
 
-        private readonly IEventAggregator _EventAggregator;
+        public readonly PubSubEvent SettingsChangedEvent = new PubSubEvent();
 
-        public SettingsService(IEventAggregator eventAggregator)
+        public SettingsService()
         {
-            if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
-            _EventAggregator = eventAggregator;
+
         }
 
         #region Persistence
@@ -60,7 +59,8 @@ namespace WikiEdit.Services
                         {"JSON", new TextEditorLanguageSettings {WikiContentModels = new[] {"json"}}},
                         {"JavaScript", new TextEditorLanguageSettings {WikiContentModels = new[] {"javascript"}}},
                         {"CSS", new TextEditorLanguageSettings {WikiContentModels = new[] {"css"}}},
-                    }
+                    },
+                    LastRevisionAutoRefetchInterval = TimeSpan.FromMinutes(5),
                 }
             };
             RawSettings = s;
@@ -146,7 +146,7 @@ namespace WikiEdit.Services
                 }
             }
             // Notify about the changes.
-            _EventAggregator.GetEvent<SettingsChangedEvent>().Publish();
+            SettingsChangedEvent.Publish();
         }
     }
     

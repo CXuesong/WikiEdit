@@ -173,6 +173,7 @@
       <DependentUpon>WikiSiteListView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Bootstrapper.cs" />
+    <Compile Include="WpfUtility.cs" />
     <Page Include="Resources\Primitives.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>

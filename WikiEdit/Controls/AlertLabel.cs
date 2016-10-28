@@ -21,8 +21,19 @@ namespace WikiEdit.Controls
     [TemplatePart(Name = "PART_CloseButton", Type = typeof(Button))]
     public class AlertLabel : Control
     {
+        public static readonly DependencyProperty IsDismissibleProperty =
+            DependencyProperty.Register("IsDismissible", typeof(bool), typeof(AlertLabel),
+                new FrameworkPropertyMetadata(true));
 
-        private Button closeButton;
+        public static readonly DependencyProperty TextProperty =
+            DependencyProperty.Register("Text", typeof(string), typeof(AlertLabel),
+                new FrameworkPropertyMetadata("Alert text.", FrameworkPropertyMetadataOptions.Journal, OnTextChanged));
+
+        public bool IsDismissible
+        {
+            get { return (bool)GetValue(IsDismissibleProperty); }
+            set { SetValue(IsDismissibleProperty, value); }
+        }
 
         public string Text
         {
@@ -30,12 +41,11 @@ namespace WikiEdit.Controls
             set { SetValue(TextProperty, value); }
         }
 
-        public static readonly DependencyProperty TextProperty =
-            DependencyProperty.Register("Text", typeof(string), typeof(AlertLabel), new FrameworkPropertyMetadata("Alert text.", FrameworkPropertyMetadataOptions.Journal, OnTextChanged));
+        private Button closeButton;
 
         private static void OnTextChanged(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
-            var al = (AlertLabel) sender;
+            var al = (AlertLabel)sender;
             al.Visibility = e.NewValue == null ? Visibility.Collapsed : Visibility.Visible;
         }
 

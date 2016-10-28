@@ -129,72 +129,6 @@ namespace WikiEdit
 #endif
         }
 
-        public static T FindAncestor<T>(DependencyObject obj) where T : DependencyObject
-        {
-            // We'll skip the obj itself.
-            if (obj == null) throw new ArgumentNullException(nameof(obj));
-            do
-            {
-                obj = VisualTreeHelper.GetParent(obj);
-                var t = obj as T;
-                if (t != null) return t;
-            } while (obj != null);
-            return null;
-        }
-
-        /// <summary>
-        /// Invoke this extension method on MAIN thread to explicitly
-        /// forget the task, leave it running. This method is used to
-        /// suppress CS4014 warning.
-        /// </summary>
-        /// <param name="task">The task to be forgotten.</param>
-        [MethodImpl(MethodImplOptions.AggressiveInlining)]
-        public static void Forget(this Task task)
-        {
-            if (task == null) throw new ArgumentNullException(nameof(task));
-            // This method should only be called from main thread to avoid possible deadlocks.
-            // See http://stackoverflow.com/questions/22629951/suppressing-warning-cs4014-because-this-call-is-not-awaited-execution-of-the#comment58040933_22630057 .
-            Debug.Assert(Application.Current.Dispatcher == Dispatcher.CurrentDispatcher,
-                "Attempting to forget a Task when the invoker is not on the main thread.");
-        }
-
-        /// <summary>
-        /// Invoke a function from the given <see cref="Dispatcher"/>. If the current
-        /// dispatcher is the same as given one, the function is called directly.
-        /// </summary>
-        public static void AutoInvoke(this Dispatcher dispatcher, Action action)
-        {
-            if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
-            if (action == null) throw new ArgumentNullException(nameof(action));
-            if (Thread.CurrentThread == dispatcher.Thread)
-            {
-                action();
-            }
-            else
-            {
-                dispatcher.Invoke(action);
-            }
-        }
-
-
-        /// <summary>
-        /// Invoke a function from the given <see cref="Dispatcher"/>. If the current
-        /// dispatcher is the same as given one, the function is called directly.
-        /// </summary>
-        public static T AutoInvoke<T>(this Dispatcher dispatcher, Func<T> action)
-        {
-            if (dispatcher == null) throw new ArgumentNullException(nameof(dispatcher));
-            if (action == null) throw new ArgumentNullException(nameof(action));
-            if (Thread.CurrentThread == dispatcher.Thread)
-            {
-                return action();
-            }
-            else
-            {
-                return dispatcher.Invoke(action);
-            }
-        }
-
         public static void SetErrors<T>(this ErrorsContainer<T> errorsContainer, string propertyName, params T[] errors)
         {
             if (errorsContainer == null) throw new ArgumentNullException(nameof(errorsContainer));
@@ -211,65 +145,19 @@ namespace WikiEdit
             if (!string.IsNullOrEmpty(u.Query)) return false;
             return true;
         }
-    }
 
-    /// <summary>
-    /// An extended BooleanToVisibilityConverter.
-    /// </summary>
-    public class UniversalBooleanConverter : IValueConverter
-    {
-        private static bool HasFlag(object parameter, string testFlag)
+        /// <summary>
+        /// Evaluates the best interval for updating the
+        /// </summary>
+        /// <param name="currentDateChange"></param>
+        /// <returns></returns>
+        public static TimeSpan FitRelativeDateUpdateInterval(TimeSpan currentDateChange)
         {
-            if (parameter == null) return false;
-            var s = parameter.ToString();
-            // This is a simple test.
-            // For parameter, we recommend a style like
-            // flag1, flag2, flag3, ...
-            return s.Contains(testFlag);
-        }
-
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var v = value != null;
-            if (value is bool) v = (bool)value;
-            if (value is string) v = !string.IsNullOrEmpty((string) value);
-            if (HasFlag(parameter, "Inverse")) v = !v;
-            if (targetType == typeof(bool) || targetType == typeof(object))
-                return v;
-            if (targetType == typeof(Visibility))
-            {
-                if (v) return Visibility.Visible;
-                return HasFlag(parameter, "PreserveLayout") ? Visibility.Hidden : Visibility.Collapsed;
-            }
-            throw new NotSupportedException();
-        }
-
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
-        }
-    }
-
-    /// <summary>
-    /// There seems to be a b&#117;g with fluent:Button.Header that it cannot bind
-    /// to and display values other than string.
-    /// </summary>
-    public class FluentHeaderCompatibleConverter : IValueConverter
-    {
-        /// <inheritdoc />
-        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            var format = parameter as string;
-            var ifmt = value as IFormattable;
-            if (ifmt != null)
-                return ifmt.ToString(format, culture);
-            return value.ToString();
-        }
-
-        /// <inheritdoc />
-        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
-        {
-            throw new NotSupportedException();
+            if (currentDateChange < TimeSpan.FromSeconds(1)) return TimeSpan.FromSeconds(10);
+            if (currentDateChange < TimeSpan.FromMinutes(1)) return TimeSpan.FromSeconds(10);
+            if (currentDateChange < TimeSpan.FromHours(1)) return TimeSpan.FromMinutes(1);
+            if (currentDateChange < TimeSpan.FromHours(4)) return TimeSpan.FromMinutes(10);
+            return TimeSpan.FromMinutes(20);
         }
     }
 

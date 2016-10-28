@@ -81,7 +81,8 @@ namespace WikiEdit.ViewModels.Primitives
                 else
                 {
                     _Adaptee.Dispatcher.AutoInvoke(() => _Adaptee.Text = value);
-                    Debug.Assert(ReferenceEquals(_Text, INVALIDATED_STRING));
+                    // If the text hasn't been changed at all, the assertion will fail.
+                    //Debug.Assert(ReferenceEquals(_Text, INVALIDATED_STRING));
                     _Text = value;
                 }
             }

@@ -43,6 +43,9 @@ namespace WikiEdit.ViewModels.Documents
             set { SetProperty(ref _TitleToolTip, value); }
         }
 
+        /// <summary>
+        /// Whether the document page is visible to user.
+        /// </summary>
         public bool IsSelected
         {
             get { return _IsSelected; }
@@ -127,7 +130,6 @@ namespace WikiEdit.ViewModels.Documents
             get { return _SiteContext; }
             set { SetProperty(ref _SiteContext, value); }
         }
-
 
         public bool IsBusy
         {

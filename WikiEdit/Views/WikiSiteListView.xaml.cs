@@ -33,7 +33,7 @@ namespace WikiEdit.Views
             Debug.Assert(vm != null);
             var os = e.OriginalSource as DependencyObject;
             if (os == null) return;
-            var source = Utility.FindAncestor<ListViewItem>(os);
+            var source = WpfUtility.FindAncestor<ListViewItem>(os);
             if (source == null) return;
             vm.NotifyWikiSiteDoubleClick((WikiSiteViewModel) source.DataContext);
         }

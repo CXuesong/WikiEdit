@@ -130,6 +130,9 @@
     </Style>
 
     <Style TargetType="{x:Type controls:AlertLabel}">
+        <Style.Resources>
+            <BooleanToVisibilityConverter x:Key="BooleanToVisibilityConverter" />
+        </Style.Resources>
         <Setter Property="Background" Value="{x:Static SystemColors.InfoBrush}" />
         <Setter Property="Foreground" Value="{x:Static SystemColors.InfoTextBrush}" />
         <Setter Property="Template">
@@ -144,7 +147,8 @@
                                 <ColumnDefinition Width="Auto" />
                             </Grid.ColumnDefinitions>
                             <TextBox Background="Transparent" BorderThickness="0" Text="{Binding Text, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" IsReadOnly="True" />
-                            <Button x:Name="PART_CloseButton" Grid.Column="1" BorderThickness="0" Padding="0" Margin="2" VerticalAlignment="Center">
+                            <Button x:Name="PART_CloseButton" Grid.Column="1" BorderThickness="0" Padding="0" Margin="2" VerticalAlignment="Center"
+                                    Visibility="{TemplateBinding IsDismissible, Converter={StaticResource BooleanToVisibilityConverter}}">
                                 <Image Source="{DynamicResource Images/Close}" Width="16" />
                             </Button>
                         </Grid>

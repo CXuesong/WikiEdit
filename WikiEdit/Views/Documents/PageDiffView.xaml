@@ -14,7 +14,8 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300">
     <UserControl.Resources>
-        <app:FluentHeaderCompatibleConverter x:Key="FluentHeaderCompatibleConverter" />
+        <app:TxSizeConverter x:Key="TxSizeConverter"/>
+        <app:TxTimeConverter x:Key="TxTimeConverter"/>
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
@@ -32,16 +33,16 @@
             </Grid.ColumnDefinitions>
             <WrapPanel>
                 <fluent:Button Size="Middle" Header="{Binding Revision1.Page.Title}" ToolTip="{txLib:T page.title}" Icon="/WikiEdit;component/Images/Document.png" />
-                <fluent:Button Size="Middle" Header="{Binding Revision1.ContentLength, Converter={StaticResource FluentHeaderCompatibleConverter}, Mode=OneWay}" ToolTip="{txLib:T page.content length}" Icon="/WikiEdit;component/Images/Counter.png" />
+                <fluent:Button Size="Middle" Header="{Binding Revision1.ContentLength, Converter={StaticResource TxSizeConverter}, Mode=OneWay}" ToolTip="{txLib:T page.content length}" Icon="/WikiEdit;component/Images/Counter.png" />
                 <fluent:Button Size="Middle" Header="{Binding Revision1.UserName}" ToolTip="{txLib:T page.last revision by}" Icon="/WikiEdit;component/Images/User.png" LargeIcon="/WikiEdit;component/Images/UserLG.png" />
-                <fluent:Button Size="Middle" Header="{Binding Revision1.TimeStamp, Converter={StaticResource FluentHeaderCompatibleConverter}, Mode=OneWay, StringFormat=\{0:F\}}" ToolTip="{txLib:T page.last revision time}" Icon="/WikiEdit;component/Images/Clock.png" />
+                <fluent:Button Size="Middle" Header="{Binding Revision1.TimeStamp, Converter={StaticResource TxTimeConverter}, Mode=OneWay, StringFormat=\{0:F\}}" ToolTip="{txLib:T page.last revision time}" Icon="/WikiEdit;component/Images/Clock.png" />
             </WrapPanel>
             <TextBox Grid.Row="1" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Text="{Binding Revision1.Comment, Mode=OneWay}" TextWrapping="Wrap" />
             <WrapPanel Grid.Column="1">
                 <fluent:Button Size="Middle" Header="{Binding Revision2.Page.Title}" ToolTip="{txLib:T page.title}" Icon="/WikiEdit;component/Images/Document.png" />
-                <fluent:Button Size="Middle" Header="{Binding Revision2.ContentLength, Converter={StaticResource FluentHeaderCompatibleConverter}, Mode=OneWay}" ToolTip="{txLib:T page.content length}" Icon="/WikiEdit;component/Images/Counter.png" />
+                <fluent:Button Size="Middle" Header="{Binding Revision2.ContentLength, Converter={StaticResource TxSizeConverter}, Mode=OneWay}" ToolTip="{txLib:T page.content length}" Icon="/WikiEdit;component/Images/Counter.png" />
                 <fluent:Button Size="Middle" Header="{Binding Revision2.UserName}" ToolTip="{txLib:T page.last revision by}" Icon="/WikiEdit;component/Images/User.png" LargeIcon="/WikiEdit;component/Images/UserLG.png" />
-                <fluent:Button Size="Middle" Header="{Binding Revision2.TimeStamp, Converter={StaticResource FluentHeaderCompatibleConverter}, Mode=OneWay, StringFormat=\{0:F\}}" ToolTip="{txLib:T page.last revision time}" Icon="/WikiEdit;component/Images/Clock.png" />
+                <fluent:Button Size="Middle" Header="{Binding Revision2.TimeStamp, Converter={StaticResource TxTimeConverter}, Mode=OneWay, StringFormat=\{0:F\}}" ToolTip="{txLib:T page.last revision time}" Icon="/WikiEdit;component/Images/Clock.png" />
             </WrapPanel>
             <TextBox Grid.Column="1" Grid.Row="1" IsReadOnly="True" VerticalScrollBarVisibility="Auto" Text="{Binding Revision2.Comment, Mode=OneWay}" TextWrapping="Wrap" />
         </Grid>

@@ -20,12 +20,15 @@
 		<text key="diff" comment="An action where two versions of text are compared for the differences.">Diff</text>
 		<text key="diff.next">Next difference</text>
 		<text key="diff.previous">Previous difference</text>
-		<text key="diff.summary" comment="seg = segment">Length change: {length} chars; added {add} seg {addlength} chars; removed {remove} seg {removelength} chars.</text>
+		<text key="diff.summary" comment="seg = segment">Length change: {length} chars; added {add} segments, {addlength} chars; removed {remove} segments, {removelength} chars.</text>
 		<text key="document outline">Document Outline</text>
 		<text key="edit">Edit</text>
 		<text key="editor.enter edit summary here">Enter the summary of your edit here…</text>
+		<text key="editor.external revision detected">The page has been modified by {user} at {time}. You can still submit your content, but please recheck the revision difference before submission.</text>
 		<text key="editor.fetching page">Fetching page: {title}…</text>
+		<text key="editor.last fetched at">Last fetched at</text>
 		<text key="editor.minor edit">Minor edit</text>
+		<text key="editor.refetch last revision">Refetch last revision</text>
 		<text key="editor.save changes">Save changes</text>
 		<text key="editor.submission success">The edit has been submitted successfully: {title}. Revision id: {revid}.</text>
 		<text key="editor.submitting your edit">Submitting your edit…</text>
@@ -43,10 +46,6 @@
 		<text key="new session">New session</text>
 		<text key="ok">Ok</text>
 		<text key="open session">Open session</text>
-		<text key="page.action.create">create the page</text>
-		<text key="page.action.edit">edit the page</text>
-		<text key="page.action.move">move the page</text>
-		<text key="page.action.upload">upload the file</text>
 		<text key="page.content length">Content length</text>
 		<text key="page.content model" comment="Page content model e.g. wikitext, it's an attribute of MediaWiki pages.">Content model</text>
 		<text key="page.last revision by">Last revision by</text>
@@ -55,6 +54,10 @@
 		<text key="page.protected prompt">The page has been protected.</text>
 		<text key="page.protected prompt.1">Before {expiry}, only {group} can {action}.</text>
 		<text key="page.title">Page title</text>
+		<text key="page actions:create">create the page</text>
+		<text key="page actions:edit">edit the page</text>
+		<text key="page actions:move">move the page</text>
+		<text key="page actions:upload">upload the file</text>
 		<text key="page diff.fetching">Fetching revisions: {revs} for diff…</text>
 		<text key="page diff.general title">{name1} - {name2}:Difference between revisions</text>
 		<text key="page diff.title">{name}: Difference between revisions</text>
@@ -299,12 +302,15 @@
 		<text key="diff">对比</text>
 		<text key="diff.next">下一处不同</text>
 		<text key="diff.previous">上一处不同</text>
-		<text key="diff.summary" acceptpunctuation="true">字符长度变化：{length}；增加：{add}段，{addlength}字符；删除：{remove}段，{removelength}字符。</text>
+		<text key="diff.summary" acceptpunctuation="true">长度变化：{length}字符；增加：{add}段、{addlength}字符；删除：{remove}段、{removelength}字符。</text>
 		<text key="document outline">文档大纲</text>
 		<text key="edit">编辑</text>
 		<text key="editor.enter edit summary here" acceptpunctuation="true">在此处键入编辑摘要……</text>
+		<text key="editor.external revision detected" acceptpunctuation="true">此页面于{time}被{user}修改。你仍可提交当前内容，但建议在此之间重新核对内容差异。</text>
 		<text key="editor.fetching page">正在获取页面：{title}…</text>
+		<text key="editor.last fetched at">最后加载于</text>
 		<text key="editor.minor edit">小编辑</text>
+		<text key="editor.refetch last revision">重新加载最后修订</text>
 		<text key="editor.save changes">保存修改</text>
 		<text key="editor.submission success" acceptpunctuation="true">已经成功提交：{title}。修订号：{revid}。</text>
 		<text key="editor.submitting your edit" acceptpunctuation="true">正在提交你的修改……</text>
@@ -322,10 +328,6 @@
 		<text key="new session">新建会话</text>
 		<text key="ok">确定</text>
 		<text key="open session">打开会话</text>
-		<text key="page.action.create">创建页面</text>
-		<text key="page.action.edit">编辑页面</text>
-		<text key="page.action.move">移动页面</text>
-		<text key="page.action.upload">上传文件</text>
 		<text key="page.content length">内容长度</text>
 		<text key="page.content model">内容模型</text>
 		<text key="page.last revision by">最后修订者</text>
@@ -334,6 +336,10 @@
 		<text key="page.protected prompt" acceptpunctuation="true">此页面已被保护。</text>
 		<text key="page.protected prompt.1" acceptpunctuation="true">截至{expiry}之前，只有{group}可以{action}。</text>
 		<text key="page.title">页面标题</text>
+		<text key="page actions:create">创建页面</text>
+		<text key="page actions:edit">编辑页面</text>
+		<text key="page actions:move">移动页面</text>
+		<text key="page actions:upload">上传文件</text>
 		<text key="page diff.fetching" acceptpunctuation="true">正在获取修订版本以进行比对：{revs}……</text>
 		<text key="page diff.general title">{name1} - {name2}：版本间差异</text>
 		<text key="page diff.title">{name}：版本间差异</text>
@@ -347,8 +353,50 @@
 		<text key="search">搜索</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
 		<text key="titles.recent changes">最近修改</text>
+		<text key="Tx:colon">：</text>
 		<text key="Tx:enum.and.combiner">、</text>
 		<text key="Tx:enum.and.last combiner">和</text>
+		<text key="Tx:time.am">上午</text>
+		<text key="Tx:time.never">很久以前</text>
+		<text key="Tx:time.now">刚刚</text>
+		<text key="Tx:time.pm">下午</text>
+		<text key="Tx:time.relative.days">{#}天</text>
+		<text key="Tx:time.relative.days.single">{#}天</text>
+		<text key="Tx:time.relative.days.single" count="1">一天</text>
+		<text key="Tx:time.relative.hours">{#}小时</text>
+		<text key="Tx:time.relative.hours.single">{#}小时</text>
+		<text key="Tx:time.relative.hours.single" count="1">一小时</text>
+		<text key="Tx:time.relative.minutes">{#}分钟</text>
+		<text key="Tx:time.relative.minutes.single">{#}分钟</text>
+		<text key="Tx:time.relative.minutes.single" count="1">一分钟</text>
+		<text key="Tx:time.relative.months">{#}个月</text>
+		<text key="Tx:time.relative.months.single">{#}个月</text>
+		<text key="Tx:time.relative.months.single" count="1">一个月</text>
+		<text key="Tx:time.relative.seconds">{#}秒</text>
+		<text key="Tx:time.relative.seconds.single">{#}秒</text>
+		<text key="Tx:time.relative.seconds.single" count="1">一秒</text>
+		<text key="Tx:time.relative.years">{#}年</text>
+		<text key="Tx:time.relative.years.single">{#}年</text>
+		<text key="Tx:time.relative.years.single" count="1">一年</text>
+		<text key="Tx:time.relative neg">{interval}之前</text>
+		<text key="Tx:time.relative neg.days">{#}天</text>
+		<text key="Tx:time.relative neg.days.single">{#}天</text>
+		<text key="Tx:time.relative neg.days.single" count="1">一天</text>
+		<text key="Tx:time.relative neg.hours">{#}小时</text>
+		<text key="Tx:time.relative neg.hours.single">{#}小时</text>
+		<text key="Tx:time.relative neg.hours.single" count="1">一小时</text>
+		<text key="Tx:time.relative neg.minutes">{#}分钟</text>
+		<text key="Tx:time.relative neg.minutes.single">{#}分钟</text>
+		<text key="Tx:time.relative neg.minutes.single" count="1">一分钟</text>
+		<text key="Tx:time.relative neg.months">{#}个月</text>
+		<text key="Tx:time.relative neg.months.single">{#}个月</text>
+		<text key="Tx:time.relative neg.months.single" count="1">一个月</text>
+		<text key="Tx:time.relative neg.seconds">{#}秒</text>
+		<text key="Tx:time.relative neg.seconds.single">{#}秒</text>
+		<text key="Tx:time.relative neg.seconds.single" count="1">一秒</text>
+		<text key="Tx:time.relative neg.years">{#}年</text>
+		<text key="Tx:time.relative neg.years.single">{#}年</text>
+		<text key="Tx:time.relative neg.years.single" count="1">一年</text>
 		<text key="user name">用户名</text>
 		<text key="wiki site">维基站点</text>
 		<text key="wiki site.api endpoint">API终结点地址</text>
