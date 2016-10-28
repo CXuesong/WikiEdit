@@ -1,8 +1,10 @@
 ﻿using System;
 using System.Collections.Generic;
+using System.Globalization;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Threading;
@@ -48,6 +50,7 @@ namespace WikiEdit
             var settings = Container.Resolve<SettingsService>();
             settings.Load();
             Tx.LoadFromXmlFile(GlobalConfigurations.TranslationDictionaryFile);
+            // Thread.CurrentThread.CurrentCulture = CultureInfo.GetCultureInfo("en-US");
             LoadSyntaxHighlighters();
             RegisterTextEditors();
             return Container.Resolve<MainWindow>();
@@ -82,7 +85,6 @@ namespace WikiEdit
             textEditors.Register("CSS", () => new CSSEditorViewModel(settings));
             textEditors.Register("JavaScript", () => new JavaScriptEditorViewModel(settings));
             textEditors.Register("JSON", () => new JsonEditorViewModel(settings));
-            // TODO
             textEditors.Register("Lua", () => new LuaEditorViewModel(settings));
         }
 

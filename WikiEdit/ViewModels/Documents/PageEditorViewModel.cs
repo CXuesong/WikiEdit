@@ -4,6 +4,7 @@ using System.Diagnostics;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
 using System.Windows.Media;
 using System.Windows.Threading;
 using ICSharpCode.AvalonEdit.Document;
@@ -12,6 +13,7 @@ using Prism.Commands;
 using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiEdit.Services;
+using WikiEdit.Spark;
 using WikiEdit.ViewModels.TextEditors;
 
 namespace WikiEdit.ViewModels.Documents
@@ -209,6 +211,33 @@ namespace WikiEdit.ViewModels.Documents
             set { SetProperty(ref _EditorWatch, value); }
         }
 
+        private DelegateCommand _GenerateSummaryCommand;
+
+        public DelegateCommand GenerateSummaryCommand
+        {
+            get
+            {
+                if (_GenerateSummaryCommand == null)
+                {
+                    _GenerateSummaryCommand = new DelegateCommand(() =>
+                    {
+                        if (IsBusy) return;
+                        switch (EditorContentModel)
+                        {
+                            case "wikitext":
+                                EditorSummary = SummaryBuilder.BuildWikitextSummary(WikiPage.Content,
+                                    TextEditor.TextBox.Text);
+                                break;
+                            default:
+                                MessageBox.Show("TODO: For now this feature only supports wikitext.");
+                                break;
+                        }
+                    }, () => !IsBusy);
+                }
+                return _GenerateSummaryCommand;
+            }
+        }
+
         private DelegateCommand _SubmitEditCommand;
 
         public DelegateCommand SubmitEditCommand
@@ -321,17 +350,14 @@ namespace WikiEdit.ViewModels.Documents
 
         #endregion
 
-        #region Overrides of DocumentViewModel
-
         /// <inheritdoc />
         protected override void OnIsBusyChanged()
         {
             base.OnIsBusyChanged();
             _SubmitEditCommand?.RaiseCanExecuteChanged();
             _RefetchLastRevisionCommand?.RaiseCanExecuteChanged();
+            _GenerateSummaryCommand?.RaiseCanExecuteChanged();
         }
-
-        #endregion
 
         /// <inheritdoc />
         protected override void OnPropertyChanged(string propertyName = null)

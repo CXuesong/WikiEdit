@@ -87,6 +87,10 @@ namespace WikiEdit
             if (items == null) throw new ArgumentNullException(nameof(items));
             foreach (var item in items) list.Add(item);
         }
+        public static void Alert(string prompt)
+        {
+            MessageBox.Show(prompt, ApplicationTitle, MessageBoxButton.OK, MessageBoxImage.Exclamation);
+        }
 
         public static bool? Confirm(string prompt, bool cancellable = false)
         {

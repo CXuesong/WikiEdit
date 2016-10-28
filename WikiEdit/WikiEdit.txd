@@ -26,6 +26,7 @@
 		<text key="editor.enter edit summary here">Enter the summary of your edit here…</text>
 		<text key="editor.external revision detected">The page has been modified by {user} at {time}. You can still submit your content, but please recheck the revision difference before submission.</text>
 		<text key="editor.fetching page">Fetching page: {title}…</text>
+		<text key="editor.generate summary">Generate Summary</text>
 		<text key="editor.last fetched at">Last fetched at</text>
 		<text key="editor.minor edit">Minor edit</text>
 		<text key="editor.refetch last revision">Refetch last revision</text>
@@ -308,6 +309,7 @@
 		<text key="editor.enter edit summary here" acceptpunctuation="true">在此处键入编辑摘要……</text>
 		<text key="editor.external revision detected" acceptpunctuation="true">此页面于{time}被{user}修改。你仍可提交当前内容，但建议在此之间重新核对内容差异。</text>
 		<text key="editor.fetching page">正在获取页面：{title}…</text>
+		<text key="editor.generate summary">生成摘要</text>
 		<text key="editor.last fetched at">最后加载于</text>
 		<text key="editor.minor edit">小编辑</text>
 		<text key="editor.refetch last revision">重新加载最后修订</text>

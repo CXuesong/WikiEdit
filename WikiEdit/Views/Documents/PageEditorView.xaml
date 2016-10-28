@@ -68,6 +68,7 @@
                 <CheckBox Content="{Tx:T editor.minor edit}" IsChecked="{Binding EditorMinor}" />
                 <CheckBox Content="{Tx:T editor.watch this page}" IsChecked="{Binding EditorWatch}" IsThreeState="True" />
             </WrapPanel>
+            <Button Content="{Tx:T editor.generate summary}" Command="{Binding GenerateSummaryCommand}" Grid.Row="1" Grid.Column="1" VerticalAlignment="Center" />
         </Grid>
     </Grid>
 </UserControl>
