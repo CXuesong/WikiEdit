@@ -136,9 +136,11 @@ namespace WikiEdit.ViewModels.Documents
         protected void ReloadPageContent()
         {
             // Switch content model, if necessary.
-            if (EditorContentModel != WikiPage.ContentModel)
+            var newContentModel = WikiPage.ContentModel ?? MediaWikiUtility.InferContentModelFromTitle(
+                                      WikiLink.Parse(WikiPage.Site, WikiPage.Title));
+            if (EditorContentModel != newContentModel)
             {
-                var ls = _SettingsService.GetSettingsByWikiContentModel(WikiPage.ContentModel);
+                var ls = _SettingsService.GetSettingsByWikiContentModel(newContentModel);
                 if (string.IsNullOrEmpty(ls.LanguageName))
                 {
                     TextEditor = null;
@@ -148,7 +150,7 @@ namespace WikiEdit.ViewModels.Documents
                     TextEditor = _TextEditorFactory.CreateTextEditor(ls.LanguageName, true);
                     TextEditor.DocumentOutline = DocumentOutline;
                 }
-                EditorContentModel = WikiPage.ContentModel;
+                EditorContentModel = newContentModel;
             }
             if (TextEditor != null)
             {

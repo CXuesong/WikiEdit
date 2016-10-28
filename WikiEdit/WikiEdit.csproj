@@ -120,6 +120,7 @@
     <Compile Include="Controls\TextDiffViewer.cs" />
     <Compile Include="Events.cs" />
     <Compile Include="GlobalConfigurations.cs" />
+    <Compile Include="MediaWikiUtility.cs" />
     <Compile Include="Models\Settings.cs" />
     <Compile Include="ServiceExtensions.cs" />
     <Compile Include="Services\ChildViewModelService.cs" />
