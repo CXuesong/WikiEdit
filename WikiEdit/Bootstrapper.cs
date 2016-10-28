@@ -79,6 +79,11 @@ namespace WikiEdit
             var textEditors = Container.Resolve<ITextEditorFactory>();
             textEditors.Register("", () => new RawTextEditorViewModel(settings));
             textEditors.Register("Wikitext", () => new WikitextEditorViewModel(settings));
+            textEditors.Register("CSS", () => new CSSEditorViewModel(settings));
+            textEditors.Register("JavaScript", () => new JavaScriptEditorViewModel(settings));
+            textEditors.Register("JSON", () => new JsonEditorViewModel(settings));
+            // TODO
+            textEditors.Register("Lua", () => new LuaEditorViewModel(settings));
         }
 
         /// <summary>

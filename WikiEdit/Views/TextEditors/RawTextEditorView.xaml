@@ -15,6 +15,6 @@
                                ShowLineNumbers="True"
                                FontFamily="{Binding LanguageSettings.FontFamily}"
                                FontSize="{Binding LanguageSettings.FontSize}"
-                               SyntaxHighlighting="CSS" />
+                               SyntaxHighlighting="{Binding HighlightingDefinition}" />
     </Grid>
 </UserControl>

@@ -1,7 +1,7 @@
 ﻿<?xml version="1.0" encoding="utf-8" ?>
 <SyntaxDefinition name="Wikitext"
         xmlns="http://icsharpcode.net/sharpdevelop/syntaxdefinition/2008">
-  <Property name="FileExtensions" value=".wt" />
+  <Property name="FileExtensions" value=".wiki" />
   <Color name="Comment" foreground="LightGreen" />
   <Color name="Template" foreground="SeaGreen" />
   <Color name="WikiLink" foreground="Blue" />

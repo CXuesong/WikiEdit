@@ -136,6 +136,10 @@
     <Compile Include="ViewModels\Primitives\TextBoxViewModelAdapter.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\CSSEditorViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\JavaScriptEditorViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\JsonEditorViewModel.cs" />
+    <Compile Include="ViewModels\TextEditors\LuaEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\RawTextEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\TextEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\WikitextEditorViewModel.cs" />
@@ -271,6 +275,9 @@
       <LastGenOutput>Settings.Designer.cs</LastGenOutput>
     </None>
     <AppDesigner Include="Properties\" />
+    <Content Include="SyntaxHighlighters\Lua.xshd">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </Content>
     <Resource Include="Images\WebLG.png" />
     <Resource Include="Images\UserLG.png" />
     <Resource Include="Images\User.png" />
