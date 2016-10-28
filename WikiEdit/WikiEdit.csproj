@@ -281,6 +281,9 @@
     <Resource Include="Images\Remove.png" />
     <Resource Include="Images\Clock.png" />
     <Resource Include="Images\Comment.png" />
+    <Resource Include="Images\Down.png" />
+    <Resource Include="Images\Up.png" />
+    <Resource Include="Images\Document.png" />
     <Content Include="SyntaxHighlighters\Wikitext.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>

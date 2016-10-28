@@ -16,6 +16,7 @@ using System.Windows.Navigation;
 using System.Windows.Shapes;
 using DiffMatchPatch;
 using ICSharpCode.AvalonEdit.Document;
+using Unclassified.TxLib;
 
 namespace WikiEdit.Controls
 {
@@ -49,6 +50,9 @@ namespace WikiEdit.Controls
     ///
     /// </summary>
     [TemplatePart(Name = "PART_Presenter", Type = typeof(RichTextBox))]
+    [TemplatePart(Name = "PART_PreviousDiffButton", Type = typeof(Button))]
+    [TemplatePart(Name = "PART_NextDiffButton", Type = typeof(Button))]
+    [TemplatePart(Name = "PART_SummaryLabel", Type = typeof(Label))]
     public class TextDiffViewer : Control
     {
 
@@ -60,8 +64,8 @@ namespace WikiEdit.Controls
             DependencyProperty.Register("Text2", typeof(string), typeof(TextDiffViewer),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, TextChangedCallback));
 
-        private static readonly TextDecorationCollection deletedSegmentDecoration;
-        private FlowDocument diffDocument;
+        private FlowDocument _DiffDocument;
+        private string _DiffSummary;
 
         private static void TextChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
@@ -76,20 +80,38 @@ namespace WikiEdit.Controls
             // Concurrency: We assume the invoker is on main thread.
             if (updatingDiff) return;
             updatingDiff = true;
+            if (_SummaryLabel != null) _SummaryLabel.Content = Tx.T("please wait");
             try
             {
                 RETRY:
                 await Task.Delay(100);
-                var text1 = Text1;
-                var text2 = Text2;
+                string t1 = Text1, t2 = Text2;
+                string text1 = t1 ?? "", text2 = t2 ?? "";
                 List<Diff> diffs = null;
+                string summary = null;
                 Action diffAction = () =>
                 {
-                    var diff = new diff_match_patch();
-                    diffs = diff.diff_main(Text1 ?? "", Text2 ?? "");
+                    var diff = new diff_match_patch {Diff_Timeout = 10};
+                    diffs = diff.diff_main(text1, text2);
                     diff.diff_cleanupSemantic(diffs);
+                    int add=0, addl=0, remove=0, removel=0;
+                    foreach (var d in diffs)
+                    {
+                        if (d.operation == Operation.INSERT)
+                        {
+                            add++;
+                            addl += d.text.Length;
+                        } else if (d.operation == Operation.DELETE)
+                        {
+                            remove++;
+                            removel += d.text.Length;
+                        }
+                    }
+                    summary = Tx.T("diff.summary", "length", Convert.ToString(text2.Length - text1.Length),
+                        "add", add + "", "addlength", addl + "",
+                        "remove", remove + "", "removelength", removel + "");
                 };
-                if (Math.Max(text1?.Length ?? 0, text2?.Length ?? 0) > 1024*1024)
+                if (Math.Max(text1.Length, text2.Length) > 1024*1024)
                 {
                     await Task.Factory.StartNew(diffAction, CancellationToken.None,
                         TaskCreationOptions.LongRunning, TaskScheduler.Default);
@@ -98,11 +120,14 @@ namespace WikiEdit.Controls
                 {
                     diffAction();
                 }
-                if (text1 != Text1 || text2 != Text2)
+                if (t1 != Text1 || t2 != Text2)
                     goto RETRY;
-                diffDocument = DiffToDocument(diffs);
+                _DiffDocument = DiffToDocument(diffs);
+                _DiffSummary = summary;
                 if (_PresenterTextBox != null)
-                    _PresenterTextBox.Document = diffDocument;
+                    _PresenterTextBox.Document = _DiffDocument;
+                if (_SummaryLabel != null)
+                    _SummaryLabel.Content = _DiffSummary;
             }
             finally
             {
@@ -110,28 +135,83 @@ namespace WikiEdit.Controls
             }
         }
 
-        private static FlowDocument DiffToDocument(IList<Diff> diffs)
+        private FlowDocument DiffToDocument(IList<Diff> diffs)
         {
             Debug.Assert(diffs != null);
             var doc = new FlowDocument();
-            var lastParagraph = new Paragraph();
+            Paragraph lastParagraph = null;
+            var lfImageStyle = TryFindResource("LineFeedMarkerImage") as Style;
+            var insertionStyle = TryFindResource("InsertionMarker") as Style;
+            var deletionStyle = TryFindResource("DeletionMarker") as Style;
+            var lineCounter1 = 0;
+            var lineCounter2 = 0;
+            Action<bool, bool> NextLine = (left, right) =>
+            {
+                var marker = "";
+                if (left)
+                {
+                    lineCounter1++;
+                    marker += $"{lineCounter1,6}";
+                }
+                else
+                {
+                    marker += "      ";
+                }
+                marker += " ";
+                if (right)
+                {
+                    lineCounter2++;
+                    marker += $"{lineCounter2,6}";
+                }
+                else
+                {
+                    marker += "      ";
+                }
+                lastParagraph = new Paragraph
+                {
+                    KeepWithNext = true,
+                    TextIndent = -20,
+                };
+                marker += " ";
+                lastParagraph.Inlines.Add(marker);
+                doc.Blocks.Add(lastParagraph);
+            };
+            NextLine(true, true);
             foreach (var d in diffs)
             {
-                var run = new Run(d.text);
+                Style style = null;
                 switch (d.operation)
                 {
                     case Operation.INSERT:
-                        run.Foreground = Brushes.Black;
-                        run.Background = Brushes.PaleGreen;
+                        style = insertionStyle;
                         break;
                     case Operation.DELETE:
-                        run.Foreground = Brushes.Black;
-                        run.TextDecorations = deletedSegmentDecoration;
+                        style = deletionStyle;
                         break;
                 }
-                lastParagraph.Inlines.Add(run);
+                var lines = d.text.Split('\n');
+                if (lines.Length == 1)
+                {
+                    var run = new Run(d.text) {Style = style};
+                    lastParagraph.Inlines.Add(run);
+                }
+                else
+                {
+                    foreach (var l in lines)
+                    {
+                        var span = new Span(new Run(l)) {Style = style};
+                        var lfImage = new Image
+                        {
+                            Style = lfImageStyle,
+                        };
+                        var markerContainer = new InlineUIContainer(lfImage);
+                        span.Inlines.Add(markerContainer);
+                        lastParagraph.Inlines.Add(span);
+                        NextLine(d.operation == Operation.EQUAL || d.operation == Operation.DELETE,
+                            d.operation == Operation.EQUAL || d.operation == Operation.INSERT);
+                    }
+                }
             }
-            doc.Blocks.Add(lastParagraph);
             return doc;
         }
 
@@ -148,24 +228,23 @@ namespace WikiEdit.Controls
         }
 
         private RichTextBox _PresenterTextBox;
+        private ContentControl _SummaryLabel;
 
         /// <inheritdoc />
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
             _PresenterTextBox = GetTemplateChild("PART_Presenter") as RichTextBox;
-            if (_PresenterTextBox != null && diffDocument == null)
+            _SummaryLabel = GetTemplateChild("PART_SummaryLabel") as ContentControl;
+            if (_SummaryLabel != null)
+                _SummaryLabel.Content = _DiffSummary;
+            if (_PresenterTextBox != null && _DiffDocument == null)
                 InvalidateDiffDocumentAsync();
         }
 
         static TextDiffViewer()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TextDiffViewer), new FrameworkPropertyMetadata(typeof(TextDiffViewer)));
-            deletedSegmentDecoration = new TextDecorationCollection
-            {
-                new TextDecoration {Location = TextDecorationLocation.Strikethrough, Pen = new Pen(Brushes.Crimson, 1)}
-            };
-            deletedSegmentDecoration.Freeze();
         }
     }
 }

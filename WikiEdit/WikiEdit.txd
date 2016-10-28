@@ -18,6 +18,9 @@
 		<text key="confirm.logout">Are you sure to log out?</text>
 		<text key="confirm.remove">Are you sure to remove "{name}"?</text>
 		<text key="diff" comment="An action where two versions of text are compared for the differences.">Diff</text>
+		<text key="diff.next">Next difference</text>
+		<text key="diff.previous">Previous difference</text>
+		<text key="diff.summary" comment="seg = segment">Length change: {length} chars; added {add} seg {addlength} chars; removed {remove} seg {removelength} chars.</text>
 		<text key="document outline">Document Outline</text>
 		<text key="edit">Edit</text>
 		<text key="editor.enter edit summary here">Enter the summary of your edit here…</text>
@@ -287,6 +290,9 @@
 		<text key="confirm.logout" acceptpunctuation="true">确实要注销吗？</text>
 		<text key="confirm.remove" acceptpunctuation="true">确实要删除“{name}”吗？</text>
 		<text key="diff">对比</text>
+		<text key="diff.next">下一处不同</text>
+		<text key="diff.previous">上一处不同</text>
+		<text key="diff.summary" acceptpunctuation="true">字符长度变化：{length}；增加：{add}段，{addlength}字符；删除：{remove}段，{removelength}字符。</text>
 		<text key="document outline">文档大纲</text>
 		<text key="edit">编辑</text>
 		<text key="editor.enter edit summary here" acceptpunctuation="true">在此处键入编辑摘要……</text>

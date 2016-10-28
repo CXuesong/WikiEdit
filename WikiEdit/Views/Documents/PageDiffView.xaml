@@ -43,6 +43,6 @@
                 <TextBox IsReadOnly="True" VerticalScrollBarVisibility="Auto" Text="{Binding Revision2.Comment, Mode=OneWay}" />
             </StackPanel>
         </Grid>
-        <Controls:TextDiffViewer Grid.Row="1" Text1="{Binding Revision1.Content}" Text2="{Binding Revision2.Content}"/>
+        <Controls:TextDiffViewer Grid.Row="1" Text1="{Binding Revision1.Content}" Text2="{Binding Revision2.Content}" FontSize="14" />
     </Grid>
 </UserControl>
