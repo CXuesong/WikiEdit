@@ -92,11 +92,17 @@
                             <ListBox Grid.Row="1" x:Name="PART_Presenter" VirtualizingPanel.IsVirtualizing="True"
                                           VirtualizingPanel.VirtualizationMode="Recycling"
                                           Foreground="DimGray" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
-                                <ItemsControl.ItemTemplate>
+                                <ListBox.ItemTemplate>
                                     <DataTemplate>
                                         <controls:DiffLinePresenter />
                                     </DataTemplate>
-                                </ItemsControl.ItemTemplate>
+                                </ListBox.ItemTemplate>
+                                <ListBox.ItemContainerStyle>
+                                    <Style TargetType="{x:Type ListBoxItem}">
+                                        <Setter Property="Padding" Value="0" />
+                                        <Setter Property="Margin" Value="0" />
+                                    </Style>
+                                </ListBox.ItemContainerStyle>
                             </ListBox>
                         </Grid>
                     </Border>
@@ -118,6 +124,31 @@
                         <TextBlock x:Name="PART_LineIndicator2" Padding="4,0" Style="{DynamicResource LineMarker}" Grid.Column="1" TextAlignment="Right" />
                         <TextBlock x:Name="PART_LineContent" Grid.Column="2" TextWrapping="Wrap" />
                     </Grid>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+
+    <Style TargetType="{x:Type controls:AlertLabel}">
+        <Setter Property="Background" Value="{x:Static SystemColors.InfoBrush}" />
+        <Setter Property="Foreground" Value="{x:Static SystemColors.InfoTextBrush}" />
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:AlertLabel}">
+                    <Border Background="{TemplateBinding Background}"
+                            BorderBrush="{TemplateBinding BorderBrush}"
+                            BorderThickness="{TemplateBinding BorderThickness}">
+                        <Grid>
+                            <Grid.ColumnDefinitions>
+                                <ColumnDefinition Width="*"/>
+                                <ColumnDefinition Width="Auto" />
+                            </Grid.ColumnDefinitions>
+                            <TextBox Background="Transparent" BorderThickness="0" Text="{Binding Text, Mode=OneWay, RelativeSource={RelativeSource TemplatedParent}}" IsReadOnly="True" />
+                            <Button x:Name="PART_CloseButton" Grid.Column="1" BorderThickness="0" Padding="0" Margin="2" VerticalAlignment="Center">
+                                <Image Source="{DynamicResource Images/Close}" Width="16" />
+                            </Button>
+                        </Grid>
+                    </Border>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

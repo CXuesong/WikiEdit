@@ -251,13 +251,18 @@ namespace WikiEdit
     }
 
     /// <summary>
-    /// There seems to be a bug with
+    /// There seems to be a b&#117;g with fluent:Button.Header that it cannot bind
+    /// to and display values other than string.
     /// </summary>
     public class FluentHeaderCompatibleConverter : IValueConverter
     {
         /// <inheritdoc />
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
+            var format = parameter as string;
+            var ifmt = value as IFormattable;
+            if (ifmt != null)
+                return ifmt.ToString(format, culture);
             return value.ToString();
         }
 

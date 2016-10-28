@@ -31,6 +31,14 @@ namespace WikiEdit.ViewModels.Documents
             SiteContext = wikiSite;
         }
 
+        private string _TipText;
+
+        public string TipText
+        {
+            get { return _TipText; }
+            set { SetProperty(ref _TipText, value); }
+        }
+
         /// <summary>
         /// Sets the wiki page to edit.
         /// </summary>
@@ -183,7 +191,7 @@ namespace WikiEdit.ViewModels.Documents
                             if (string.IsNullOrWhiteSpace(EditorSummary) && newContent != oldContent)
                                 return;
                             WikiPage.Content = newContent;
-                            Status = Tx.T("editor.submitting your edit");
+                            TipText = Status = Tx.T("editor.submitting your edit");
                             IsBusy = true;
                             try
                             {
@@ -193,12 +201,13 @@ namespace WikiEdit.ViewModels.Documents
                                         : _EditorWatch == false
                                             ? AutoWatchBehavior.None
                                             : AutoWatchBehavior.Default);
-                                Status = Tx.T("editor.submission success", "title", WikiPage.Title, "revid",
+                                TipText = Status = Tx.T("editor.submission success", "title", WikiPage.Title, "revid",
                                     Convert.ToString(WikiPage.LastRevisionId));
                                 // refetch page information
                                 Status = Tx.T("editor.fetching page", "title", WikiPage.Title);
                                 await WikiPage.RefreshAsync();
                                 ReloadPageInformation();
+                                Status = null;
                             }
                             catch (Exception ex)
                             {

@@ -15,12 +15,11 @@
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="400">
     <UserControl.Resources>
-
         <WikiEdit:FluentHeaderCompatibleConverter x:Key="FluentHeaderCompatibleConverter"/>
-
     </UserControl.Resources>
     <Grid>
         <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
             <RowDefinition Height="Auto"/>
             <RowDefinition Height="*"/>
             <RowDefinition Height="Auto"/>
@@ -30,14 +29,15 @@
                 <TextBox IsReadOnly="True" Text="{Binding WikiPage.LastRevision.Comment, Mode=OneWay}" TextWrapping="Wrap" />
             </Border>
         </Popup>
-        <fluent:RibbonToolBar HorizontalAlignment="Left">
+        <WrapPanel>
             <fluent:Button Size="Middle" Header="{Binding WikiPage.LastRevision.UserName}" ToolTip="{Tx:T page.last revision by}" Icon="/WikiEdit;component/Images/User.png" LargeIcon="/WikiEdit;component/Images/UserLG.png" />
             <fluent:Button Size="Middle" Header="{Binding WikiPage.LastRevision.TimeStamp, Converter={StaticResource FluentHeaderCompatibleConverter}, Mode=OneWay, StringFormat=\{0:F\}}" ToolTip="{Tx:T page.last revision time}" Icon="/WikiEdit;component/Images/Clock.png" />
             <fluent:Button x:Name="LastRevisionCommentButton" Size="Middle" Header="{Binding WikiPage.LastRevision.Comment}" ToolTip="{Tx:T page.last revision summary}" Icon="/WikiEdit;component/Images/Comment.png" MaxWidth="200" Click="LastRevisionCommentButton_OnClick" />
             <Separator />
             <fluent:Button Size="Middle" Header="{Binding EditorContentModel}" ToolTip="{Tx:T page.content model}" />
-        </fluent:RibbonToolBar>
-        <TabControl Grid.Row="1" TabStripPlacement="Bottom">
+        </WrapPanel>
+        <controls:AlertLabel Grid.Row="1" Text="{Binding TipText}" />
+        <TabControl Grid.Row="2" TabStripPlacement="Bottom">
             <TabItem Header="{Tx:T edit}">
                 <ContentPresenter Content="{Binding TextEditor}" />
             </TabItem>
@@ -45,7 +45,7 @@
                 <controls:TextDiffViewer Text1="{Binding WikiPage.Content}" Text2="{Binding TextEditor.TextBox.Text}" FontSize="14" FontFamily="Courier New, Courier, Monospace" />
             </TabItem>
         </TabControl>
-        <Grid Grid.Row="2">
+        <Grid Grid.Row="3">
             <Grid.ColumnDefinitions>
                 <ColumnDefinition Width="*"/>
                 <ColumnDefinition Width="Auto"/>

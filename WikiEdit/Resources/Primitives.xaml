@@ -34,4 +34,15 @@
             </DrawingGroup>
         </DrawingImage.Drawing>
     </DrawingImage>
+    <DrawingImage x:Key="Images/Close">
+        <DrawingImage.Drawing>
+            <DrawingGroup>
+                <DrawingGroup.Children>
+                    <GeometryDrawing Brush="#FFF0EFF1" Geometry="F1 M 10.1771,8L 8.40107,8L 6.6664,6.22133L 4.8464,8L 3.0704,8L 5.7344,5.33333L 3.0704,2.66667L 4.8464,2.66667L 6.6664,4.444L 8.40107,2.66667L 10.1771,2.66667L 7.51307,5.33333L 10.1771,8 Z "/>
+                    <GeometryDrawing Brush="#FFF6F6F6" Geometry="F1 M 0,0L 13.3333,0L 13.3333,10.6667L 0,10.6667L 0,0 Z "/>
+                    <GeometryDrawing Brush="#FF414141" Geometry="F1 M 10.1771,8L 8.40107,8L 6.6664,6.22133L 4.8464,8L 3.0704,8L 5.7344,5.33333L 3.0704,2.66667L 4.8464,2.66667L 6.6664,4.444L 8.40107,2.66667L 10.1771,2.66667L 7.51307,5.33333M 1.33307,9.33333L 11.9997,9.33333L 11.9997,1.33333L 1.33307,1.33333L 1.33307,9.33333 Z "/>
+                </DrawingGroup.Children>
+            </DrawingGroup>
+        </DrawingImage.Drawing>
+    </DrawingImage>
 </ResourceDictionary>
