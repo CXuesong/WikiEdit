@@ -49,7 +49,7 @@
                 <Setter Property="Height" Value="10" />
             </Style>
             <Style x:Key="InsertionMarker" TargetType="Inline">
-                <Setter Property="Background" Value="DarkSeaGreen" />
+                <Setter Property="Background" Value="LawnGreen" />
                 <Setter Property="Foreground" Value="Black" />
             </Style>
             <Style x:Key="DeletionMarker" TargetType="Inline">
@@ -66,6 +66,10 @@
                     </Setter.Value>
                 </Setter>
             </Style>
+            <Style x:Key="LineMarker" TargetType="TextBlock">
+                <Setter Property="Foreground" Value="Black" />
+                <Setter Property="Background" Value="LightGray" />
+            </Style>
         </Style.Resources>
         <Setter Property="FontSize" Value="14" />
         <Setter Property="FontFamily" Value="Courier New, Courier, Monospace" />
@@ -80,14 +84,40 @@
                                 <RowDefinition Height="Auto" />
                                 <RowDefinition Height="*" />
                             </Grid.RowDefinitions>
-                            <fluent:RibbonToolBar>
+                            <WrapPanel>
                                 <fluent:Button x:Name="PART_PreviousDiffButton" Header="{Tx:T diff.previous}" Size="Middle" Icon="/WikiEdit;component/Images/Up.png" />
                                 <fluent:Button x:Name="PART_NextDiffButton" Header="{Tx:T diff.next}" Size="Middle" Icon="/WikiEdit;component/Images/Down.png" />
-                                <Label x:Name="PART_SummaryLabel" VerticalAlignment="Center" />
-                            </fluent:RibbonToolBar>
-                            <RichTextBox Grid.Row="1" x:Name="PART_Presenter" IsReadOnly="True" IsReadOnlyCaretVisible="True" VerticalScrollBarVisibility="Auto" Foreground="DimGray" />
+                                <TextBlock x:Name="PART_SummaryTextBlock" VerticalAlignment="Center" />
+                            </WrapPanel>
+                            <ListBox Grid.Row="1" x:Name="PART_Presenter" VirtualizingPanel.IsVirtualizing="True"
+                                          VirtualizingPanel.VirtualizationMode="Recycling"
+                                          Foreground="DimGray" ScrollViewer.HorizontalScrollBarVisibility="Disabled">
+                                <ItemsControl.ItemTemplate>
+                                    <DataTemplate>
+                                        <controls:DiffLinePresenter />
+                                    </DataTemplate>
+                                </ItemsControl.ItemTemplate>
+                            </ListBox>
                         </Grid>
                     </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+    </Style>
+    <Style TargetType="{x:Type controls:DiffLinePresenter}">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="{x:Type controls:DiffLinePresenter}">
+                    <Grid>
+                        <Grid.ColumnDefinitions>
+                            <ColumnDefinition Width="Auto" MinWidth="30" />
+                            <ColumnDefinition Width="Auto" MinWidth="30" />
+                            <ColumnDefinition Width="*" />
+                        </Grid.ColumnDefinitions>
+                        <TextBlock x:Name="PART_LineIndicator1" Padding="4,0" Style="{DynamicResource LineMarker}" TextAlignment="Right" />
+                        <TextBlock x:Name="PART_LineIndicator2" Padding="4,0" Style="{DynamicResource LineMarker}" Grid.Column="1" TextAlignment="Right" />
+                        <TextBlock x:Name="PART_LineContent" Grid.Column="2" TextWrapping="Wrap" />
+                    </Grid>
                 </ControlTemplate>
             </Setter.Value>
         </Setter>

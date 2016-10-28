@@ -7,6 +7,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
 using System.Windows.Controls;
+using System.Windows.Controls.Primitives;
 using System.Windows.Data;
 using System.Windows.Documents;
 using System.Windows.Input;
@@ -14,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using System.Windows.Threading;
 using DiffMatchPatch;
 using ICSharpCode.AvalonEdit.Document;
 using Unclassified.TxLib;
@@ -49,10 +51,10 @@ namespace WikiEdit.Controls
     ///     <MyNamespace:TextDiffViewer/>
     ///
     /// </summary>
-    [TemplatePart(Name = "PART_Presenter", Type = typeof(RichTextBox))]
+    [TemplatePart(Name = "PART_Presenter", Type = typeof(ItemsControl))]
     [TemplatePart(Name = "PART_PreviousDiffButton", Type = typeof(Button))]
     [TemplatePart(Name = "PART_NextDiffButton", Type = typeof(Button))]
-    [TemplatePart(Name = "PART_SummaryLabel", Type = typeof(Label))]
+    [TemplatePart(Name = "PART_SummaryTextBlock", Type = typeof(TextBlock))]
     public class TextDiffViewer : Control
     {
 
@@ -64,52 +66,65 @@ namespace WikiEdit.Controls
             DependencyProperty.Register("Text2", typeof(string), typeof(TextDiffViewer),
                 new FrameworkPropertyMetadata(null, FrameworkPropertyMetadataOptions.None, TextChangedCallback));
 
-        private FlowDocument _DiffDocument;
+        private List<DiffLine> diffLines;
+        private ListCollectionView diffLinesView;
         private string _DiffSummary;
 
         private static void TextChangedCallback(DependencyObject sender, DependencyPropertyChangedEventArgs e)
         {
             var v = (TextDiffViewer)sender;
-            if (v._PresenterTextBox != null)
-                v.InvalidateDiffDocumentAsync();
+            v.InvalidateDiffDocument();
         }
 
         private bool updatingDiff;
-        private async void InvalidateDiffDocumentAsync()
+        private bool diffInvalidated;
+
+        private void InvalidateDiffDocument()
         {
+            diffInvalidated = true;
+            UpdateDiffDocumentAsync();
+        }
+
+        private async void UpdateDiffDocumentAsync()
+        {
+            if (!IsLoaded) return;
+            if (!diffInvalidated) return;
             // Concurrency: We assume the invoker is on main thread.
             if (updatingDiff) return;
             updatingDiff = true;
-            if (_SummaryLabel != null) _SummaryLabel.Content = Tx.T("please wait");
             try
             {
+                if (summaryTextBlock != null)
+                    summaryTextBlock.Text = Tx.T("please wait");
                 RETRY:
-                await Task.Delay(100);
+                await Task.Delay(10);
                 string t1 = Text1, t2 = Text2;
                 string text1 = t1 ?? "", text2 = t2 ?? "";
-                List<Diff> diffs = null;
-                string summary = null;
                 Action diffAction = () =>
                 {
+                    // Diff
                     var diff = new diff_match_patch {Diff_Timeout = 10};
-                    diffs = diff.diff_main(text1, text2);
+                    var diffs = diff.diff_main(text1, text2);
                     diff.diff_cleanupSemantic(diffs);
-                    int add=0, addl=0, remove=0, removel=0;
+                    int add = 0, addl = 0, remove = 0, removel = 0;
                     foreach (var d in diffs)
                     {
                         if (d.operation == Operation.INSERT)
                         {
                             add++;
                             addl += d.text.Length;
-                        } else if (d.operation == Operation.DELETE)
+                        }
+                        else if (d.operation == Operation.DELETE)
                         {
                             remove++;
                             removel += d.text.Length;
                         }
                     }
-                    summary = Tx.T("diff.summary", "length", Convert.ToString(text2.Length - text1.Length),
+                    // 
+                    _DiffSummary = Tx.T("diff.summary", "length", (text2.Length - text1.Length).ToString("+#;-#;0"),
                         "add", add + "", "addlength", addl + "",
                         "remove", remove + "", "removelength", removel + "");
+                    diffLines = DiffToLines(diffs);
                 };
                 if (Math.Max(text1.Length, text2.Length) > 1024*1024)
                 {
@@ -120,14 +135,29 @@ namespace WikiEdit.Controls
                 {
                     diffAction();
                 }
+                diffLinesView = new ListCollectionView(diffLines);
+                // Ensure we've compared the latest text
                 if (t1 != Text1 || t2 != Text2)
                     goto RETRY;
-                _DiffDocument = DiffToDocument(diffs);
-                _DiffSummary = summary;
-                if (_PresenterTextBox != null)
-                    _PresenterTextBox.Document = _DiffDocument;
-                if (_SummaryLabel != null)
-                    _SummaryLabel.Content = _DiffSummary;
+                diffInvalidated = false;
+                if (summaryTextBlock != null)
+                    summaryTextBlock.Text = _DiffSummary;
+                if (presenter != null)
+                {
+                    presenter.ItemsSource = diffLinesView;
+                    // Move to the first difference
+                    for (int l = 0; l < diffLinesView.Count; l++)
+                    {
+                        var diff = (DiffLine)diffLinesView.GetItemAt(l);
+                        if (diff.Segments.Any(s => s.Style != DiffSegmentStyle.Normal))
+                        {
+                            var l1 = l;
+                            await Dispatcher.BeginInvoke(DispatcherPriority.Input,
+                                (Action) (() => SelectLineByIndex(l1)));
+                            break;
+                        }
+                    }
+                }
             }
             finally
             {
@@ -135,84 +165,55 @@ namespace WikiEdit.Controls
             }
         }
 
-        private FlowDocument DiffToDocument(IList<Diff> diffs)
+        private static List<DiffLine> DiffToLines(IList<Diff> diffs)
         {
             Debug.Assert(diffs != null);
-            var doc = new FlowDocument();
-            Paragraph lastParagraph = null;
-            var lfImageStyle = TryFindResource("LineFeedMarkerImage") as Style;
-            var insertionStyle = TryFindResource("InsertionMarker") as Style;
-            var deletionStyle = TryFindResource("DeletionMarker") as Style;
+            var lines = new List<DiffLine>();
+            DiffLine currentLine = null;
             var lineCounter1 = 0;
             var lineCounter2 = 0;
             Action<bool, bool> NextLine = (left, right) =>
             {
-                var marker = "";
+                int? line1 = null, line2 = null;
                 if (left)
                 {
                     lineCounter1++;
-                    marker += $"{lineCounter1,6}";
+                    line1 = lineCounter1;
                 }
-                else
-                {
-                    marker += "      ";
-                }
-                marker += " ";
                 if (right)
                 {
                     lineCounter2++;
-                    marker += $"{lineCounter2,6}";
+                    line2 = lineCounter2;
                 }
-                else
-                {
-                    marker += "      ";
-                }
-                lastParagraph = new Paragraph
-                {
-                    KeepWithNext = true,
-                    TextIndent = -20,
-                };
-                marker += " ";
-                lastParagraph.Inlines.Add(marker);
-                doc.Blocks.Add(lastParagraph);
+                currentLine = new DiffLine(line1, line2);
+                lines.Add(currentLine);
             };
             NextLine(true, true);
             foreach (var d in diffs)
             {
-                Style style = null;
+                var style = DiffSegmentStyle.Normal;
                 switch (d.operation)
                 {
                     case Operation.INSERT:
-                        style = insertionStyle;
+                        style = DiffSegmentStyle.Insertion;
                         break;
                     case Operation.DELETE:
-                        style = deletionStyle;
+                        style = DiffSegmentStyle.Deletion;
                         break;
                 }
-                var lines = d.text.Split('\n');
-                if (lines.Length == 1)
+                var segmentLines = d.text.Split('\n');
+                for (int i = 0; i < segmentLines.Length; i++)
                 {
-                    var run = new Run(d.text) {Style = style};
-                    lastParagraph.Inlines.Add(run);
-                }
-                else
-                {
-                    foreach (var l in lines)
+                    var l = segmentLines[i];
+                    currentLine.Segments.Add(new DiffSegment(l, style));
+                    if (i < segmentLines.Length - 1)
                     {
-                        var span = new Span(new Run(l)) {Style = style};
-                        var lfImage = new Image
-                        {
-                            Style = lfImageStyle,
-                        };
-                        var markerContainer = new InlineUIContainer(lfImage);
-                        span.Inlines.Add(markerContainer);
-                        lastParagraph.Inlines.Add(span);
                         NextLine(d.operation == Operation.EQUAL || d.operation == Operation.DELETE,
                             d.operation == Operation.EQUAL || d.operation == Operation.INSERT);
                     }
                 }
             }
-            return doc;
+            return lines;
         }
 
         public string Text1
@@ -227,24 +228,204 @@ namespace WikiEdit.Controls
             set { SetValue(Text2Property, value); }
         }
 
-        private RichTextBox _PresenterTextBox;
-        private ContentControl _SummaryLabel;
+        private ListBox presenter;
+        private TextBlock summaryTextBlock;
+        private Button previousDiffButton, nextDiffButton;
 
         /// <inheritdoc />
         public override void OnApplyTemplate()
         {
             base.OnApplyTemplate();
-            _PresenterTextBox = GetTemplateChild("PART_Presenter") as RichTextBox;
-            _SummaryLabel = GetTemplateChild("PART_SummaryLabel") as ContentControl;
-            if (_SummaryLabel != null)
-                _SummaryLabel.Content = _DiffSummary;
-            if (_PresenterTextBox != null && _DiffDocument == null)
-                InvalidateDiffDocumentAsync();
+            presenter = GetTemplateChild("PART_Presenter") as ListBox;
+            summaryTextBlock = GetTemplateChild("PART_SummaryTextBlock") as TextBlock;
+            if (previousDiffButton != null)
+                previousDiffButton.Click -= PreviousDiffButton_Click;
+            if (nextDiffButton != null)
+                nextDiffButton.Click -= NextDiffButton_Click;
+            previousDiffButton = GetTemplateChild("PART_PreviousDiffButton") as Button;
+            nextDiffButton = GetTemplateChild("PART_NextDiffButton") as Button;
+            if (previousDiffButton != null)
+                previousDiffButton.Click += PreviousDiffButton_Click;
+            if (nextDiffButton != null)
+                nextDiffButton.Click += NextDiffButton_Click;
+            if (summaryTextBlock != null)
+                summaryTextBlock.Text = _DiffSummary;
+            if (presenter != null)
+            {
+                if (diffLinesView == null)
+                    UpdateDiffDocumentAsync();
+                else
+                    presenter.ItemsSource = diffLinesView;
+            }
+        }
+
+        private void TextDiffViewer_Loaded(object sender, RoutedEventArgs e)
+        {
+            UpdateDiffDocumentAsync();
+        }
+
+        private void NextDiffButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (diffLinesView == null) return;
+            for (var l = diffLinesView.CurrentPosition + 1; l < diffLinesView.Count; l++)
+            {
+                var diff = (DiffLine)diffLinesView.GetItemAt(l);
+                if (diff.Segments.Any(s => s.Style != DiffSegmentStyle.Normal))
+                {
+                    SelectLineByIndex(l);
+                    return;
+                }
+            }
+        }
+
+        private void PreviousDiffButton_Click(object sender, RoutedEventArgs e)
+        {
+            if (diffLinesView == null) return;
+            for (var l = diffLinesView.CurrentPosition - 1; l >= 0; l--)
+            {
+                var diff = (DiffLine) diffLinesView.GetItemAt(l);
+                if (diff.Segments.Any(s => s.Style != DiffSegmentStyle.Normal))
+                {
+                    SelectLineByIndex(l);
+                    return;
+                }
+            }
+        }
+
+        private void SelectLineByIndex(int index)
+        {
+            if (diffLinesView == null) return;
+            diffLinesView.MoveCurrentToPosition(index);
+            if (presenter == null) return;
+            var item = diffLinesView.GetItemAt(index);
+            presenter.ScrollIntoView(item);
         }
 
         static TextDiffViewer()
         {
             DefaultStyleKeyProperty.OverrideMetadata(typeof(TextDiffViewer), new FrameworkPropertyMetadata(typeof(TextDiffViewer)));
         }
+
+        public TextDiffViewer()
+        {
+            Loaded += TextDiffViewer_Loaded;
+        }
+    }
+
+    [TemplatePart(Name = "PART_LineIndicator1", Type = typeof(TextBlock))]
+    [TemplatePart(Name = "PART_LineIndicator2", Type = typeof(TextBlock))]
+    [TemplatePart(Name = "PART_LineContent", Type = typeof(TextBlock))]
+    public class DiffLinePresenter : Control
+    {
+        static DiffLinePresenter()
+        {
+            DefaultStyleKeyProperty.OverrideMetadata(typeof(DiffLinePresenter),
+                new FrameworkPropertyMetadata(typeof(DiffLinePresenter)));
+        }
+
+        public DiffLinePresenter()
+        {
+            this.DataContextChanged += DiffContentPresenter_DataContextChanged;
+        }
+
+        private TextBlock lineIndicator1, lineIndicator2, lineContent;
+        private Style _InsertionStyle;
+        private Style _DeletionStyle;
+
+        /// <inheritdoc />
+        public override void OnApplyTemplate()
+        {
+            base.OnApplyTemplate();
+            _InsertionStyle = TryFindResource("InsertionMarker") as Style;
+            _DeletionStyle = TryFindResource("DeletionMarker") as Style;
+            lineIndicator1 = GetTemplateChild("PART_LineIndicator1") as TextBlock;
+            lineIndicator2 = GetTemplateChild("PART_LineIndicator2") as TextBlock;
+            lineContent = GetTemplateChild("PART_LineContent") as TextBlock;
+            UpdatePresenter();
+        }
+
+        private void UpdatePresenter()
+        {
+            var context = DataContext as DiffLine;
+            if (context == null)
+            {
+                if (lineIndicator1 != null) lineIndicator1.Text = null;
+                if (lineIndicator2 != null) lineIndicator2.Text = null;
+                if (lineContent != null) lineContent.Text = null;
+                return;
+            }
+            if (lineIndicator1 != null) lineIndicator1.Text = Convert.ToString(context.LineNumber1);
+            if (lineIndicator2 != null) lineIndicator2.Text = Convert.ToString(context.LineNumber2);
+            if (lineContent != null)
+            {
+                lineContent.Inlines.Clear();
+                if (context.Segments.Count > 0)
+                {
+                    foreach (var segment in context.Segments)
+                    {
+                        var run = SegmentToRun(segment.Text, segment.Style);
+                        lineContent.Inlines.Add(run);
+                    }
+                    var lastSegmentStyle = context.Segments[context.Segments.Count - 1].Style;
+                    lineContent.Inlines.Add(SegmentToRun("¶", lastSegmentStyle));
+                }
+            }
+        }
+
+        private Run SegmentToRun(string text, DiffSegmentStyle style)
+        {
+            var run = new Run(text);
+            switch (style)
+            {
+                case DiffSegmentStyle.Insertion:
+                    run.Style = _InsertionStyle;
+                    break;
+                case DiffSegmentStyle.Deletion:
+                    run.Style = _DeletionStyle;
+                    break;
+            }
+            return run;
+        }
+
+        private void DiffContentPresenter_DataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            UpdatePresenter();
+        }
+    }
+
+    internal class DiffLine
+    {
+        public DiffLine(int? lineNumber1, int? lineNumber2)
+        {
+            LineNumber1 = lineNumber1;
+            LineNumber2 = lineNumber2;
+        }
+
+        public int? LineNumber1 { get; }
+
+        public int? LineNumber2 { get; }
+
+        public List<DiffSegment> Segments { get; } = new List<DiffSegment>();
+
+    }
+
+    internal class DiffSegment
+    {
+        public DiffSegment(string text, DiffSegmentStyle style)
+        {
+            Text = text;
+            Style = style;
+        }
+
+        public string Text { get; }
+
+        public DiffSegmentStyle Style { get; }
+    }
+
+    internal enum DiffSegmentStyle
+    {
+        Normal = 0,
+        Insertion,
+        Deletion
     }
 }
