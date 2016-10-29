@@ -43,10 +43,14 @@
 		<text key="login">Login</text>
 		<text key="login into wiki">Login into</text>
 		<text key="logout">Logout</text>
+		<text key="menu:information">Information</text>
+		<text key="menu:new session">New session</text>
+		<text key="menu:open session">Open session</text>
+		<text key="menu:save session">Save session</text>
+		<text key="menu:save session as">Save session as</text>
 		<text key="name">Name</text>
-		<text key="new session">New session</text>
 		<text key="ok">Ok</text>
-		<text key="open session">Open session</text>
+		<text key="open containing folder">Open containing folder</text>
 		<text key="page.content length">Content length</text>
 		<text key="page.content model" comment="Page content model e.g. wikitext, it's an attribute of MediaWiki pages.">Content model</text>
 		<text key="page.last revision by">Last revision by</text>
@@ -66,10 +70,9 @@
 		<text key="please wait">Please wait…</text>
 		<text key="refresh">Refresh</text>
 		<text key="remove">Remove</text>
-		<text key="save session">Save session</text>
-		<text key="save session as">Save session as</text>
 		<text key="save session prompt">Before continuing, would you like to save current session?</text>
 		<text key="search">Search</text>
+		<text key="session:unsaved">Unsaved Session</text>
 		<text key="session file filter">Session file (*.json)|*.json|All files|*.*</text>
 		<text key="titles.recent changes">Recent Changes</text>
 		<text key="Tx:byte unit" comment="Default: B" />
@@ -326,10 +329,14 @@
 		<text key="login">登录</text>
 		<text key="login into wiki" acceptpunctuation="true">登录到</text>
 		<text key="logout">注销</text>
+		<text key="menu:information">信息</text>
+		<text key="menu:new session">新建会话</text>
+		<text key="menu:open session">打开会话</text>
+		<text key="menu:save session">保存会话</text>
+		<text key="menu:save session as">会话另存为</text>
 		<text key="name">名称</text>
-		<text key="new session">新建会话</text>
 		<text key="ok">确定</text>
-		<text key="open session">打开会话</text>
+		<text key="open containing folder">打开包含路径</text>
 		<text key="page.content length">内容长度</text>
 		<text key="page.content model">内容模型</text>
 		<text key="page.last revision by">最后修订者</text>
@@ -349,10 +356,9 @@
 		<text key="please wait" acceptpunctuation="true">请稍后……</text>
 		<text key="refresh">刷新</text>
 		<text key="remove">移除</text>
-		<text key="save session">保存会话</text>
-		<text key="save session as">会话另存为</text>
 		<text key="save session prompt" acceptpunctuation="true">是否保存当前会话？</text>
 		<text key="search">搜索</text>
+		<text key="session:unsaved">未保存的会话</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
 		<text key="titles.recent changes">最近修改</text>
 		<text key="Tx:colon">：</text>

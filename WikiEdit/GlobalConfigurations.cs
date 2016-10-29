@@ -13,5 +13,10 @@ namespace WikiEdit
         public const string SyntaxHighlighterDefinitionFolder = "SyntaxHighlighters";
 
         public const string SettingsFile = "settings.json";
+
+        /// <summary>
+        /// Uri of the resource file that contains the source control versioning information.
+        /// </summary>
+        public static readonly Uri SourceControlVersionUri = new Uri("pack://application:,,,/WikiEdit;component/scversion.txt");
     }
 }

@@ -1,0 +1,44 @@
+﻿<UserControl 
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:WikiEdit.Views"
+             xmlns:app="clr-namespace:WikiEdit"
+             xmlns:ViewModels="clr-namespace:WikiEdit.ViewModels"
+             xmlns:fluent="urn:fluent-ribbon"
+             xmlns:Tx="http://unclassified.software/source/txtranslation"
+             x:Class="WikiEdit.Views.SessionInformationView"
+             mc:Ignorable="d" 
+             d:DesignHeight="400" d:DesignWidth="600">
+    <Grid d:DataContext="{d:DesignInstance {x:Type ViewModels:SessionInformationViewModel}}">
+        <Grid.RowDefinitions>
+            <RowDefinition Height="Auto"/>
+            <RowDefinition Height="Auto"/>
+        </Grid.RowDefinitions>
+        <Grid>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="Auto"/>
+                <ColumnDefinition Width="*" />
+                <ColumnDefinition Width="10*" MinWidth="100px" MaxWidth="400px"/>
+            </Grid.ColumnDefinitions>
+            <StackPanel Orientation="Vertical" Margin="4">
+                <TextBlock Text="{x:Static app:Utility.ApplicationTitle}" Style="{DynamicResource Heading1}" />
+                <TextBlock Text="{Binding Version}" Style="{DynamicResource Heading3}" />
+            </StackPanel>
+            <RichTextBox IsReadOnly="True" Grid.Column="2" BorderThickness="0" IsDocumentEnabled="True">
+                <FlowDocument>
+                    <Paragraph FontFamily="Courier New, Courier" Foreground="CornflowerBlue">
+                        <Run Text="{Binding SourceControlInformation, Mode=OneWay}" />
+                    </Paragraph>
+                    <Paragraph>
+                        GitHub: <Hyperlink Command="{Binding OpenGitHubCommand}">http://github.com/CXuesong/WikiEdit</Hyperlink>
+                    </Paragraph>
+                </FlowDocument>
+            </RichTextBox>
+        </Grid>
+        <StackPanel Orientation="Vertical" Grid.Row="1" Margin="4" Grid.ColumnSpan="2">
+            <fluent:Button Foreground="Black" Header="{Binding SessionFileName}" Command="{Binding OpenContainingFolderCommand}" Size="Middle" ToolTip="{Tx:T open containing folder}" CanAddToQuickAccessToolBar="False" />
+        </StackPanel>
+    </Grid>
+</UserControl>

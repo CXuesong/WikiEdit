@@ -138,6 +138,7 @@
     <Compile Include="ViewModels\Primitives\DocumentOutlineItem.cs" />
     <Compile Include="ViewModels\Primitives\TextBoxViewModelAdapter.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
+    <Compile Include="ViewModels\SessionInformationViewModel.cs" />
     <Compile Include="ViewModels\SettingsViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\CSSEditorViewModel.cs" />
     <Compile Include="ViewModels\TextEditors\JavaScriptEditorViewModel.cs" />
@@ -161,6 +162,9 @@
     </Compile>
     <Compile Include="Views\RecentChangeView.xaml.cs">
       <DependentUpon>RecentChangeView.xaml</DependentUpon>
+    </Compile>
+    <Compile Include="Views\SessionInformationView.xaml.cs">
+      <DependentUpon>SessionInformationView.xaml</DependentUpon>
     </Compile>
     <Compile Include="Views\TextEditors\RawTextEditorView.xaml.cs">
       <DependentUpon>RawTextEditorView.xaml</DependentUpon>
@@ -238,6 +242,10 @@
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>
+    <Page Include="Views\SessionInformationView.xaml">
+      <SubType>Designer</SubType>
+      <Generator>MSBuild:Compile</Generator>
+    </Page>
     <Page Include="Views\TextEditors\RawTextEditorView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
@@ -280,6 +288,10 @@
     </None>
     <AppDesigner Include="Properties\" />
     <Resource Include="Images\Counter.png" />
+    <Resource Include="Images\BriefCase.png" />
+    <Resource Include="..\scversion.txt">
+      <Link>scversion.txt</Link>
+    </Resource>
     <Content Include="SyntaxHighlighters\Lua.xshd">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </Content>
@@ -325,8 +337,13 @@
       <Name>WikiClientLibrary</Name>
     </ProjectReference>
   </ItemGroup>
-  <ItemGroup />
+  <ItemGroup>
+    <Service Include="{508349B6-6B84-4DF5-91F0-309BEEBAD82D}" />
+  </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
+  <PropertyGroup>
+    <PreBuildEvent>"$(SolutionDir)\scgen.cmd" "$(SolutionDir)\scversion.txt"</PreBuildEvent>
+  </PropertyGroup>
   <!-- To modify your build process, add your task inside one of the targets below and uncomment it. 
        Other similar extension points exist, see Microsoft.Common.targets.
   <Target Name="BeforeBuild">

@@ -12,7 +12,7 @@
         xmlns:vmd="clr-namespace:WikiEdit.ViewModels.Documents"
         x:Class="WikiEdit.Views.MainWindow"
         mc:Ignorable="d"
-        Title="MainWindow" Height="600" Width="800"
+        Title="WikiEdit" Height="600" Width="800"
         d:DataContext="{d:DesignInstance {x:Type vm:MainWindowViewModel}}">
     <fluent:RibbonWindow.Resources>
         <local:UniversalBooleanConverter x:Key="ValueToVisibilityConverter"/>
@@ -37,10 +37,13 @@
             <fluent:Ribbon.Menu>
                 <fluent:Backstage>
                     <fluent:BackstageTabControl>
-                        <fluent:Button x:Name="NewSessionRibbonButton" Header="{Tx:T new session}" Command="{Binding Commands[New]}" Icon="/WikiEdit;component/Images/New.png" LargeIcon="/WikiEdit;component/Images/NewLG.png"/>
-                        <fluent:Button x:Name="OpenSessionRibbonButton" Header="{Tx:T open session}" Command="{Binding Commands[Open]}" Icon="/WikiEdit;component/Images/Open.png" LargeIcon="/WikiEdit;component/Images/OpenLG.png"/>
-                        <fluent:Button x:Name="SaveSessionRibbonButton" Header="{Tx:T save session}" Command="{Binding Commands[Save]}" Icon="/WikiEdit;component/Images/Save.png" LargeIcon="/WikiEdit;component/Images/SaveLG.png"/>
-                        <fluent:Button x:Name="SaveSessionAsRibbonButton" Header="{Tx:T save session as}" Command="{Binding Commands[SaveAs]}" />
+                        <fluent:BackstageTabItem Header="{Tx:T menu:information}">
+                            <v:SessionInformationView DataContext="{Binding SessionInformationViewModel}" Margin="10, 0" />
+                        </fluent:BackstageTabItem>
+                        <fluent:Button x:Name="NewSessionRibbonButton" Header="{Tx:T menu:new session}" Command="{Binding Commands[New]}" Icon="/WikiEdit;component/Images/New.png" LargeIcon="/WikiEdit;component/Images/NewLG.png"/>
+                        <fluent:Button x:Name="OpenSessionRibbonButton" Header="{Tx:T menu:open session}" Command="{Binding Commands[Open]}" Icon="/WikiEdit;component/Images/Open.png" LargeIcon="/WikiEdit;component/Images/OpenLG.png"/>
+                        <fluent:Button x:Name="SaveSessionRibbonButton" Header="{Tx:T menu:save session}" Command="{Binding Commands[Save]}" Icon="/WikiEdit;component/Images/Save.png" LargeIcon="/WikiEdit;component/Images/SaveLG.png"/>
+                        <fluent:Button x:Name="SaveSessionAsRibbonButton" Header="{Tx:T menu:save session as}" Command="{Binding Commands[SaveAs]}" />
                     </fluent:BackstageTabControl>
                 </fluent:Backstage>
             </fluent:Ribbon.Menu>

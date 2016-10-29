@@ -20,7 +20,6 @@ namespace WikiEdit.ViewModels
     internal class MainWindowViewModel : BindableBase
     {
         private readonly WikiEditController wikiEditController;
-        private string _FileName;
         private readonly IChildViewModelService _ChildViewModelService;
         private readonly IViewModelFactory _ViewModelFactory;
 
@@ -29,6 +28,9 @@ namespace WikiEdit.ViewModels
 
         [Dependency]
         public DocumentOutlineViewModel DocumentOutlineViewModel { get; set; }
+
+        [Dependency]
+        public SessionInformationViewModel SessionInformationViewModel { get; set; }
 
         public ObservableCollection<DocumentViewModel> DocumentViewModels => _ChildViewModelService.Documents;
 
@@ -124,72 +126,6 @@ namespace WikiEdit.ViewModels
             CurrentWikiSite = activeDocument?.SiteContext;
         }
 
-        #region Session Persistence
-
-        public string FileName
-        {
-            get { return _FileName; }
-            set { SetProperty(ref _FileName, value); }
-        }
-
-        public bool OpenSession()
-        {
-            if (!PromptSaveSession()) return false;
-            if (!_ChildViewModelService.Documents.CloseAll()) return false;
-            var ofd = new OpenFileDialog
-            {
-                Filter = Tx.T("session file filter"),
-            };
-            if (ofd.ShowDialog() == true)
-            {
-                wikiEditController.Load(ofd.FileName);
-                FileName = ofd.FileName;
-                return true;
-            }
-            return false;
-        }
-
-        public bool PromptSaveSession()
-        {
-            switch (Utility.Confirm(Tx.T("save session prompt"), true))
-            {
-                case true:
-                    return SaveSession();
-                case false:
-                    return true;
-                default:
-                    return false;
-            }
-        }
-
-        public bool SaveSession(bool saveAs = false)
-        {
-            var fn = FileName;
-            if (saveAs || fn == null)
-            {
-                var sfd = new SaveFileDialog
-                {
-                    Filter = Tx.T("session file filter"),
-                };
-                if (sfd.ShowDialog() == true)
-                    fn = sfd.FileName;
-                else
-                    return false;
-            }
-            try
-            {
-                wikiEditController.Save(fn);
-                return true;
-            }
-            catch (Exception ex)
-            {
-                Utility.ReportException(ex);
-                return false;
-            }
-        }
-
-        #endregion
-
         #region Commands
 
         private Dictionary<string, ICommand> _Commands;
@@ -212,15 +148,14 @@ namespace WikiEdit.ViewModels
                     _Commands.Add(key, new DelegateCommand(act, enabled));
             addCommand("New", () =>
             {
-                if (PromptSaveSession() && _ChildViewModelService.Documents.CloseAll())
+                if (wikiEditController.PromptSave() && _ChildViewModelService.Documents.CloseAll())
                 {
                     wikiEditController.Clear();
-                    FileName = null;
                 }
             });
-            addCommand("Open", () => OpenSession());
-            addCommand("Save", () => SaveSession());
-            addCommand("SaveAs", () => SaveSession(true));
+            addCommand("Open", () => wikiEditController.Open());
+            addCommand("Save", () => wikiEditController.Save(false));
+            addCommand("SaveAs", () => wikiEditController.Save(true));
         }
 
         #endregion

@@ -151,10 +151,8 @@ namespace WikiEdit
         }
 
         /// <summary>
-        /// Evaluates the best interval for updating the
+        /// Evaluates the best interval for updating the relative datetime.
         /// </summary>
-        /// <param name="currentDateChange"></param>
-        /// <returns></returns>
         public static TimeSpan FitRelativeDateUpdateInterval(TimeSpan currentDateChange)
         {
             if (currentDateChange < TimeSpan.FromSeconds(1)) return TimeSpan.FromSeconds(10);
@@ -162,6 +160,17 @@ namespace WikiEdit
             if (currentDateChange < TimeSpan.FromHours(1)) return TimeSpan.FromMinutes(1);
             if (currentDateChange < TimeSpan.FromHours(4)) return TimeSpan.FromMinutes(10);
             return TimeSpan.FromMinutes(20);
+        }
+
+        /// <summary>
+        /// Opens the specified URL in the system default browser.
+        /// </summary>
+        public static void OpenUrl(string url)
+        {
+            if (url == null) throw new ArgumentNullException(nameof(url));
+            var si = new ProcessStartInfo(url) {UseShellExecute = true};
+            var proc = Process.Start(si);
+            proc?.Dispose();
         }
     }
 

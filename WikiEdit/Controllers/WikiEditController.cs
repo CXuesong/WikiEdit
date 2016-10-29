@@ -7,14 +7,17 @@ using System.Linq;
 using System.Net;
 using System.Text;
 using System.Threading.Tasks;
+using Microsoft.Win32;
 using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Prism.Events;
 using Prism.Mvvm;
+using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
 using WikiEdit.Models;
+using WikiEdit.Services;
 using WikiEdit.ViewModels;
 
 namespace WikiEdit.Controllers
@@ -25,6 +28,8 @@ namespace WikiEdit.Controllers
     internal class WikiEditController : BindableBase
     {
         private readonly IEventAggregator _EventAggregator;
+        private readonly IChildViewModelService _ChildViewModelService;
+
 
         public WikiClient WikiClient { get; private set; }
 
@@ -46,7 +51,7 @@ namespace WikiEdit.Controllers
             };
         }
 
-        #region Persistence
+        #region Session Persistence
 
         private WikiEditSession storage = new WikiEditSession();
 
@@ -62,6 +67,7 @@ namespace WikiEdit.Controllers
         public void Clear()
         {
             WikiSites.Clear();
+            FileName = null;
             ResetWikiClient();
         }
 
@@ -136,10 +142,80 @@ namespace WikiEdit.Controllers
 
         #endregion
 
-        public WikiEditController(IEventAggregator eventAggregator)
+        #region Session Persistence - Storage
+
+        private string _FileName;
+
+        public string FileName
+        {
+            get { return _FileName; }
+            set { SetProperty(ref _FileName, value); }
+        }
+
+        public bool Open()
+        {
+            if (!PromptSave()) return false;
+            if (!_ChildViewModelService.Documents.CloseAll()) return false;
+            var ofd = new OpenFileDialog
+            {
+                Filter = Tx.T("session file filter"),
+            };
+            if (ofd.ShowDialog() == true)
+            {
+                Load(ofd.FileName);
+                FileName = ofd.FileName;
+                return true;
+            }
+            return false;
+        }
+
+        public bool PromptSave()
+        {
+            switch (Utility.Confirm(Tx.T("save session prompt"), true))
+            {
+                case true:
+                    return Save(false);
+                case false:
+                    return true;
+                default:
+                    return false;
+            }
+        }
+
+        public bool Save(bool saveAs)
+        {
+            var fn = FileName;
+            if (saveAs || fn == null)
+            {
+                var sfd = new SaveFileDialog
+                {
+                    Filter = Tx.T("session file filter"),
+                };
+                if (sfd.ShowDialog() == true)
+                    fn = sfd.FileName;
+                else
+                    return false;
+            }
+            try
+            {
+                Save(fn);
+                return true;
+            }
+            catch (Exception ex)
+            {
+                Utility.ReportException(ex);
+                return false;
+            }
+        }
+
+        #endregion
+
+        public WikiEditController(IEventAggregator eventAggregator,
+            IChildViewModelService childViewModelService)
         {
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             _EventAggregator = eventAggregator;
+            _ChildViewModelService = childViewModelService;
             Clear();
         }
     }
