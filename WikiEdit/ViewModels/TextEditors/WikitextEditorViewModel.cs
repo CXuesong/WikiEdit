@@ -6,6 +6,7 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using ICSharpCode.AvalonEdit.Highlighting;
 using MwParserFromScratch;
 using MwParserFromScratch.Nodes;
 using WikiEdit.Services;

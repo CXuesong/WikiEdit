@@ -17,16 +17,9 @@
     <Import ruleSet="LineSet" />
   </RuleSet>
   <RuleSet name="LineSet">
-    <Span color="Heading" begin="^={6}(?!=)" end="={6}(?=\s|&lt;!--|$)" />
-    <Span color="Heading" begin="^={5}(?!=)" end="={5}(?=\s|&lt;!--|$)" />
-    <Span color="Heading" begin="^={4}(?!=)" end="={4}(?=\s|&lt;!--|$)" />
-    <Span color="Heading" begin="^={3}(?!=)" end="={3}(?=\s|&lt;!--|$)" />
-    <Span color="Heading" begin="^={2}(?!=)" end="={2}(?=\s|&lt;!--|$)" />
-    <Span color="Heading" begin="^=(?!=)" end="=(?=\s|&lt;!--|$)" />
     <Import ruleSet="InlineSet"/>
   </RuleSet>
   <RuleSet name="InlineSet">
-    <Rule color="Template">\{\{(?!\{)|\}\}(?!\})</Rule>
     <Span color="WikiLink" begin="\[\[" end="\]\]">
       <RuleSet>
         <Import ruleSet="BasicSet"/>
@@ -54,7 +47,6 @@
     </Span>
   </RuleSet>
   <RuleSet name="BasicSet">
-    <Span color="Comment" multiline="true" begin="&lt;!--" end="--&gt;" />
     <Rule color="FormatSwitch">('{5}|'''|'')(?!')</Rule>
     <Import ruleSet="EntitySet" />
   </RuleSet>

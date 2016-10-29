@@ -70,7 +70,6 @@ namespace WikiEdit
             }
         }
 
-
         /// <summary>
         /// Invoke a function from the given <see cref="Dispatcher"/>. If the current
         /// dispatcher is the same as given one, the function is called directly.
@@ -87,6 +86,11 @@ namespace WikiEdit
             {
                 return dispatcher.Invoke(action);
             }
+        }
+
+        public static Color ColorFromString(string value)
+        {
+            return (Color) ColorConverter.ConvertFromString(value);
         }
     }
 

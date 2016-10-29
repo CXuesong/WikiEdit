@@ -68,6 +68,11 @@
 		<text key="page diff.title">{name}: Difference between revisions</text>
 		<text key="password">Password</text>
 		<text key="please wait">Please wait…</text>
+		<text key="rctypes:delete">Delete</text>
+		<text key="rctypes:move">Move</text>
+		<text key="rctypes:renameuser">User Rename</text>
+		<text key="rctypes:rights" comment="The operation shown in Recent Changes, indicating a user's rights has been changed (granted/revoked).">User Rights</text>
+		<text key="rctypes:upload">Upload</text>
 		<text key="refresh">Refresh</text>
 		<text key="remove">Remove</text>
 		<text key="save session prompt">Before continuing, would you like to save current session?</text>
@@ -354,6 +359,11 @@
 		<text key="page diff.title">{name}：版本间差异</text>
 		<text key="password">密码</text>
 		<text key="please wait" acceptpunctuation="true">请稍后……</text>
+		<text key="rctypes:delete">删除</text>
+		<text key="rctypes:move">移动</text>
+		<text key="rctypes:renameuser">用户重命名</text>
+		<text key="rctypes:rights">用户权限</text>
+		<text key="rctypes:upload">上传</text>
 		<text key="refresh">刷新</text>
 		<text key="remove">移除</text>
 		<text key="save session prompt" acceptpunctuation="true">是否保存当前会话？</text>

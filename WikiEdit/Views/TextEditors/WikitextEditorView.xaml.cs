@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WikiEdit.Spark;
 using WikiEdit.ViewModels.TextEditors;
 
 namespace WikiEdit.Views.TextEditors
@@ -24,6 +25,7 @@ namespace WikiEdit.Views.TextEditors
         public WikitextEditorView()
         {
             InitializeComponent();
+            TextEditor.TextArea.TextView.LineTransformers.Add(WikitextColorizer.Default);
         }
 
         private void WikitextEditorView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
