@@ -37,6 +37,11 @@ namespace WikiEdit.Services
 
         Task<PageEditorViewModel> OpenPageEditorAsync(WikiSiteViewModel wikiSite, string pageTitle);
 
+        /// <summary>
+        /// Open the page of the specified title, using an appropriate action.
+        /// </summary>
+        Task OpenPageAsync(WikiSiteViewModel wikiSite, string pageTitle);
+
         WikiSiteEditingViewModel CreateWikiSiteEditingViewModel(Action accpentCallback, Action cancelCallback);
 
         PageDiffViewModel CreatePageDiffViewModel(WikiSiteViewModel wikiSite);
@@ -104,6 +109,14 @@ namespace WikiEdit.Services
             }
             editor.IsActive = true;
             return editor;
+        }
+
+        /// <inheritdoc />
+        public async Task OpenPageAsync(WikiSiteViewModel wikiSite, string pageTitle)
+        {
+            // TODO Maybe show the page in the application, in the future.
+            var url = await wikiSite.GetPageUrlAsync(pageTitle);
+            Utility.OpenUrl(url);
         }
 
         /// <inheritdoc />

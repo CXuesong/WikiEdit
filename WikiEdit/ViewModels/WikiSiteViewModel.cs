@@ -214,6 +214,32 @@ namespace WikiEdit.ViewModels
             return entries;
         }
 
+        private static readonly Uri DummyHttp = new Uri("http://dummy");
+
+        /// <summary>
+        /// Gets the full page URL from the specified page title.
+        /// </summary>
+        public Task<string> GetPageUrlAsync(string pageTitle)
+        {
+            return GetPageUrlAsync(pageTitle, null);
+        }
+
+        /// <summary>
+        /// Gets the full page URL from the specified page title.
+        /// </summary>
+        public async Task<string> GetPageUrlAsync(string pageTitle, string query)
+        {
+            if (pageTitle == null) throw new ArgumentNullException(nameof(pageTitle));
+            var site = await GetSiteAsync();
+            // Infers the absolute URL
+            var uri = new Uri(DummyHttp, site.SiteInfo.ServerUrl);
+            uri = new Uri(uri, site.SiteInfo.ArticlePath);
+            var pageUrl = uri.ToString();
+            pageUrl = pageUrl.Replace("$1", pageTitle.Trim());
+            if (query != null) pageUrl = pageUrl + "?" + query;
+            return pageUrl;
+        }
+
         #endregion
 
         public async Task RefreshAccountInfoAsync()

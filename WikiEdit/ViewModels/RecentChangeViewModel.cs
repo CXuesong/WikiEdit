@@ -3,6 +3,10 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
 using Prism.Commands;
 using Prism.Mvvm;
 using Unclassified.TxLib;
@@ -90,6 +94,21 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
+        public FlowDocument DetailDocument { get; } = new FlowDocument();
+
+        private static Hyperlink NewHyperlink(string text, Action onClick)
+        {
+            var link = new Hyperlink(new Run(text));
+            link.Click += (_, e) => onClick();
+            return link;
+        }
+
+        private static Hyperlink NewHyperlink(string text, ICommand command)
+        {
+            var link = new Hyperlink(new Run(text)) {Command = command};
+            return link;
+        }
+
         internal RecentChangeViewModel(IViewModelFactory viewModelFactory, 
             WikiSiteViewModel wikiSite, RecentChangesEntry model)
         {
@@ -98,32 +117,75 @@ namespace WikiEdit.ViewModels
             if (model == null) throw new ArgumentNullException(nameof(model));
             _ViewModelFactory = viewModelFactory;
             RawEntry = model;
+            var detailp = new Paragraph();
+            DetailDocument.Blocks.Add(detailp);
             switch (model.Type)
             {
                 case RecentChangesType.Create:
                 case RecentChangesType.Edit:
                 case RecentChangesType.Move:
-                    TargetBadge = new PageTitleViewModel(model.Title, () =>
-                    {
-                        _ViewModelFactory.OpenPageEditorAsync(wikiSite, model.Title);
-                    }, () =>
-                    {
-                        _ViewModelFactory.OpenPageDiffViewModel(wikiSite, model.OldRevisionId, model.RevisionId);
-                    }, null);
                     break;
                 case RecentChangesType.Log:
-                    TargetBadge = new CommandLinkViewModel(model.LogAction, () => { });
+                    detailp.Inlines.Add(Tx.SafeText("logactions:" + model.LogAction));
+                    detailp.Inlines.Add(" ");
                     break;
                 case RecentChangesType.Categorize:
+                    detailp.Inlines.Add("Categorize");
+                    detailp.Inlines.Add(" ");
                     break;
                 case RecentChangesType.External:
+                    detailp.Inlines.Add(Tx.T("rctypes:external"));
+                    detailp.Inlines.Add(" ");
                     break;
                 default:
                     break;
             }
+            if (model.Title != null)
+            {
+                detailp.Inlines.Add(NewHyperlink(model.Title, () =>
+                {
+                    _ViewModelFactory.OpenPageEditorAsync(wikiSite, model.Title);
+                }));
+                if (model.OldRevisionId > 0)
+                {
+                    detailp.Inlines.Add(" ");
+                    detailp.Inlines.Add(NewHyperlink(Tx.T("badges:diff"), () =>
+                    {
+                        _ViewModelFactory.OpenPageDiffViewModel(wikiSite, model.OldRevisionId, model.RevisionId);
+                    }));
+                    detailp.Inlines.Add(" ");
+                    var deltaLengthRun = new Run(Tx.DataSize(Math.Abs(model.NewContentLength - model.OldContentLength)));
+                    if (model.NewContentLength > model.OldContentLength)
+                    {
+                        deltaLengthRun.Foreground = Brushes.Green;
+                        deltaLengthRun.FontWeight = FontWeights.Bold;
+                        deltaLengthRun.Text = "+" + deltaLengthRun.Text;
+                    } else if (model.NewContentLength < model.OldContentLength)
+                    {
+                        deltaLengthRun.Foreground = Brushes.Red;
+                        deltaLengthRun.FontWeight = FontWeights.Bold;
+                        deltaLengthRun.Text = "-" + deltaLengthRun.Text;
+                    }
+                    detailp.Inlines.Add(deltaLengthRun);
+                }
+            }
             if (model.UserName != null)
             {
-                UserNameBadge = new UserNameViewModel(model.UserName, null, null, null, null);
+                detailp.Inlines.Add(" ");
+                detailp.Inlines.Add(NewHyperlink(model.UserName,
+                    () => _ViewModelFactory.OpenPageAsync(wikiSite, "User:" + model.UserName)));
+                detailp.Inlines.Add(" (");
+                detailp.Inlines.Add(NewHyperlink(Tx.T("badges:talk"),
+                    () => _ViewModelFactory.OpenPageAsync(wikiSite, "User_talk:" + model.UserName)));
+                detailp.Inlines.Add(" ");
+                detailp.Inlines.Add(NewHyperlink(Tx.T("badges:contribs"),
+                    () => _ViewModelFactory.OpenPageAsync(wikiSite, "Special:Contributions/" + model.UserName)));
+                detailp.Inlines.Add(")");
+            }
+            if (model.Comment != null)
+            {
+                detailp.Inlines.Add(" ");
+                detailp.Inlines.Add(model.Comment);
             }
         }
     }

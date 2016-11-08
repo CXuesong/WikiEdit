@@ -24,8 +24,8 @@ namespace WikiEdit.ViewModels.Documents
 
         public override object DocumentContext => SiteContext;
 
-        public ObservableCollection<RecentChangeViewModel> RecentChanges { get; } =
-            new ObservableCollection<RecentChangeViewModel>();
+        public ObservableCollection<object> RecentChangesList { get; } =
+            new ObservableCollection<object>();
 
         public WikiSiteOverviewViewModel(IViewModelFactory viewModelFactory, SettingsService settingsService, WikiSiteViewModel wikiSite)
         {
@@ -68,25 +68,32 @@ namespace WikiEdit.ViewModels.Documents
 
         #region Site Information
 
-        private DelegateCommand _RefreshSiteCommand;
-
         private async Task RefreshRecentActivitiesAsync()
         {
+            if (IsBusy) return;
             IsBusy = true;
             Status = Tx.T("please wait");
             try
             {
-                const int RecentChangesCount = 50;
                 var rcg = new RecentChangesGenerator(await SiteContext.GetSiteAsync())
                 {
-                    PagingSize = RecentChangesCount,
+                    PagingSize = RecentActivitiesPagingSize + 10,
                 };
-                var rc = await rcg.EnumRecentChangesAsync()
-                    .Take(RecentChangesCount)
-                    .Select(rce => _ViewModelFactory.CreateRecentChange(rce, SiteContext))
-                    .ToArray();
-                RecentChanges.Clear();
-                RecentChanges.AddRange(rc);
+                var rcs = await rcg.EnumRecentChangesAsync()
+                    .Take(RecentActivitiesPagingSize).ToArray();
+                RecentChangesList.Clear();
+                var lastDate = DateTime.MinValue;
+                foreach (var rc in rcs)
+                {
+                    var vm = _ViewModelFactory.CreateRecentChange(rc, SiteContext);
+                    var date = rc.TimeStamp.Date;
+                    if (lastDate != date)
+                    {
+                        RecentChangesList.Add(Tx.Time(date, TxTime.YearMonthDay | TxTime.DowLong));
+                        lastDate = date;
+                    }
+                    RecentChangesList.Add(vm);
+                }
             }
             finally
             {
@@ -94,6 +101,8 @@ namespace WikiEdit.ViewModels.Documents
                 Status = null;
             }
         }
+
+        private DelegateCommand _RefreshSiteCommand;
 
         public DelegateCommand RefreshSiteCommand
         {
@@ -143,6 +152,20 @@ namespace WikiEdit.ViewModels.Documents
                     }, () => WikiSiteEditor == null);
                 }
                 return _EditWikiSiteCommand;
+            }
+        }
+
+        public static IList<int> PagingSizeChoices { get; } = new[] {25, 50, 100, 200};
+
+        private int _RecentActivitiesPagingSize = 50;
+                    
+        public int RecentActivitiesPagingSize
+        {
+            get { return _RecentActivitiesPagingSize; }
+            set
+            {
+                if (SetProperty(ref _RecentActivitiesPagingSize, value))
+                    RefreshRecentActivitiesAsync().Forget();
             }
         }
 

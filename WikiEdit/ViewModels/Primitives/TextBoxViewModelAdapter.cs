@@ -35,7 +35,7 @@ namespace WikiEdit.ViewModels.Primitives
                     }
                     if (value != null)
                     {
-                        value.Document.Text = Text;
+                        value.Document.Text = Text ?? "";
                         value.Document.TextChanged += Document_TextChanged;
                     }
                     _Adaptee = value;

@@ -77,7 +77,8 @@ namespace WikiEdit.Spark
             var summary = string.Join(" ", sections1.Where(s => s.InsertedChars + s.DeletedChars > 0)
                 .Select(s =>
                 {
-                    var segment = "/*" + string.Join(null, s.Heading.Inlines).Trim() + "*/";
+                    var headingName = s.Heading == null ? "top" : string.Join(null, s.Heading.Inlines).Trim();
+                    var segment = "/*" + headingName + "*/";
                     string change = null;
                     if (s.InsertedChars > 0) change = "+" + s.InsertedChars;
                     if (s.DeletedChars > 0) change = (change == null ? null : change + " ") + "-" + s.DeletedChars;

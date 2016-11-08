@@ -112,7 +112,7 @@ namespace WikiEdit
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             var v = value != null;
-            if (value is bool) v = (bool)value;
+            if (value is bool) v = (bool) value;
             if (value is string) v = !string.IsNullOrEmpty((string)value);
             if (HasFlag(parameter, "Inverse")) v = !v;
             if (targetType == typeof(bool) || targetType == typeof(object))

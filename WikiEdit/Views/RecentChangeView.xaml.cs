@@ -12,6 +12,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using WikiEdit.ViewModels;
 
 namespace WikiEdit.Views
 {
@@ -23,6 +24,12 @@ namespace WikiEdit.Views
         public RecentChangeView()
         {
             InitializeComponent();
+        }
+
+        private void RecentChangeView_OnDataContextChanged(object sender, DependencyPropertyChangedEventArgs e)
+        {
+            var vm = DataContext as RecentChangeViewModel;
+            if (vm != null) DetailRichTextBox.Document = vm.DetailDocument;
         }
     }
 }

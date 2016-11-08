@@ -10,6 +10,7 @@
              xmlns:wpfControls="http://wpfcontrols.com/"
              xmlns:controls="clr-namespace:WikiEdit.Controls"
              xmlns:fluent="urn:fluent-ribbon"
+             xmlns:sys="clr-namespace:System;assembly=mscorlib"
              x:Class="WikiEdit.Views.Documents.WikiSiteOverviewView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type dvm:WikiSiteOverviewViewModel}}">
@@ -70,10 +71,21 @@
                 <Button Content="{Tx:T edit}" Command="{Binding EditPageCommand}" Grid.Column="1" IsDefault="True" />
             </Grid>
         </StackPanel>
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto">
+        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" >
             <StackPanel>
                 <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
-                <ItemsControl ItemsSource="{Binding RecentChanges}" VirtualizingStackPanel.IsVirtualizing="True" />
+                <WrapPanel>
+                    <Label Content="{Tx:T items per page}" />
+                    <ComboBox ItemsSource="{x:Static dvm:WikiSiteOverviewViewModel.PagingSizeChoices}" SelectedItem="{Binding RecentActivitiesPagingSize}"
+                              IsEnabled="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}, ConverterParameter=Inverse}" />
+                </WrapPanel>
+                <ItemsControl ItemsSource="{Binding RecentChangesList}">
+                    <ItemsControl.Resources>
+                        <DataTemplate DataType="{x:Type sys:String}">
+                            <TextBlock Text="{Binding}" Style="{DynamicResource Heading4}" />
+                        </DataTemplate>
+                    </ItemsControl.Resources>
+                </ItemsControl>
             </StackPanel>
         </ScrollViewer>
     </Grid>

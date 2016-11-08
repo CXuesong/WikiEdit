@@ -116,7 +116,9 @@ namespace WikiEdit.ViewModels.Documents
         {
             Title = WikiPage.Title;
             TitleToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
-            if (WikiPage.Protections.Count == 0)
+            if (!WikiPage.Exists)
+                AlertText = Tx.T("editor.page inexistent");
+            if ((WikiPage.Protections?.Count ?? 0) == 0)
             {
                 ProtectionAlertText = null;
             }
