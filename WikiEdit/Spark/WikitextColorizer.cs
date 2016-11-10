@@ -92,10 +92,10 @@ namespace WikiEdit.Spark
                 boldTypeface = new Typeface(baseTypeface.FontFamily, baseTypeface.Style, FontWeights.Bold,
                     baseTypeface.Stretch);
             }
+            lineStart = docLine.Offset;
+            lineEnd = docLine.EndOffset;
             foreach (var line in ast.EnumChildren())
             {
-                lineStart = docLine.Offset;
-                lineEnd = docLine.EndOffset;
                 ColorizeSegment(line, 0);
             }
         }
@@ -108,6 +108,7 @@ namespace WikiEdit.Spark
             ChangeLinePart(startOffset, endOffset, action);
         }
 
+        // braceLevel : 0: out of braces; > 0: in braces
         private void ColorizeSegment(Node node, int braceLevel)
         {
             var si = (IWikitextSpanInfo)node;
@@ -145,15 +146,15 @@ namespace WikiEdit.Spark
             var argref = node as ArgumentReference;
             if (template != null || argref != null)
             {
-                // Colorfy the block
                 var brush = BracesBackgroundBrushes[braceLevel%BracesPalette.Count];
+                var dec = GetBracesTitleDecorations(braceLevel%BracesPalette.Count);
+                // Colorfy the block
                 braceLevel += 1;
                 SafeChangeLinePart(si.Start, si.Start + si.Length, e =>
                 {
                     e.TextRunProperties.SetBackgroundBrush(brush);
                 });
                 // Emphasize the title
-                var dec = GetBracesTitleDecorations(braceLevel%BracesPalette.Count);
                 var title = template != null ? (IWikitextSpanInfo) template.Name : argref.Name;
                 Debug.Assert(title.HasSpanInfo);
                 SafeChangeLinePart(title.Start, title.Start + title.Length, e =>

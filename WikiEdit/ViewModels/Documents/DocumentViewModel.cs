@@ -7,6 +7,8 @@ using System.Runtime.CompilerServices;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Media;
 using Prism.Commands;
 using Prism.Mvvm;
 using WikiEdit.ViewModels.Primitives;
@@ -26,7 +28,7 @@ namespace WikiEdit.ViewModels.Documents
         #region Docking View Properties
 
         private string _Title;
-        private string _TitleToolTip;
+        private string _ToolTip;
         private bool _IsSelected;
         private bool _IsActive;
         private string _ContentId;
@@ -37,10 +39,10 @@ namespace WikiEdit.ViewModels.Documents
             set { SetProperty(ref _Title, value); }
         }
 
-        public string TitleToolTip
+        public string ToolTip
         {
-            get { return _TitleToolTip; }
-            set { SetProperty(ref _TitleToolTip, value); }
+            get { return _ToolTip; }
+            set { SetProperty(ref _ToolTip, value); }
         }
 
         /// <summary>
@@ -63,6 +65,19 @@ namespace WikiEdit.ViewModels.Documents
                 }
             }
         }
+
+        private static readonly ImageSource BusyIndicatorImage =
+            (ImageSource) Application.Current.FindResource("Images/BusyIndicator");
+
+        public ImageSource HeaderImage
+        {
+            get
+            {
+                if (_IsBusy) return BusyIndicatorImage;
+                return null;
+            }
+        }
+
 
         /// <summary>
         /// ContentId of the document panel, which later can be
@@ -136,7 +151,11 @@ namespace WikiEdit.ViewModels.Documents
             get { return _IsBusy; }
             set
             {
-                if (SetProperty(ref _IsBusy, value)) OnIsBusyChanged();
+                if (SetProperty(ref _IsBusy, value))
+                {
+                    OnIsBusyChanged();
+                    OnPropertyChanged(nameof(HeaderImage));
+                }
             }
         }
 

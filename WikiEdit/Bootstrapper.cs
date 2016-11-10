@@ -58,7 +58,7 @@ namespace WikiEdit
         protected override void InitializeShell()
         {
 #if DEBUG
-            var weController = Container.Resolve<WikiEditController>();
+            var weController = Container.Resolve<WikiEditSessionService>();
             weController.FillDemo();
             Container.Resolve<IChildViewModelService>()
                 .Documents.Add(Container.Resolve<WikiSiteOverviewViewModel>(

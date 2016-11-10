@@ -16,6 +16,7 @@ using Fluent;
 using Microsoft.Practices.Unity;
 using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
+using Xceed.Wpf.AvalonDock.Layout;
 
 namespace WikiEdit.Views
 {
@@ -41,9 +42,8 @@ namespace WikiEdit.Views
     /// <summary>
     /// Select Style for docking tabs.
     /// </summary>
-    internal class AvalonDockLayoutItemContainerStyleSelector : StyleSelector
+    internal class AvalonDockStyleSelector : StyleSelector
     {
-
         public Style DocumentStyle { get; set; }
 
         public override Style SelectStyle(object item, DependencyObject container)
@@ -51,6 +51,19 @@ namespace WikiEdit.Views
             if (item is DocumentViewModel)
                 return DocumentStyle;
             return base.SelectStyle(item, container);
+        }
+    }
+
+    internal class AvalonDockDataTemplateSelector : DataTemplateSelector
+    {
+        public DataTemplate LayoutDocumentTemplate { get; set; }
+
+        /// <inheritdoc />
+        public override DataTemplate SelectTemplate(object item, DependencyObject container)
+        {
+            if (item is LayoutDocument)
+                return LayoutDocumentTemplate;
+            return base.SelectTemplate(item, container);
         }
     }
 }

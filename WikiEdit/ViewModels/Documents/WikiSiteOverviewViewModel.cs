@@ -34,7 +34,7 @@ namespace WikiEdit.ViewModels.Documents
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             SiteContext = wikiSite;
             _ViewModelFactory = viewModelFactory;
-            Title = wikiSite.DisplayName;
+            Title = ToolTip = wikiSite.DisplayName;
             BuildContentId(wikiSite.ApiEndpoint);
             RefreshSiteInfoAsync().Forget();
         }
@@ -46,7 +46,7 @@ namespace WikiEdit.ViewModels.Documents
             try
             {
                 await SiteContext.GetSiteAsync();
-                Title = SiteContext.DisplayName;
+                Title = ToolTip = SiteContext.DisplayName;
             }
             catch (Exception ex)
             {

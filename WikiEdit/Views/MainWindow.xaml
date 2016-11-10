@@ -60,19 +60,32 @@
         <Grid Grid.Row="1">
             <xcad:DockingManager DocumentsSource="{Binding DocumentViewModels}">
                 <xcad:DockingManager.LayoutItemContainerStyleSelector>
-                    <v:AvalonDockLayoutItemContainerStyleSelector>
-                        <v:AvalonDockLayoutItemContainerStyleSelector.DocumentStyle>
+                    <v:AvalonDockStyleSelector>
+                        <v:AvalonDockStyleSelector.DocumentStyle>
                             <Style TargetType="{x:Type xcad:LayoutItem}">
                                 <Setter Property="Title" Value="{Binding Model.Title}" />
                                 <Setter Property="ToolTip" Value="{Binding Model.ToolTip}" />
+                                <Setter Property="IconSource" Value="{Binding Model.HeaderImage}" />
                                 <Setter Property="IsSelected" Value="{Binding Model.IsSelected, Mode=TwoWay}" />
                                 <Setter Property="IsActive" Value="{Binding Model.IsActive, Mode=TwoWay}" />
                                 <Setter Property="ContentId" Value="{Binding Model.ContentId}" />
                                 <Setter Property="CloseCommand" Value="{Binding Model.CloseCommand}" />
                             </Style>
-                        </v:AvalonDockLayoutItemContainerStyleSelector.DocumentStyle>
-                    </v:AvalonDockLayoutItemContainerStyleSelector>
+                        </v:AvalonDockStyleSelector.DocumentStyle>
+                    </v:AvalonDockStyleSelector>
                 </xcad:DockingManager.LayoutItemContainerStyleSelector>
+                <xcad:DockingManager.DocumentHeaderTemplateSelector>
+                    <v:AvalonDockDataTemplateSelector>
+                        <v:AvalonDockDataTemplateSelector.LayoutDocumentTemplate>
+                            <DataTemplate DataType="{x:Type xcad:LayoutDocument}">
+                                <StackPanel Orientation="Horizontal">
+                                    <Image Source="{Binding IconSource}" MaxWidth="16" VerticalAlignment="Center" />
+                                    <TextBlock Text="{Binding Title}" VerticalAlignment="Center" />
+                                </StackPanel>
+                            </DataTemplate>
+                        </v:AvalonDockDataTemplateSelector.LayoutDocumentTemplate>
+                    </v:AvalonDockDataTemplateSelector>
+                </xcad:DockingManager.DocumentHeaderTemplateSelector>
                 <xcad:LayoutRoot>
                     <xcad:LayoutPanel Orientation="Horizontal">
                         <xcad:LayoutAnchorablePane DockWidth="300">

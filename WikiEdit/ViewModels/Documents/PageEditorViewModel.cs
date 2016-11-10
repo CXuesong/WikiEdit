@@ -73,7 +73,7 @@ namespace WikiEdit.ViewModels.Documents
                 var site = await SiteContext.GetSiteAsync();
                 WikiPage = new Page(site, title);
                 Title = WikiPage.Title;
-                TitleToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
+                ToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
                 await RefetchPageAsync(true, true);
             }
             catch (Exception ex)
@@ -115,7 +115,7 @@ namespace WikiEdit.ViewModels.Documents
         protected void ReloadPageInformation()
         {
             Title = WikiPage.Title;
-            TitleToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
+            ToolTip = WikiPage.Title + " - " + SiteContext.DisplayName;
             if (!WikiPage.Exists)
                 AlertText = Tx.T("editor.page inexistent");
             if ((WikiPage.Protections?.Count ?? 0) == 0)
@@ -273,7 +273,8 @@ namespace WikiEdit.ViewModels.Documents
                                     Convert.ToString(WikiPage.LastRevisionId));
                                 // refetch page information
                                 Status = Tx.T("editor.fetching page", "title", WikiPage.Title);
-                                await RefetchPageAsync(false);
+                                // We need refetching in case there's ~~~~ or subst: in the content.
+                                await RefetchPageAsync(true, true);
                                 Status = null;
                             }
                             catch (Exception ex)

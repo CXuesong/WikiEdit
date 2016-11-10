@@ -201,16 +201,85 @@ namespace WikiEdit.ViewModels
 
         #region Actions
 
+        private readonly Dictionary<string, Tuple<IList<OpenSearchResultEntry>, DateTime>> _AutoCompletionItemsCache
+            = new Dictionary<string, Tuple<IList<OpenSearchResultEntry>, DateTime>>();
+
+
+        private readonly Dictionary<string, Tuple<PageSummary, DateTime>> _PageSummaryCache
+            = new Dictionary<string, Tuple<PageSummary, DateTime>>();
+
+        private readonly TimeSpan _CacheExpiry = TimeSpan.FromMinutes(5);
+
         /// <summary>
         /// Given the prefix of a page, asynchronously search for a list of titles for auto completion.
         /// </summary>
+        /// <remarks>Do not modify the returned list.</remarks>
         public async Task<IList<OpenSearchResultEntry>> GetAutoCompletionItemsAsync(string expression)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
+            var normalizedExpression = WikiLink.NormalizeWikiLink(await GetSiteAsync(), expression);
+            var cached = _AutoCompletionItemsCache.TryGetValue(normalizedExpression);
+            if (cached != null && DateTime.Now - cached.Item2 < _CacheExpiry)
+                return cached.Item1;
             var site = await GetSiteAsync();
             var entries = await site.OpenSearchAsync(expression);
-            // TODO cache results.
+            _AutoCompletionItemsCache[normalizedExpression] = Tuple.Create(entries, DateTime.Now);
             return entries;
+        }
+
+        /// <summary>
+        /// Given the summary of a page asynchronously.
+        /// </summary>
+        /// <exception cref="ArgumentNullException">title is null.</exception>
+        /// <exception cref="ArgumentException">title is invalid.</exception>
+        /// <remarks>Do not modify the returned object.</remarks>
+        public async Task<PageSummary> GetPageSummaryAsync(string title)
+        {
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            var normalizedTitle = WikiLink.NormalizeWikiLink(await GetSiteAsync(), title);
+            var cached = _PageSummaryCache.TryGetValue(normalizedTitle);
+            if (cached != null && DateTime.Now - cached.Item2 < _CacheExpiry)
+                return cached.Item1;
+            var page = new Page(await GetSiteAsync(), normalizedTitle);
+            await page.RefreshAsync();
+            if (cached != null)
+            {
+                // Check if the cache is obsolete.
+                if (page.LastRevisionId == cached.Item1.LastRevisionId)
+                {
+                    _PageSummaryCache[normalizedTitle] = Tuple.Create(cached.Item1, DateTime.Now);
+                    return cached.Item1;
+                }
+            }
+            var summary = new PageSummary
+            {
+                Title = page.Title,
+                LastRevisionId = page.LastRevisionId,
+                LastRevisionTime = page.LastRevision.TimeStamp,
+                LastRevisionUser = page.LastRevision.UserName,
+                ContentLength = page.ContentLength,
+            };
+            if (page.IsRedirect)
+            {
+                var target = await page.GetRedirectTargetAsync();
+                summary.RedirectPath = target.RedirectPath;
+            }
+            //summary.Description = 
+            _PageSummaryCache[normalizedTitle] = Tuple.Create(summary, DateTime.Now);
+            return summary;
+        }
+
+        public void CrushCache()
+        {
+            var now = DateTime.Now;
+            foreach (var key in _AutoCompletionItemsCache
+                .Where(p => p.Value.Item2 - now > _CacheExpiry)
+                .Select(p => p.Key).ToArray())
+                _AutoCompletionItemsCache.Remove(key);
+            foreach (var key in _PageSummaryCache
+                .Where(p => p.Value.Item2 - now > _CacheExpiry)
+                .Select(p => p.Key).ToArray())
+                _PageSummaryCache.Remove(key);
         }
 
         private static readonly Uri DummyHttp = new Uri("http://dummy");

@@ -27,5 +27,19 @@ namespace WikiEdit
                 return "Scribunto";
             return "wikitext";
         }
+
+        /// <summary>
+        /// Perferms simple wikilink title normalization, without the reliance on Site instance.
+        /// Used internally in the application.
+        /// </summary>
+        public static string SimpleNormalizeWikitext(string title)
+        {
+            if (title == null) throw new ArgumentNullException(nameof(title));
+            title = title.Replace("_", " ");
+            title = title.Trim();
+            if (title == "") return title;
+            if (char.IsLower(title[0])) title = char.ToUpper(title[0]) + title.Substring(1);
+            return title;
+        }
     }
 }
