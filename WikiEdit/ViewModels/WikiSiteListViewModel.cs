@@ -9,7 +9,6 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Unclassified.TxLib;
-using WikiEdit.Controllers;
 using WikiEdit.Services;
 using WikiEdit.ViewModels.Documents;
 
@@ -17,7 +16,7 @@ namespace WikiEdit.ViewModels
 {
     internal class WikiSiteListViewModel : BindableBase
     {
-        private readonly WikiEditController _WikiEditController;
+        private readonly WikiEditSessionService _SessionService;
         private readonly IChildViewModelService _ChildViewModelService;
         private readonly IViewModelFactory _ViewModelFactory;
         private WikiSiteViewModel _SelectedWikiSite;
@@ -32,7 +31,7 @@ namespace WikiEdit.ViewModels
             }
         }
 
-        public ObservableCollection<WikiSiteViewModel> WikiSites => _WikiEditController.WikiSites;
+        public ObservableCollection<WikiSiteViewModel> WikiSites => _SessionService.WikiSites;
 
         /// <summary>
         /// Called from view, notifies that an item has been double-clicked.
@@ -97,9 +96,9 @@ namespace WikiEdit.ViewModels
 
         public WikiSiteListViewModel(IChildViewModelService childViewModelService,
             IViewModelFactory viewModelFactory,
-            WikiEditController controller)
+            WikiEditSessionService sessionService)
         {
-            _WikiEditController = controller;
+            _SessionService = sessionService;
             _ViewModelFactory = viewModelFactory;
             _ChildViewModelService = childViewModelService;
         }

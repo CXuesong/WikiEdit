@@ -9,25 +9,25 @@ using Prism.Commands;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiClientLibrary;
-using WikiEdit.Controllers;
+using WikiEdit.Services;
 
 namespace WikiEdit.ViewModels
 {
     internal class WikiSiteEditingViewModel : BindableBase, INotifyDataErrorInfo
     {
-        private readonly WikiEditController _WikiEditController;
+        private readonly WikiEditSessionService _SessionService;
         private readonly ErrorsContainer<string> _ErrorsContainer;
         private readonly Action _AcceptCallback, _CancelCallback;
         private readonly TaskScheduler _MainTaskScheduler;
         private string _Name;
         private bool _NeedValidateApiEndpoint;
 
-        public WikiSiteEditingViewModel(WikiEditController wikiEditController, Action acceptCallback, Action cancelCallback)
+        public WikiSiteEditingViewModel(WikiEditSessionService sessionService, Action acceptCallback, Action cancelCallback)
         {
-            if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
+            if (sessionService == null) throw new ArgumentNullException(nameof(sessionService));
             if (acceptCallback == null) throw new ArgumentNullException(nameof(acceptCallback));
             if (cancelCallback == null) throw new ArgumentNullException(nameof(cancelCallback));
-            _WikiEditController = wikiEditController;
+            _SessionService = sessionService;
             _AcceptCallback = acceptCallback;
             _CancelCallback = cancelCallback;
             _ErrorsContainer = new ErrorsContainer<string>(OnErrorsChanged);
@@ -185,7 +185,7 @@ namespace WikiEdit.ViewModels
             try
             {
                 // Search for API endpoint URL
-                var endPoint = await Site.SearchApiEndpointAsync(_WikiEditController.WikiClient, urlToValidate);
+                var endPoint = await Site.SearchApiEndpointAsync(_SessionService.WikiClient, urlToValidate);
                 if (endPoint == null)
                 {
                     _ErrorsContainer.SetErrors(nameof(ApiEndpoint), Tx.T("errors.invalid api endpoint"));
@@ -194,7 +194,7 @@ namespace WikiEdit.ViewModels
                 }
                 Status = Tx.T("please wait");
                 // Gather site information
-                var site = await _WikiEditController.CreateSiteAsync(endPoint);
+                var site = await _SessionService.CreateSiteAsync(endPoint);
                 SiteName = site.SiteInfo.SiteName;
                 UserName = site.UserInfo.Name;
                 // Clear validation errors

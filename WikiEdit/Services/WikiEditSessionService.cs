@@ -17,15 +17,14 @@ using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiClientLibrary.Client;
 using WikiEdit.Models;
-using WikiEdit.Services;
 using WikiEdit.ViewModels;
 
-namespace WikiEdit.Controllers
+namespace WikiEdit.Services
 {
     /// <summary>
     /// A running wiki editing session.
     /// </summary>
-    internal class WikiEditController : BindableBase
+    internal class WikiEditSessionService : BindableBase
     {
         private readonly IEventAggregator _EventAggregator;
         private readonly IChildViewModelService _ChildViewModelService;
@@ -210,7 +209,7 @@ namespace WikiEdit.Controllers
 
         #endregion
 
-        public WikiEditController(IEventAggregator eventAggregator,
+        public WikiEditSessionService(IEventAggregator eventAggregator,
             IChildViewModelService childViewModelService)
         {
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));

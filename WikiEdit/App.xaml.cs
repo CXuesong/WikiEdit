@@ -7,7 +7,6 @@ using System.Windows;
 using Microsoft.Practices.ServiceLocation;
 using Microsoft.Practices.Unity;
 using Unclassified.TxLib;
-using WikiEdit.Controllers;
 
 namespace WikiEdit
 {

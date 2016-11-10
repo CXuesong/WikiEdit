@@ -114,7 +114,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Controllers\WikiEditController.cs" />
+    <Compile Include="Services\WikiEditSessionService.cs" />
     <Compile Include="Controls\AlertLabel.cs" />
     <Compile Include="Controls\AutoCompleteTextBox.cs" />
     <Compile Include="Controls\TextDiffViewer.cs" />

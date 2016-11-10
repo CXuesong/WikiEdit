@@ -11,7 +11,6 @@ using Prism.Commands;
 using Prism.Events;
 using Prism.Mvvm;
 using Unclassified.TxLib;
-using WikiEdit.Controllers;
 using WikiEdit.Services;
 using WikiEdit.ViewModels.Documents;
 
@@ -19,7 +18,7 @@ namespace WikiEdit.ViewModels
 {
     internal class MainWindowViewModel : BindableBase
     {
-        private readonly WikiEditController wikiEditController;
+        private readonly WikiEditSessionService sessionService;
         private readonly IChildViewModelService _ChildViewModelService;
         private readonly IViewModelFactory _ViewModelFactory;
 
@@ -34,13 +33,13 @@ namespace WikiEdit.ViewModels
 
         public ObservableCollection<DocumentViewModel> DocumentViewModels => _ChildViewModelService.Documents;
 
-        public MainWindowViewModel(WikiEditController wikiEditController,
+        public MainWindowViewModel(WikiEditSessionService sessionService,
             IChildViewModelService childViewModelService,
             IEventAggregator eventAggregator, IViewModelFactory viewModelFactory)
         {
-            if (wikiEditController == null) throw new ArgumentNullException(nameof(wikiEditController));
+            if (sessionService == null) throw new ArgumentNullException(nameof(sessionService));
             if (childViewModelService == null) throw new ArgumentNullException(nameof(childViewModelService));
-            this.wikiEditController = wikiEditController;
+            this.sessionService = sessionService;
             _ChildViewModelService = childViewModelService;
             _ViewModelFactory = viewModelFactory;
             eventAggregator.GetEvent<ActiveDocumentChangedEvent>().Subscribe(OnActiveDocumentChanged);
@@ -148,14 +147,14 @@ namespace WikiEdit.ViewModels
                     _Commands.Add(key, new DelegateCommand(act, enabled));
             addCommand("New", () =>
             {
-                if (wikiEditController.PromptSave() && _ChildViewModelService.Documents.CloseAll())
+                if (sessionService.PromptSave() && _ChildViewModelService.Documents.CloseAll())
                 {
-                    wikiEditController.Clear();
+                    sessionService.Clear();
                 }
             });
-            addCommand("Open", () => wikiEditController.Open());
-            addCommand("Save", () => wikiEditController.Save(false));
-            addCommand("SaveAs", () => wikiEditController.Save(true));
+            addCommand("Open", () => sessionService.Open());
+            addCommand("Save", () => sessionService.Save(false));
+            addCommand("SaveAs", () => sessionService.Save(true));
         }
 
         #endregion

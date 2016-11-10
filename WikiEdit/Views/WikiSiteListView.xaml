@@ -23,7 +23,7 @@
         <ListView Grid.Row="1" ItemsSource="{Binding WikiSites}" SelectedItem="{Binding SelectedWikiSite}" MouseDoubleClick="WikiSitesList_MouseDoubleClick">
             <ListView.View>
                 <GridView>
-                    <GridViewColumn DisplayMemberBinding="{Binding Name}" Header="{Tx:T name}"/>
+                    <GridViewColumn DisplayMemberBinding="{Binding DisplayName}" Header="{Tx:T name}"/>
                     <GridViewColumn DisplayMemberBinding="{Binding AccountProfile.UserName, Mode=OneWay}" Header="{Tx:T user name}"/>
                     <GridViewColumn DisplayMemberBinding="{Binding LastAccessTime}" Header="{Tx:T last access time}"/>
                 </GridView>

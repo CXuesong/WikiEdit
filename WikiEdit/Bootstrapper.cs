@@ -15,7 +15,6 @@ using Microsoft.Practices.Unity;
 using Prism.Events;
 using Prism.Unity;
 using Unclassified.TxLib;
-using WikiEdit.Controllers;
 using WikiEdit.Services;
 using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
@@ -31,7 +30,7 @@ namespace WikiEdit
             base.ConfigureContainer();
             // DI configuration
             // Services
-            Container.RegisterType<WikiEditController>(new ContainerControlledLifetimeManager());
+            Container.RegisterType<WikiEditSessionService>(new ContainerControlledLifetimeManager());
             Container.RegisterType<IChildViewModelService, ChildViewModelService>(
                 new ContainerControlledLifetimeManager());
             Container.RegisterType<IViewModelFactory, ViewModelFactory>(

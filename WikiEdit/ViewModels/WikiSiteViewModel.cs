@@ -9,7 +9,6 @@ using Prism.Events;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiClientLibrary;
-using WikiEdit.Controllers;
 using WikiEdit.Models;
 using WikiEdit.Services;
 using WikiEdit.ViewModels.Documents;
@@ -18,7 +17,7 @@ namespace WikiEdit.ViewModels
 {
     public class WikiSiteViewModel : BindableBase
     {
-        private readonly WikiEditController _Controller;
+        private readonly WikiEditSessionService _SessionService;
         private readonly IEventAggregator _EventAggregator;
         private readonly WikiSite _Model;
 
@@ -169,7 +168,7 @@ namespace WikiEdit.ViewModels
             try
             {
                 Debug.Assert(_Site == null);
-                var s = await _Controller.CreateSiteAsync(_Model.ApiEndpoint);
+                var s = await _SessionService.CreateSiteAsync(_Model.ApiEndpoint);
                 ct.ThrowIfCancellationRequested();
                 Debug.Assert(_Site == null);
                 _Site = s;
@@ -259,11 +258,11 @@ namespace WikiEdit.ViewModels
         /// <summary>
         /// Create a new Wiki site instance.
         /// </summary>
-        internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller)
+        internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditSessionService sessionService)
         {
-            if (controller == null) throw new ArgumentNullException(nameof(controller));
+            if (sessionService == null) throw new ArgumentNullException(nameof(sessionService));
             _Model = new WikiSite();
-            _Controller = controller;
+            _SessionService = sessionService;
             _EventAggregator = eventAggregator;
             AccountProfile = new AccountProfileViewModel(eventAggregator, this);
         }
@@ -271,13 +270,13 @@ namespace WikiEdit.ViewModels
         /// <summary>
         /// Create an instance from existing model.
         /// </summary>
-        internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditController controller, WikiSite model)
+        internal WikiSiteViewModel(IEventAggregator eventAggregator, WikiEditSessionService sessionService, WikiSite model)
         {
             if (model == null) throw new ArgumentNullException(nameof(model));
-            if (controller == null) throw new ArgumentNullException(nameof(controller));
+            if (sessionService == null) throw new ArgumentNullException(nameof(sessionService));
             if (eventAggregator == null) throw new ArgumentNullException(nameof(eventAggregator));
             _Model = model;
-            _Controller = controller;
+            _SessionService = sessionService;
             _EventAggregator = eventAggregator;
             AccountProfile = new AccountProfileViewModel(eventAggregator, this, model);
         }

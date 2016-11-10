@@ -5,7 +5,6 @@ using System.Text;
 using System.Threading.Tasks;
 using Prism.Events;
 using WikiClientLibrary;
-using WikiEdit.Controllers;
 using WikiEdit.Models;
 using WikiEdit.ViewModels;
 using WikiEdit.ViewModels.Documents;
@@ -55,18 +54,18 @@ namespace WikiEdit.Services
         private readonly IChildViewModelService _ChildViewModelService;
         private readonly SettingsService _SettingsService;
         private readonly ITextEditorFactory _TextEditorFactory;
-        private readonly WikiEditController _WikiEditController;
+        private readonly WikiEditSessionService _SessionService;
 
         public ViewModelFactory(IEventAggregator eventAggregator,
             IChildViewModelService childViewModelService,
             SettingsService settingsService, ITextEditorFactory textEditorFactory, 
-            WikiEditController wikiEditController)
+            WikiEditSessionService sessionService)
         {
             _EventAggregator = eventAggregator;
             _ChildViewModelService = childViewModelService;
             _SettingsService = settingsService;
             _TextEditorFactory = textEditorFactory;
-            _WikiEditController = wikiEditController;
+            _SessionService = sessionService;
         }
 
         public WikiSiteOverviewViewModel CreateWikiSiteOverview(WikiSiteViewModel wikiSite)
@@ -84,7 +83,7 @@ namespace WikiEdit.Services
         /// <inheritdoc />
         public WikiSiteViewModel CreateWikiSiteViewModel()
         {
-            return new WikiSiteViewModel(_EventAggregator, _WikiEditController);
+            return new WikiSiteViewModel(_EventAggregator, _SessionService);
         }
 
         public RecentChangeViewModel CreateRecentChange(RecentChangesEntry model, WikiSiteViewModel wikiSite)
@@ -122,7 +121,7 @@ namespace WikiEdit.Services
         /// <inheritdoc />
         public WikiSiteEditingViewModel CreateWikiSiteEditingViewModel(Action accpentCallback, Action cancelCallback)
         {
-            return new WikiSiteEditingViewModel(_WikiEditController, accpentCallback, cancelCallback);
+            return new WikiSiteEditingViewModel(_SessionService, accpentCallback, cancelCallback);
         }
 
         /// <inheritdoc />
