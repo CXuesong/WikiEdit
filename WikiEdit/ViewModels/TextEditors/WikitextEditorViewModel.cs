@@ -6,24 +6,36 @@ using System.Threading;
 using System.Threading.Tasks;
 using System.Windows.Threading;
 using System.Xml.Linq;
+using ICSharpCode.AvalonEdit;
 using ICSharpCode.AvalonEdit.Highlighting;
 using MwParserFromScratch;
 using MwParserFromScratch.Nodes;
 using WikiEdit.Services;
+using WikiEdit.Spark;
 using WikiEdit.ViewModels.Primitives;
 
 namespace WikiEdit.ViewModels.TextEditors
 {
     public class WikitextEditorViewModel : TextEditorViewModel
     {
+        private WikitextAutoCompletionHandler autoCompletionHandler;
+
         public WikitextEditorViewModel(SettingsService settingsService) : base(settingsService)
         {
             
         }
 
+        /// <inheritdoc />
+        public override void InitializeTextEditor(TextEditor textEditor)
+        {
+            base.InitializeTextEditor(textEditor);
+            autoCompletionHandler = new WikitextAutoCompletionHandler(textEditor) {WikiSite = this.WikiSite};
+        }
+
         protected override void OnRefreshDocumentOutline()
         {
             base.OnRefreshDocumentOutline();
+            // Show document headings
             var parser = new WikitextParser();
             var documentText = TextBox.Text;
             Heading[] headings = null;
@@ -76,6 +88,17 @@ namespace WikiEdit.ViewModels.TextEditors
                 TextBox.Select(span.Start, span.Length);
             if (line.HasLineInfo())
                 TextBox.ScrollTo(line.LineNumber, line.LinePosition);
+        }
+
+        /// <inheritdoc />
+        protected override void OnPropertyChanged(string propertyName = null)
+        {
+            base.OnPropertyChanged(propertyName);
+            if (propertyName == nameof(WikiSite))
+            {
+                if (autoCompletionHandler != null)
+                    autoCompletionHandler.WikiSite = WikiSite;
+            }
         }
     }
 }

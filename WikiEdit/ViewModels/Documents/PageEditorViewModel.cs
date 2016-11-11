@@ -150,6 +150,7 @@ namespace WikiEdit.ViewModels.Documents
                 else
                 {
                     TextEditor = _TextEditorFactory.CreateTextEditor(ls.LanguageName, true);
+                    TextEditor.WikiSite = SiteContext;
                     TextEditor.DocumentOutline = DocumentOutline;
                 }
                 EditorContentModel = newContentModel;

@@ -3,6 +3,7 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using WikiClientLibrary;
 
 namespace WikiEdit.Models
 {
@@ -12,7 +13,7 @@ namespace WikiEdit.Models
     public class PageSummary
     {
         /// <summary>
-        /// Page title.
+        /// Page canonical title.
         /// </summary>
         public string Title { get; set; }
 

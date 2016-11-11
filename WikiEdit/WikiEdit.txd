@@ -71,6 +71,7 @@
 		<text key="page.last revision time">Last revision time</text>
 		<text key="page.protected prompt">The page has been protected.</text>
 		<text key="page.protected prompt.1">Before {expiry}, only {group} can {action}.</text>
+		<text key="page.redirect">Redirect</text>
 		<text key="page.title">Page title</text>
 		<text key="page actions:create">create the page</text>
 		<text key="page actions:edit">edit the page</text>
@@ -371,6 +372,7 @@
 		<text key="page.last revision time">最后修订时间</text>
 		<text key="page.protected prompt" acceptpunctuation="true">此页面已被保护。</text>
 		<text key="page.protected prompt.1" acceptpunctuation="true">截至{expiry}之前，只有{group}可以{action}。</text>
+		<text key="page.redirect">重定向</text>
 		<text key="page.title">页面标题</text>
 		<text key="page actions:create">创建页面</text>
 		<text key="page actions:edit">编辑页面</text>

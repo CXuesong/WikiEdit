@@ -129,6 +129,7 @@
     <Compile Include="Services\ViewModelFactory.cs" />
     <Compile Include="Services\SettingsService.cs" />
     <Compile Include="Spark\SummaryBuilder.cs" />
+    <Compile Include="Spark\WikitextAutoCompletionHandler.cs" />
     <Compile Include="Spark\WikitextColorizer.cs" />
     <Compile Include="ViewModels\DocumentOutlineViewModel.cs" />
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />

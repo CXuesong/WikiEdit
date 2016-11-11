@@ -232,41 +232,66 @@ namespace WikiEdit.ViewModels
         /// </summary>
         /// <exception cref="ArgumentNullException">title is null.</exception>
         /// <exception cref="ArgumentException">title is invalid.</exception>
-        /// <remarks>Do not modify the returned object.</remarks>
-        public async Task<PageSummary> GetPageSummaryAsync(string title)
+        /// <remarks>Do not modify the returned objects.</remarks>
+        public async Task<IList<PageSummary>> GetPageSummaryAsync(IEnumerable<string> titles)
         {
-            if (title == null) throw new ArgumentNullException(nameof(title));
-            var normalizedTitle = WikiLink.NormalizeWikiLink(await GetSiteAsync(), title);
-            var cached = _PageSummaryCache.TryGetValue(normalizedTitle);
-            if (cached != null && DateTime.Now - cached.Item2 < _CacheExpiry)
-                return cached.Item1;
-            var page = new Page(await GetSiteAsync(), normalizedTitle);
-            await page.RefreshAsync();
-            if (cached != null)
+            if (titles == null) throw new ArgumentNullException(nameof(titles));
+            var site = await GetSiteAsync();
+            var titleList = titles.Select(t => WikiLink.NormalizeWikiLink(site, t)).ToArray();
+            var pagesToCheck = new List<Page>();
+            var pagesToFetch = new List<Page>();
+            var pagesToCheckRedirect = new List<Tuple<Page, PageSummary>>();
+            foreach (var title in titleList)
             {
-                // Check if the cache is obsolete.
-                if (page.LastRevisionId == cached.Item1.LastRevisionId)
+                var cached = _PageSummaryCache.TryGetValue(title);
+                if (cached != null && DateTime.Now - cached.Item2 < _CacheExpiry)
                 {
-                    _PageSummaryCache[normalizedTitle] = Tuple.Create(cached.Item1, DateTime.Now);
-                    return cached.Item1;
+                    continue;
+                }
+                pagesToCheck.Add(new Page(site, title));
+            }
+            await pagesToCheck.RefreshAsync();
+            foreach (var page in pagesToCheck)
+            {
+                var cached = _PageSummaryCache.TryGetValue(page.Title);
+                // Check if the cache is obsolete.
+                if (cached != null && page.LastRevisionId == cached.Item1.LastRevisionId)
+                {
+                    _PageSummaryCache[page.Title] = Tuple.Create(cached.Item1, DateTime.Now);
+                    continue;
+                }
+                // We need to fetch the whole page.
+                pagesToFetch.Add(page);
+            }
+            // Fetch basic information.
+            await pagesToFetch.RefreshAsync();
+            foreach (var page in pagesToFetch)
+            {
+                var summary = new PageSummary
+                {
+                    Title = page.Title,
+                    LastRevisionId = page.LastRevisionId,
+                    LastRevisionTime = page.LastRevision?.TimeStamp ?? DateTime.MinValue,
+                    LastRevisionUser = page.LastRevision?.UserName,
+                    ContentLength = page.ContentLength,
+                };
+                //summary.Description = 
+                _PageSummaryCache[page.Title] = Tuple.Create(summary, DateTime.Now);
+                if (page.IsRedirect)
+                {
+                    pagesToCheckRedirect.Add(Tuple.Create(page, summary));
                 }
             }
-            var summary = new PageSummary
+            // Fetch redirects.
+            await pagesToCheckRedirect.Select(t => t.Item1).RefreshAsync(PageQueryOptions.ResolveRedirects);
+            foreach (var tp in pagesToCheckRedirect)
             {
-                Title = page.Title,
-                LastRevisionId = page.LastRevisionId,
-                LastRevisionTime = page.LastRevision.TimeStamp,
-                LastRevisionUser = page.LastRevision.UserName,
-                ContentLength = page.ContentLength,
-            };
-            if (page.IsRedirect)
-            {
-                var target = await page.GetRedirectTargetAsync();
-                summary.RedirectPath = target.RedirectPath;
+                var path = tp.Item1.RedirectPath.ToList();
+                // Add & complete redirect path
+                path.Add(tp.Item1.Title);
+                tp.Item2.RedirectPath = path;
             }
-            //summary.Description = 
-            _PageSummaryCache[normalizedTitle] = Tuple.Create(summary, DateTime.Now);
-            return summary;
+            return titleList.Select(t => _PageSummaryCache[t].Item1).ToArray();
         }
 
         public void CrushCache()

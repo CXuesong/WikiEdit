@@ -38,7 +38,7 @@ namespace WikiEdit.ViewModels.TextEditors
         /// <summary>
         /// Invoked from View.
         /// </summary>
-        public void InitializeTextEditor(TextEditor textEditor)
+        public virtual void InitializeTextEditor(TextEditor textEditor)
         {
             if (textEditor == null) throw new ArgumentNullException(nameof(textEditor));
             TextBox.Adaptee = textEditor;
@@ -85,6 +85,8 @@ namespace WikiEdit.ViewModels.TextEditors
             LanguageSettings = _SettingsService.GetSettingsByLanguage("Wikitext");
         }
 
+        #region Document Outline
+
         public static readonly TimeSpan DocumentAnalysisDelay = TimeSpan.FromSeconds(1);
 
         private CancellationTokenSource impendingAnalysisCts;
@@ -126,5 +128,24 @@ namespace WikiEdit.ViewModels.TextEditors
                         TaskContinuationOptions.NotOnCanceled, TaskScheduler.Default);
             }
         }
+
+        #endregion
+
+        #region Optional Injectable Services
+
+
+        private WikiSiteViewModel _WikiSite;
+
+        /// <summary>
+        /// Wikitext Editor needs this for auto completion.
+        /// </summary>
+        public WikiSiteViewModel WikiSite
+        {
+            get { return _WikiSite; }
+            set { SetProperty(ref _WikiSite, value); }
+        }
+
+
+        #endregion
     }
 }
