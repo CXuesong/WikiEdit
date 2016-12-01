@@ -5,12 +5,14 @@ using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
+using MwParserFromScratch;
 using Prism.Events;
 using Prism.Mvvm;
 using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiEdit.Models;
 using WikiEdit.Services;
+using WikiEdit.Spark;
 using WikiEdit.ViewModels.Documents;
 
 namespace WikiEdit.ViewModels
@@ -131,6 +133,7 @@ namespace WikiEdit.ViewModels
         /// DO NOT directly use this field. Use <see cref="GetSiteAsync"/> instead.
         /// </summary>
         private Site _Site;
+
         private Task<Site> _GetSiteTask;
         private CancellationTokenSource _GetSiteTaskCts;
 
@@ -201,12 +204,13 @@ namespace WikiEdit.ViewModels
 
         #region Actions
 
-        private readonly Dictionary<string, Tuple<IList<OpenSearchResultEntry>, DateTime>> _AutoCompletionItemsCache
-            = new Dictionary<string, Tuple<IList<OpenSearchResultEntry>, DateTime>>();
+        private readonly Dictionary<Tuple<string, int>,
+            Tuple<IList<OpenSearchResultEntry>, DateTime>> _AutoCompletionItemsCache =
+            new Dictionary<Tuple<string, int>,
+                Tuple<IList<OpenSearchResultEntry>, DateTime>>();
 
-
-        private readonly Dictionary<string, Tuple<PageSummary, DateTime>> _PageSummaryCache
-            = new Dictionary<string, Tuple<PageSummary, DateTime>>();
+        private readonly Dictionary<string, Tuple<PageInfo, DateTime>> _PageSummaryCache
+            = new Dictionary<string, Tuple<PageInfo, DateTime>>();
 
         private readonly TimeSpan _CacheExpiry = TimeSpan.FromMinutes(5);
 
@@ -214,16 +218,26 @@ namespace WikiEdit.ViewModels
         /// Given the prefix of a page, asynchronously search for a list of titles for auto completion.
         /// </summary>
         /// <remarks>Do not modify the returned list.</remarks>
-        public async Task<IList<OpenSearchResultEntry>> GetAutoCompletionItemsAsync(string expression)
+        public async Task<IList<OpenSearchResultEntry>> GetAutoCompletionItemsAsync(string expression,
+            int defaultNamespace = BuiltInNamespaces.Main)
         {
             if (expression == null) throw new ArgumentNullException(nameof(expression));
-            var normalizedExpression = WikiLink.NormalizeWikiLink(await GetSiteAsync(), expression);
-            var cached = _AutoCompletionItemsCache.TryGetValue(normalizedExpression);
+            string normalizedExpression;
+            try
+            {
+                normalizedExpression = WikiLink.NormalizeWikiLink(await GetSiteAsync(), expression);
+            }
+            catch (ArgumentException)
+            {
+                normalizedExpression = expression;
+            }
+            var tp = Tuple.Create(normalizedExpression, defaultNamespace);
+            var cached = _AutoCompletionItemsCache.TryGetValue(tp);
             if (cached != null && DateTime.Now - cached.Item2 < _CacheExpiry)
                 return cached.Item1;
             var site = await GetSiteAsync();
-            var entries = await site.OpenSearchAsync(expression);
-            _AutoCompletionItemsCache[normalizedExpression] = Tuple.Create(entries, DateTime.Now);
+            var entries = await site.OpenSearchAsync(expression, 20, defaultNamespace, OpenSearchOptions.None);
+            _AutoCompletionItemsCache[tp] = Tuple.Create(entries, DateTime.Now);
             return entries;
         }
 
@@ -233,21 +247,21 @@ namespace WikiEdit.ViewModels
         /// <exception cref="ArgumentNullException">title is null.</exception>
         /// <exception cref="ArgumentException">title is invalid.</exception>
         /// <remarks>Do not modify the returned objects.</remarks>
-        public async Task<IList<PageSummary>> GetPageSummaryAsync(IEnumerable<string> titles)
+        public async Task<IList<PageInfo>> GetPageSummaryAsync(IEnumerable<string> titles)
         {
             if (titles == null) throw new ArgumentNullException(nameof(titles));
             var site = await GetSiteAsync();
             var titleList = titles.Select(t => WikiLink.NormalizeWikiLink(site, t)).ToArray();
             var pagesToCheck = new List<Page>();
             var pagesToFetch = new List<Page>();
-            var pagesToCheckRedirect = new List<Tuple<Page, PageSummary>>();
+            var pagesToCheckRedirect = new List<Tuple<Page, PageInfo>>();
+            var parser = new Lazy<WikitextParser>();
+            // First, check whether we need to contact the server for each of the page title.
             foreach (var title in titleList)
             {
                 var cached = _PageSummaryCache.TryGetValue(title);
                 if (cached != null && DateTime.Now - cached.Item2 < _CacheExpiry)
-                {
                     continue;
-                }
                 pagesToCheck.Add(new Page(site, title));
             }
             await pagesToCheck.RefreshAsync();
@@ -263,23 +277,15 @@ namespace WikiEdit.ViewModels
                 // We need to fetch the whole page.
                 pagesToFetch.Add(page);
             }
-            // Fetch basic information.
-            await pagesToFetch.RefreshAsync();
+            // Fetch information & content.
+            await pagesToFetch.RefreshAsync(PageQueryOptions.FetchContent);
             foreach (var page in pagesToFetch)
             {
-                var summary = new PageSummary
-                {
-                    Title = page.Title,
-                    LastRevisionId = page.LastRevisionId,
-                    LastRevisionTime = page.LastRevision?.TimeStamp ?? DateTime.MinValue,
-                    LastRevisionUser = page.LastRevision?.UserName,
-                    ContentLength = page.ContentLength,
-                };
-                //summary.Description = 
-                _PageSummaryCache[page.Title] = Tuple.Create(summary, DateTime.Now);
+                var info = PageInfoBuilder.BuildBasicInfo(page, parser.Value);
+                _PageSummaryCache[page.Title] = Tuple.Create(info, DateTime.Now);
                 if (page.IsRedirect)
                 {
-                    pagesToCheckRedirect.Add(Tuple.Create(page, summary));
+                    pagesToCheckRedirect.Add(Tuple.Create(page, info));
                 }
             }
             // Fetch redirects.

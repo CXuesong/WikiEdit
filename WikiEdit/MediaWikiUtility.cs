@@ -19,13 +19,21 @@ namespace WikiEdit
             if (title.Namespace.Id == BuiltInNamespaces.MediaWiki || title.Namespace.Id == BuiltInNamespaces.User)
             {
                 if (title.Title.EndsWith(".js", StringComparison.OrdinalIgnoreCase))
-                    return "javascript";
+                    return ContentModels.JavaScript;
                 if (title.Title.EndsWith(".css", StringComparison.OrdinalIgnoreCase))
-                    return "css";
+                    return ContentModels.Css;
             }
             if (title.Namespace.CanonicalName == "Module")
-                return "Scribunto";
-            return "wikitext";
+                return ContentModels.Scribunto;
+            return ContentModels.Wikitext;
+        }
+
+        public static string InferContentModel(this Page page)
+        {
+            if (page == null) throw new ArgumentNullException(nameof(page));
+            if (page.ContentModel != null) return page.ContentModel;
+            // For older MediaWiki sites...
+            return InferContentModelFromTitle(WikiLink.Parse(page.Site, page.Title));
         }
 
         /// <summary>

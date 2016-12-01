@@ -22,6 +22,7 @@ using Newtonsoft.Json;
 using Newtonsoft.Json.Linq;
 using Newtonsoft.Json.Serialization;
 using Prism.Mvvm;
+using Unclassified.TxLib;
 using WikiClientLibrary;
 using Xceed.Wpf.AvalonDock.Controls;
 
@@ -171,6 +172,15 @@ namespace WikiEdit
             var si = new ProcessStartInfo(url) {UseShellExecute = true};
             var proc = Process.Start(si);
             proc?.Dispose();
+        }
+
+        public static string TruncateString(string str, int length)
+        {
+            if (str == null) throw new ArgumentNullException(nameof(str));
+            if (length <= 0) throw new ArgumentOutOfRangeException(nameof(length));
+            if (str.Length <= length) return str;
+            if (length < 4) return str.Substring(0, length);
+            return str.Substring(0, length - 1) + "…";
         }
     }
 

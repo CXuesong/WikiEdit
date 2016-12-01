@@ -10,8 +10,11 @@ namespace WikiEdit.Models
     /// <summary>
     /// Basic information of a MediaWiki page.
     /// </summary>
-    public class PageSummary
+    public class PageInfo
     {
+        private static readonly TemplateArgumentInfo[] _EmptyTemplateArguments = {};
+        private static readonly string[] _EmptyStrings = { };
+
         /// <summary>
         /// Page canonical title.
         /// </summary>
@@ -22,7 +25,7 @@ namespace WikiEdit.Models
         /// </summary>
         public string Description { get; set; }
 
-        public IList<string> RedirectPath { get; set; }
+        public IList<string> RedirectPath { get; set; } = _EmptyStrings;
 
         public int ContentLength { get; set; }
 
@@ -31,5 +34,24 @@ namespace WikiEdit.Models
         public DateTime LastRevisionTime { get; set; }
 
         public string LastRevisionUser { get; set; }
+
+
+        /// <summary>
+        /// A list of arguments for template.
+        /// </summary>
+        public IList<TemplateArgumentInfo> TemplateArguments { get; set; } = _EmptyTemplateArguments;
+    }
+
+    /// <summary>
+    /// Used to describe a template argument in <see cref="PageInfo"/> .
+    /// </summary>
+    public class TemplateArgumentInfo
+    {
+        public TemplateArgumentInfo(string name)
+        {
+            Name = name;
+        }
+
+        public string Name { get; }
     }
 }

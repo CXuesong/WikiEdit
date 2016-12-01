@@ -114,7 +114,7 @@
       <Generator>MSBuild:Compile</Generator>
       <SubType>Designer</SubType>
     </ApplicationDefinition>
-    <Compile Include="Models\PageSummary.cs" />
+    <Compile Include="Models\PageInfo.cs" />
     <Compile Include="Services\WikiEditSessionService.cs" />
     <Compile Include="Controls\AlertLabel.cs" />
     <Compile Include="Controls\AutoCompleteTextBox.cs" />
@@ -128,6 +128,7 @@
     <Compile Include="Services\TextEditorFactory.cs" />
     <Compile Include="Services\ViewModelFactory.cs" />
     <Compile Include="Services\SettingsService.cs" />
+    <Compile Include="Spark\PageInfoBuilder.cs" />
     <Compile Include="Spark\SummaryBuilder.cs" />
     <Compile Include="Spark\WikitextAutoCompletionHandler.cs" />
     <Compile Include="Spark\WikitextColorizer.cs" />

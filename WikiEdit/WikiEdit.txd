@@ -64,6 +64,7 @@
 		<text key="name">Name</text>
 		<text key="ok">Ok</text>
 		<text key="open containing folder">Open containing folder</text>
+		<text key="page.arguments" comment="Indicates the argument list of a template or other wiki pages to be transcluded.">Arguments</text>
 		<text key="page.content length">Content length</text>
 		<text key="page.content model" comment="Page content model e.g. wikitext, it's an attribute of MediaWiki pages.">Content model</text>
 		<text key="page.last revision by">Last revision by</text>
@@ -365,6 +366,7 @@
 		<text key="name">名称</text>
 		<text key="ok">确定</text>
 		<text key="open containing folder">打开包含路径</text>
+		<text key="page.arguments">参数</text>
 		<text key="page.content length">内容长度</text>
 		<text key="page.content model">内容模型</text>
 		<text key="page.last revision by">最后修订者</text>

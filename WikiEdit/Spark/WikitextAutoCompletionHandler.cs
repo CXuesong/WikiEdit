@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.Diagnostics;
 using System.Linq;
@@ -59,7 +60,7 @@ namespace WikiEdit.Spark
 
         private void TextArea_TextEntering(object sender, TextCompositionEventArgs e)
         {
-            if (e.Text != "" && _CompletionWindow != null)
+            if (e.Text != "" && _CompletionWindow != null && _CompletionWindow.IsVisible)
             {
                 Debug.Assert(AutoCompletionSuffixMatcher != null);
                 // Accept current selection when the suffix has been typed.
@@ -100,71 +101,101 @@ namespace WikiEdit.Spark
                 var expression = match.Groups["T"].Value;
                 if (string.IsNullOrWhiteSpace(expression)) return;
                 if (!force && expression.Length > MaxWikiLinkAutoCompletionLength) return;
-                _CompletionWindow = new CompletionWindow(_TextEditor.TextArea);
-                _CompletionWindow.Closed += (_, e) => _CompletionWindow = null;
-                var acitems = _CompletionWindow.CompletionList.CompletionData;
-                acitems.Clear();
-                switch (prefix) {
+                if (_CompletionWindow == null)
+                {
+                    _CompletionWindow = new CompletionWindow(_TextEditor.TextArea);
+                    _CompletionWindow.Closed += (_, e) => _CompletionWindow = null;
+                }
+                switch (prefix)
+                {
                     case "[[":
                         // Do not inverse the order of the following 2 statements.
                         AutoCompletionSuffixMatcher = WikiLinkSuffixMatcher;
-                        acitems.AddRange(await GetPageTitleCompletionDataAsync(expression));
+                        await PageTitleCompletion(token, expression, false);
                         break;
                     case "{{":
                         AutoCompletionSuffixMatcher = TemplateSuffixMatcher;
-                        acitems.AddRange(await GetPageTitleCompletionDataAsync(expression));
+                        await PageTitleCompletion(token, expression, true);
                         break;
                     default:
                         return;
                 }
-                if (token != _CurrentAutoCompletionTaskToken || _CompletionWindow == null)
-                {
-                    _CompletionWindow = null;
-                    return;
-                }
-                // Show completion window first.
-                _CompletionWindow.Show();
-                // Then fetch detailed page information.
-                var detailed = await GetDetailedPageTitleCompletionDataAsync(
-                    acitems.OfType<BasicWikiPageCompletionData>().Select(d => d.CanonicalTitle));
-                if (token != _CurrentAutoCompletionTaskToken) return;
-                if (_CompletionWindow != null)
-                {
-                    acitems.Clear();
-                    acitems.AddRange(detailed);
-                }
             }
         }
-        private async Task<IEnumerable<ICompletionData>> GetPageTitleCompletionDataAsync(string expression)
+
+        private async Task PageTitleCompletion(int token, string expression, bool transclusion)
         {
-            Debug.Assert(WikiSite != null);
-            var site = await WikiSite.GetSiteAsync();
-            var list = await WikiSite.GetAutoCompletionItemsAsync(expression);
-            // Generate auto completion for all namespace aliases.
-            return list.SelectMany(item =>
+            var tempItems = await GetPageTitleCompletionDataAsync(expression, transclusion);
+            if (token != _CurrentAutoCompletionTaskToken) return;
+            var acitems = _CompletionWindow?.CompletionList.CompletionData;
+            // User has closed the dropdown box during we're fething the auto completion items.
+            if (acitems == null) return;
+            acitems.Clear();
+            acitems.AddRange(tempItems);
+            // Show completion window first.
+            _CompletionWindow.Show();
+            // Then fetch detailed page information.
+            tempItems = await GetDetailedPageTitleCompletionDataAsync(
+                acitems.OfType<BasicWikiPageCompletionData>().Select(d => d.CanonicalTitle), expression,
+                transclusion);
+            if (token != _CurrentAutoCompletionTaskToken) return;
+            if (_CompletionWindow != null)
             {
-                var link = WikiLink.Parse(site, item.Title);
-                return link.Namespace.Aliases.Concat(new[] {link.Namespace.CanonicalName, link.Namespace.CustomName})
-                    .Distinct().Where(n => n != null)
-                    .Select(n => new BasicWikiPageCompletionData((n == "" ? "" : (n + ":")) + link.Title,
-                        item.Title, item.Description));
-            });
+                acitems.Clear();
+                acitems.AddRange(tempItems);
+            }
         }
 
-        private async Task<IEnumerable<ICompletionData>> GetDetailedPageTitleCompletionDataAsync(IEnumerable<string> pageTitles)
+        private void TemplateArgumentCompletion(int token, string expression, int caretOffset)
         {
+
+        }
+
+        private async Task<IEnumerable<ICompletionData>> GetPageTitleCompletionDataAsync(string expression, bool transclusion)
+        {
+            Debug.Assert(expression != null);
+            Debug.Assert(WikiSite != null);
+            var site = await WikiSite.GetSiteAsync();
+            // E.g. :Category:Abc
+            var leadingColon = expression.TrimStart().StartsWith(":");
+            var list = await WikiSite.GetAutoCompletionItemsAsync(expression,
+                transclusion && !leadingColon ? BuiltInNamespaces.Template : BuiltInNamespaces.Main);
+            // Generate auto completion for all namespace aliases.
+            return list.Select(searchEntry => Tuple.Create(searchEntry,
+                    PageTitleCombinations(searchEntry.Title, site, expression.TrimStart().StartsWith(":"), transclusion)))
+                .SelectMany(t => t.Item2.Select(title => new BasicWikiPageCompletionData(title, t.Item1.Title, t.Item1.Description)));
+        }
+
+        private async Task<IEnumerable<ICompletionData>> GetDetailedPageTitleCompletionDataAsync(IEnumerable<string> pageTitles, string expression, bool transclusion)
+        {
+            Debug.Assert(pageTitles != null);
+            Debug.Assert(expression != null);
             Debug.Assert(WikiSite != null);
             var site = await WikiSite.GetSiteAsync();
             var list = await WikiSite.GetPageSummaryAsync(pageTitles);
             // Generate auto completion for all namespace aliases.
-            return list.SelectMany(item =>
+            return list.Select(pageInfo => Tuple.Create(pageInfo,
+                    PageTitleCombinations(pageInfo.Title, site, expression.TrimStart().StartsWith(":"), transclusion)))
+                .SelectMany(t => t.Item2.Select(title => new DetailedWikiPageCompletionData(title, t.Item1)));
+        }
+
+        /// <summary>
+        /// Get all possible namespace-alias - title combinations.
+        /// </summary>
+        private IEnumerable<string> PageTitleCombinations(string title, Site site, bool leadingColon, bool transclusion)
+        {
+            var link = WikiLink.Parse(site, title);
+            if (link.Namespace.Id == BuiltInNamespaces.Main)
             {
-                var link = WikiLink.Parse(site, item.Title);
-                return link.Namespace.Aliases.Concat(new[] {link.Namespace.CanonicalName, link.Namespace.CustomName})
-                    .Distinct().Where(n => n != null)
-                    .Select(n => new DetailedWikiPageCompletionData((n == "" ? "" : (n + ":")) + link.Title,
-                        item));
-            });
+                if (transclusion)
+                    return new[] {":" + link.Title};
+                return new[] {link.Title};
+            }
+            if (transclusion && link.Namespace.Id == BuiltInNamespaces.Template)
+                return new[] {link.Title};
+            return link.Namespace.Aliases.Concat(new[] {link.Namespace.CanonicalName, link.Namespace.CustomName})
+                .Distinct().Where(n => n != null)
+                .Select(n => (leadingColon ? ":" : null) + n + ":" + link.Title);
         }
 
         private abstract class WikiPageCompletionData : ICompletionData
@@ -235,16 +266,21 @@ namespace WikiEdit.Spark
         {
             private readonly string _Description;
 
-            public DetailedWikiPageCompletionData(string title, PageSummary pageSummary)
-                : base(title, pageSummary.Title)
+            public DetailedWikiPageCompletionData(string title, PageInfo pageInfo)
+                : base(title, pageInfo.Title)
             {
-                if (pageSummary == null) throw new ArgumentNullException(nameof(pageSummary));
-                _Description = pageSummary.Title + "\n\n" + pageSummary.Description + "\n\n"
-                               + Tx.TC("page.content length") + Tx.DataSize(pageSummary.ContentLength) + "\n"
-                               + Tx.TC("page.last revision by") + pageSummary.LastRevisionUser + " " +
-                               Tx.Time(pageSummary.LastRevisionTime, TxTime.YearMonthDay | TxTime.HourMinuteSecond);
-                if (pageSummary.RedirectPath != null && pageSummary.RedirectPath.Count > 0)
-                    _Description += "\n" + Tx.TC("page.redirect") + string.Join("→", pageSummary.RedirectPath);
+                if (pageInfo == null) throw new ArgumentNullException(nameof(pageInfo));
+                _Description = pageInfo.Title + "\n\n" + Utility.TruncateString(pageInfo.Description ?? "", 300) + "\n\n"
+                               + Tx.TC("page.content length") + Tx.DataSize(pageInfo.ContentLength) + "\n"
+                               + Tx.TC("page.last revision by") + pageInfo.LastRevisionUser + " " +
+                               Tx.Time(pageInfo.LastRevisionTime, TxTime.YearMonthDay | TxTime.HourMinuteSecond);
+                if (pageInfo.RedirectPath != null && pageInfo.RedirectPath.Count > 0)
+                    _Description += "\n" + Tx.TC("page.redirect") + string.Join("→", pageInfo.RedirectPath);
+                if (pageInfo.TemplateArguments.Count > 0)
+                {
+                    _Description += "\n\n" + Tx.TC("page.arguments") + "\n"
+                                    + string.Join("\n", pageInfo.TemplateArguments.Select(ta => ta.Name));
+                }
             }
 
             /// <inheritdoc />
