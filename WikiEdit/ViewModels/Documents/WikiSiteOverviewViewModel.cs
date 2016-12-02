@@ -2,11 +2,13 @@
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
 using System.ComponentModel;
+using System.Globalization;
 using System.Linq;
 using System.Text;
 using System.Threading;
 using System.Threading.Tasks;
 using System.Windows;
+using System.Windows.Data;
 using Prism.Commands;
 using Prism.Common;
 using Prism.Events;
@@ -14,6 +16,7 @@ using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiClientLibrary.Generators;
 using WikiEdit.Services;
+using WikiEdit.Views;
 
 namespace WikiEdit.ViewModels.Documents
 {
@@ -24,8 +27,10 @@ namespace WikiEdit.ViewModels.Documents
 
         public override object DocumentContext => SiteContext;
 
-        public ObservableCollection<object> RecentChangesList { get; } =
-            new ObservableCollection<object>();
+        public ObservableCollection<RecentChangeViewModel> RecentChangesList { get; } =
+            new ObservableCollection<RecentChangeViewModel>();
+
+        public ListCollectionView RecentChangesView { get; }
 
         public WikiSiteOverviewViewModel(IViewModelFactory viewModelFactory, SettingsService settingsService, WikiSiteViewModel wikiSite)
         {
@@ -33,6 +38,8 @@ namespace WikiEdit.ViewModels.Documents
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             SiteContext = wikiSite;
+            RecentChangesView = new ListCollectionView(RecentChangesList);
+            RecentChangesView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(RecentChangeViewModel.TimeStamp), DateGroupingConverter.Default));
             _ViewModelFactory = viewModelFactory;
             Title = ToolTip = wikiSite.DisplayName;
             BuildContentId(wikiSite.ApiEndpoint);
@@ -82,16 +89,10 @@ namespace WikiEdit.ViewModels.Documents
                 var rcs = await rcg.EnumRecentChangesAsync()
                     .Take(RecentActivitiesPagingSize).ToArray();
                 RecentChangesList.Clear();
-                var lastDate = DateTime.MinValue;
                 foreach (var rc in rcs)
                 {
                     var vm = _ViewModelFactory.CreateRecentChange(rc, SiteContext);
                     var date = rc.TimeStamp.Date;
-                    if (lastDate != date)
-                    {
-                        RecentChangesList.Add(Tx.Time(date, TxTime.YearMonthDay | TxTime.DowLong));
-                        lastDate = date;
-                    }
                     RecentChangesList.Add(vm);
                 }
             }
@@ -244,6 +245,23 @@ namespace WikiEdit.ViewModels.Documents
                 reloadSiteInfoCts.Cancel();
                 reloadSiteInfoCts.Dispose();
                 reloadSiteInfoCts = null;
+            }
+        }
+
+        private class DateGroupingConverter : IValueConverter
+        {
+            public static readonly DateGroupingConverter Default = new DateGroupingConverter();
+
+            /// <inheritdoc />
+            public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                return Tx.Time((DateTime) value, TxTime.YearMonthDay | TxTime.DowLong);
+            }
+
+            /// <inheritdoc />
+            public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+            {
+                throw new NotImplementedException();
             }
         }
     }

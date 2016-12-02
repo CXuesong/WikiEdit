@@ -294,7 +294,7 @@ namespace WikiEdit.ViewModels.Documents
                                 IsBusy = false;
                             }
                         },
-                        () => !IsBusy && !string.IsNullOrWhiteSpace(_EditorSummary));
+                        () => !IsBusy);
                 }
                 return _SubmitEditCommand;
             }

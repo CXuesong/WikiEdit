@@ -143,6 +143,7 @@ namespace WikiEdit.Spark
             {
                 acitems.Clear();
                 acitems.AddRange(tempItems);
+                _CompletionWindow.CompletionList.SelectItem(expression);
             }
         }
 
@@ -200,6 +201,7 @@ namespace WikiEdit.Spark
 
         private abstract class WikiPageCompletionData : ICompletionData
         {
+            // title : The title expression that will be inserted to the editor.
             public WikiPageCompletionData(string title, string canonicalTitle)
             {
                 if (title == null) throw new ArgumentNullException(nameof(title));
@@ -223,7 +225,7 @@ namespace WikiEdit.Spark
                 var match = AutoCompletionPrefixMatcher.Match(currentText, 0, caretPos);
                 if (!match.Success) return;
                 textArea.Document.Replace(currentLine.Offset + match.Groups["T"].Index, match.Groups["T"].Length,
-                    CanonicalTitle);
+                    Title);
             }
 
             /// <inheritdoc />

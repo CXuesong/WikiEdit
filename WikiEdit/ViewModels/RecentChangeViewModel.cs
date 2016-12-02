@@ -16,11 +16,19 @@ using WikiEdit.ViewModels.Primitives;
 
 namespace WikiEdit.ViewModels
 {
+    /// <summary>
+    /// Represents an entry of Recent Changes list.
+    /// </summary>
     public class RecentChangeViewModel : BindableBase
     {
         private readonly IViewModelFactory _ViewModelFactory;
 
         public RecentChangesEntry RawEntry { get; }
+
+        /// <summary>
+        /// So that PropertyGroupDescription works.
+        /// </summary>
+        public DateTime TimeStamp { get; }
 
         public bool NeedPatrol => RawEntry.PatrolStatus == PatrolStatus.Unpatrolled;
 
@@ -49,6 +57,18 @@ namespace WikiEdit.ViewModels
         public bool IsMinor => (RawEntry.Flags & RevisionFlags.Minor) == RevisionFlags.Minor;
 
         public bool IsBot => (RawEntry.Flags & RevisionFlags.Minor) == RevisionFlags.Bot;
+
+        /// <summary>
+        /// Target page title.
+        /// </summary>
+        public string TargetTitle => RawEntry.Title;
+
+        public int DeltaContentLength => RawEntry.NewContentLength - RawEntry.OldContentLength;
+
+        /// <summary>
+        /// For TextBlock Formatting.
+        /// </summary>
+        public int DeltaContentLengthSign => Math.Sign(DeltaContentLength);
 
         /// <summary>
         /// The view model for the target page or log type of the recent change.
@@ -94,7 +114,7 @@ namespace WikiEdit.ViewModels
 
         #endregion
 
-        public FlowDocument DetailDocument { get; } = new FlowDocument();
+        public string Summary { get; }
 
         private static Hyperlink NewHyperlink(string text, Action onClick)
         {
@@ -117,8 +137,8 @@ namespace WikiEdit.ViewModels
             if (model == null) throw new ArgumentNullException(nameof(model));
             _ViewModelFactory = viewModelFactory;
             RawEntry = model;
-            var detailp = new Paragraph();
-            DetailDocument.Blocks.Add(detailp);
+            TimeStamp = model.TimeStamp.ToLocalTime();
+            var sb = new StringBuilder();
             switch (model.Type)
             {
                 case RecentChangesType.Create:
@@ -126,67 +146,23 @@ namespace WikiEdit.ViewModels
                 case RecentChangesType.Move:
                     break;
                 case RecentChangesType.Log:
-                    detailp.Inlines.Add(Tx.SafeText("logactions:" + model.LogAction));
-                    detailp.Inlines.Add(" ");
+                    sb.Append(Tx.SafeText("logactions:" + model.LogAction));
+                    sb.Append(" ");
                     break;
                 case RecentChangesType.Categorize:
-                    detailp.Inlines.Add("Categorize");
-                    detailp.Inlines.Add(" ");
+                    sb.Append("Categorize");
+                    sb.Append(" ");
                     break;
                 case RecentChangesType.External:
-                    detailp.Inlines.Add(Tx.T("rctypes:external"));
-                    detailp.Inlines.Add(" ");
+                    sb.Append(Tx.T("rctypes:external"));
+                    sb.Append(" ");
                     break;
                 default:
                     break;
             }
-            if (model.Title != null)
-            {
-                detailp.Inlines.Add(NewHyperlink(model.Title, () =>
-                {
-                    _ViewModelFactory.OpenPageEditorAsync(wikiSite, model.Title);
-                }));
-                if (model.OldRevisionId > 0)
-                {
-                    detailp.Inlines.Add(" ");
-                    detailp.Inlines.Add(NewHyperlink(Tx.T("badges:diff"), () =>
-                    {
-                        _ViewModelFactory.OpenPageDiffViewModel(wikiSite, model.OldRevisionId, model.RevisionId);
-                    }));
-                    detailp.Inlines.Add(" ");
-                    var deltaLengthRun = new Run(Tx.DataSize(Math.Abs(model.NewContentLength - model.OldContentLength)));
-                    if (model.NewContentLength > model.OldContentLength)
-                    {
-                        deltaLengthRun.Foreground = Brushes.Green;
-                        deltaLengthRun.FontWeight = FontWeights.Bold;
-                        deltaLengthRun.Text = "+" + deltaLengthRun.Text;
-                    } else if (model.NewContentLength < model.OldContentLength)
-                    {
-                        deltaLengthRun.Foreground = Brushes.Red;
-                        deltaLengthRun.FontWeight = FontWeights.Bold;
-                        deltaLengthRun.Text = "-" + deltaLengthRun.Text;
-                    }
-                    detailp.Inlines.Add(deltaLengthRun);
-                }
-            }
-            if (model.UserName != null)
-            {
-                detailp.Inlines.Add(" ");
-                detailp.Inlines.Add(NewHyperlink(model.UserName,
-                    () => _ViewModelFactory.OpenPageAsync(wikiSite, "User:" + model.UserName)));
-                detailp.Inlines.Add(" (");
-                detailp.Inlines.Add(NewHyperlink(Tx.T("badges:talk"),
-                    () => _ViewModelFactory.OpenPageAsync(wikiSite, "User_talk:" + model.UserName)));
-                detailp.Inlines.Add(" ");
-                detailp.Inlines.Add(NewHyperlink(Tx.T("badges:contribs"),
-                    () => _ViewModelFactory.OpenPageAsync(wikiSite, "Special:Contributions/" + model.UserName)));
-                detailp.Inlines.Add(")");
-            }
             if (model.Comment != null)
-            {
-                detailp.Inlines.Add(" ");
-                detailp.Inlines.Add(model.Comment);
-            }
+                sb.Append(model.Comment);
+            Summary = sb.ToString();
         }
     }
 }

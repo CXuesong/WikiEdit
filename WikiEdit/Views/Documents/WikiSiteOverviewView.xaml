@@ -11,10 +11,13 @@
              xmlns:controls="clr-namespace:WikiEdit.Controls"
              xmlns:fluent="urn:fluent-ribbon"
              xmlns:sys="clr-namespace:System;assembly=mscorlib"
+             xmlns:vm="clr-namespace:WikiEdit.ViewModels"
              x:Class="WikiEdit.Views.Documents.WikiSiteOverviewView"
              mc:Ignorable="d" 
              d:DesignHeight="300" d:DesignWidth="300" d:DataContext="{d:DesignInstance {x:Type dvm:WikiSiteOverviewViewModel}}">
     <UserControl.Resources>
+        <WikiEdit:TxTimeConverter x:Key="TxTimeConverter"/>
+        <WikiEdit:LocalizableBooleanConverter x:Key="LocalizableBooleanConverter"/>
         <WikiEdit:UniversalBooleanConverter x:Key="UniversalBooleanConverter"/>
     </UserControl.Resources>
     <Grid Margin="5">
@@ -71,23 +74,59 @@
                 <Button Content="{Tx:T edit}" Command="{Binding EditPageCommand}" Grid.Column="1" IsDefault="True" />
             </Grid>
         </StackPanel>
-        <ScrollViewer Grid.Row="1" VerticalScrollBarVisibility="Auto" >
-            <StackPanel>
-                <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
-                <WrapPanel>
-                    <Label Content="{Tx:T items per page}" />
-                    <ComboBox ItemsSource="{x:Static dvm:WikiSiteOverviewViewModel.PagingSizeChoices}" SelectedItem="{Binding RecentActivitiesPagingSize}"
+        <Grid Grid.Row="1">
+            <Grid.RowDefinitions>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="Auto"/>
+                <RowDefinition Height="*" />
+            </Grid.RowDefinitions>
+            <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
+            <WrapPanel Grid.Row="1">
+                <Label Content="{Tx:T items per page}" />
+                <ComboBox ItemsSource="{x:Static dvm:WikiSiteOverviewViewModel.PagingSizeChoices}" SelectedItem="{Binding RecentActivitiesPagingSize}"
                               IsEnabled="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}, ConverterParameter=Inverse}" />
-                </WrapPanel>
-                <ItemsControl ItemsSource="{Binding RecentChangesList}">
-                    <ItemsControl.Resources>
-                        <DataTemplate DataType="{x:Type sys:String}">
-                            <TextBlock Text="{Binding}" Style="{DynamicResource Heading4}" />
-                        </DataTemplate>
-                    </ItemsControl.Resources>
-                </ItemsControl>
-            </StackPanel>
-        </ScrollViewer>
+            </WrapPanel>
+            <ListView ItemsSource="{Binding RecentChangesView}" Grid.Row="2" VirtualizingPanel.IsVirtualizing="True">
+                <ListView.GroupStyle>
+                    <GroupStyle>
+                        <GroupStyle.HeaderTemplate>
+                            <DataTemplate DataType="{x:Type sys:String}">
+                                <TextBlock Text="{Binding Name}" Style="{DynamicResource Heading4}" />
+                            </DataTemplate>
+                        </GroupStyle.HeaderTemplate>
+                    </GroupStyle>
+                </ListView.GroupStyle>
+                <ListView.View>
+                    <GridView>
+                        <GridViewColumn Header="!" DisplayMemberBinding="{Binding NeedPatrol, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=@!}" Width="20" />
+                        <GridViewColumn Header="{Tx:T changes.flags.new}" DisplayMemberBinding="{Binding IsNew, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=changes.flags.new}" Width="30" />
+                        <GridViewColumn Header="{Tx:T changes.flags.minor}" DisplayMemberBinding="{Binding IsMinor, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=changes.flags.minor}" Width="30" />
+                        <GridViewColumn Header="{Tx:T changes.flags.bot}" DisplayMemberBinding="{Binding IsBot, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=changes.flags.bot}" Width="30" />
+                        <GridViewColumn Header="{Tx:T time}" DisplayMemberBinding="{Binding TimeStamp, ConverterParameter=TS, Converter={StaticResource TxTimeConverter}}" />
+                        <GridViewColumn Header="{Tx:T page.title}" DisplayMemberBinding="{Binding TargetTitle}" />
+                        <GridViewColumn Header="{Tx:T page.content length}">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
+                                    <TextBlock x:Name="Block" Text="{Binding DeltaContentLength, StringFormat=\{0:+#;-#;0\}}" TextAlignment="Right" />
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding DeltaContentLengthSign}" Value="1">
+                                            <Setter TargetName="Block" Property="FontWeight" Value="Bold" />
+                                            <Setter TargetName="Block" Property="Foreground" Value="Green" />
+                                        </DataTrigger>
+                                        <DataTrigger Binding="{Binding DeltaContentLengthSign}" Value="-1">
+                                            <Setter TargetName="Block" Property="FontWeight" Value="Bold" />
+                                            <Setter TargetName="Block" Property="Foreground" Value="Red" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
+                        <GridViewColumn Header="{Tx:T user name}" DisplayMemberBinding="{Binding RawEntry.UserName}" />
+                        <GridViewColumn Header="" DisplayMemberBinding="{Binding Summary}" />
+                    </GridView>
+                </ListView.View>
+            </ListView>
+        </Grid>
     </Grid>
 </UserControl>
 

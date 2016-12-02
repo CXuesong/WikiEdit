@@ -164,9 +164,6 @@
     <Compile Include="Views\Documents\WikiSiteOverviewView.xaml.cs">
       <DependentUpon>WikiSiteOverviewView.xaml</DependentUpon>
     </Compile>
-    <Compile Include="Views\RecentChangeView.xaml.cs">
-      <DependentUpon>RecentChangeView.xaml</DependentUpon>
-    </Compile>
     <Compile Include="Views\SessionInformationView.xaml.cs">
       <DependentUpon>SessionInformationView.xaml</DependentUpon>
     </Compile>
@@ -243,10 +240,6 @@
       <SubType>Code</SubType>
     </Compile>
     <Page Include="Views\Documents\WikiSiteOverviewView.xaml">
-      <SubType>Designer</SubType>
-      <Generator>MSBuild:Compile</Generator>
-    </Page>
-    <Page Include="Views\RecentChangeView.xaml">
       <SubType>Designer</SubType>
       <Generator>MSBuild:Compile</Generator>
     </Page>

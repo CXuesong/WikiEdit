@@ -90,6 +90,7 @@
 		<text key="search">Search</text>
 		<text key="session:unsaved">Unsaved Session</text>
 		<text key="session file filter">Session file (*.json)|*.json|All files|*.*</text>
+		<text key="time">Time</text>
 		<text key="titles.recent changes">Recent Changes</text>
 		<text key="Tx:byte unit" comment="Default: B" />
 		<text key="Tx:colon" comment="Can be used to insert additional spacing like for French." />
@@ -392,6 +393,7 @@
 		<text key="search">搜索</text>
 		<text key="session:unsaved">未保存的会话</text>
 		<text key="session file filter">会话文件 (*.json)|*.json|所有文件|*.*</text>
+		<text key="time">时间</text>
 		<text key="titles.recent changes">最近修改</text>
 		<text key="Tx:colon">：</text>
 		<text key="Tx:enum.and.combiner">、</text>

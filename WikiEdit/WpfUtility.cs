@@ -99,6 +99,9 @@ namespace WikiEdit
     /// </summary>
     public class UniversalBooleanConverter : IValueConverter
     {
+        /// <summary>
+        /// Determines whether the parameter passed to this Converter has certain flag.
+        /// </summary>
         private static bool HasFlag(object parameter, string testFlag)
         {
             if (parameter == null) return false;
@@ -128,6 +131,37 @@ namespace WikiEdit
         public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
         {
             return DependencyProperty.UnsetValue;
+        }
+    }
+
+    public class LocalizableBooleanConverter : IValueConverter
+    {
+        private static string AutoLocalize(string expression)
+        {
+            if (expression.StartsWith("@")) return expression.Substring(1);
+            return Tx.T(expression);
+        }
+
+        // parameter
+        //      true_text_key
+        // OR
+        //      true_text_key|false_text_key
+        /// <inheritdoc />
+        public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            var b = (bool)value;
+            if (targetType != typeof(string) && targetType != typeof(object))
+                throw new NotSupportedException();
+            var pm = ((string) parameter)?.Split('|');
+            if (pm == null) return b.ToString();
+            if (pm.Length == 1) return b ? AutoLocalize(pm[0]) : null;
+            return b ? AutoLocalize(pm[0]) : AutoLocalize(pm[1]);
+        }
+
+        /// <inheritdoc />
+        public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
+        {
+            throw new NotImplementedException();
         }
     }
 
@@ -161,7 +195,20 @@ namespace WikiEdit
         public object Convert(object value, Type targetType, object parameter, CultureInfo culture)
         {
             if (value is string) return (string) value;
-            if (value is DateTime) return Tx.Time((DateTime) value, TxTime.YearMonthDay | TxTime.HourMinuteSecond);
+            if (value is DateTime)
+            {
+                var ps = parameter as string;
+                switch (ps)
+                {
+                    case "T":
+                        return Tx.Time((DateTime) value, TxTime.HourMinuteSecond);
+                    case "TS":
+                        return Tx.Time((DateTime) value, TxTime.HourMinute);
+                    case null:
+                    default:
+                        return Tx.Time((DateTime)value, TxTime.YearMonthDay | TxTime.HourMinuteSecond);
+                }
+            }
             if (value is TimeSpan) return Tx.TimeSpan((TimeSpan)value);
             throw new NotSupportedException();
         }

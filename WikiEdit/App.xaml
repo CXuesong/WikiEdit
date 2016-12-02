@@ -39,6 +39,9 @@
                 <Setter Property="Padding" Value="0,4" />
                 <Setter Property="Margin" Value="4" />
             </Style>
+            <Style TargetType="ListViewItem">
+                <Setter Property="HorizontalContentAlignment" Value="Stretch" />
+            </Style>
             <Style TargetType="Hyperlink">
                 <Setter Property="TextDecorations" Value="None" />
                 <Style.Triggers>
@@ -59,9 +62,6 @@
             </DataTemplate>
             <DataTemplate DataType="{x:Type vm:WikiSiteEditingViewModel}">
                 <v:WikiSiteEditingVIew />
-            </DataTemplate>
-            <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
-                <v:RecentChangeView />
             </DataTemplate>
             <DataTemplate DataType="{x:Type vmd:PageEditorViewModel}">
                 <vd:PageEditorView />
