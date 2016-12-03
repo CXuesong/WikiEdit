@@ -154,13 +154,13 @@ namespace WikiEdit.Services
         public bool Open()
         {
             if (!PromptSave()) return false;
-            if (!_ChildViewModelService.Documents.CloseAll()) return false;
             var ofd = new OpenFileDialog
             {
                 Filter = Tx.T("session file filter"),
             };
             if (ofd.ShowDialog() == true)
             {
+                if (!_ChildViewModelService.Documents.CloseAll()) return false;
                 Load(ofd.FileName);
                 FileName = ofd.FileName;
                 return true;
