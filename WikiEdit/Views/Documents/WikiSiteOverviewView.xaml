@@ -83,9 +83,9 @@
             <TextBlock Text="{Tx:T titles.recent changes}" Style="{DynamicResource Heading3}" />
             <WrapPanel Grid.Row="1">
                 <Label Content="{Tx:T items per page}" />
-                <ComboBox ItemsSource="{x:Static dvm:WikiSiteOverviewViewModel.PagingSizeChoices}" SelectedItem="{Binding RecentActivitiesPagingSize}"
+                <ComboBox ItemsSource="{x:Static dvm:WikiSiteOverviewViewModel.PagingSizeChoices}" SelectedItem="{Binding RecentChangesPagingSize}"
                               IsEnabled="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}, ConverterParameter=Inverse}" />
-                <CheckBox Content=""></CheckBox>
+                <ContentPresenter Content="{Binding RecentChangesFilter}" />
             </WrapPanel>
             <ListView ItemsSource="{Binding RecentChangesView}" Grid.Row="2" VirtualizingPanel.IsVirtualizingWhenGrouping="True" VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListView.GroupStyle>

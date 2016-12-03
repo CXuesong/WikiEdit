@@ -12,6 +12,11 @@
 		<text key="badges:hist">[hist]</text>
 		<text key="badges:talk">[talk]</text>
 		<text key="cancel">Cancel</text>
+		<text key="changes.filters.anonymous">Anonymous users</text>
+		<text key="changes.filters.bot">Bots</text>
+		<text key="changes.filters.minor">Minor edits</text>
+		<text key="changes.filters.my">My edits</text>
+		<text key="changes.filters.patrolled">Patrolled edits</text>
 		<text key="changes.flags.bot">b</text>
 		<text key="changes.flags.minor">m</text>
 		<text key="changes.flags.new">N</text>
@@ -316,6 +321,11 @@
 		<text key="badges:hist">[历史]</text>
 		<text key="badges:talk">[讨论]</text>
 		<text key="cancel">取消</text>
+		<text key="changes.filters.anonymous">匿名用户</text>
+		<text key="changes.filters.bot">机器人</text>
+		<text key="changes.filters.minor">小编辑</text>
+		<text key="changes.filters.my">我的编辑</text>
+		<text key="changes.filters.patrolled">已巡查编辑</text>
 		<text key="changes.flags.bot">机</text>
 		<text key="changes.flags.minor">小</text>
 		<text key="changes.flags.new">新</text>

@@ -24,6 +24,15 @@
             <Hyperlink Command="{Binding Command}"><Run Text="{Binding Text}" /></Hyperlink>
         </TextBlock>
     </DataTemplate>
+    <DataTemplate DataType="{x:Type vmp:RecentChangesFilterViewModel}">
+        <WrapPanel>
+            <CheckBox Content="{Tx:T changes.filters.minor}" IsChecked="{Binding ShowMinor}" IsThreeState="True" />
+            <CheckBox Content="{Tx:T changes.filters.bot}" IsChecked="{Binding ShowBots}" IsThreeState="True" />
+            <CheckBox Content="{Tx:T changes.filters.anonymous}" IsChecked="{Binding ShowAnonymous}" IsThreeState="True" />
+            <CheckBox Content="{Tx:T changes.filters.patrolled}" IsChecked="{Binding ShowPatrolled}" IsThreeState="True" />
+            <CheckBox Content="{Tx:T changes.filters.my}" IsChecked="{Binding ShowMyEdits}" IsThreeState="True" />
+        </WrapPanel>
+    </DataTemplate>
     <DrawingImage x:Key="Images/Paragraph">
         <DrawingImage.Drawing>
             <DrawingGroup>

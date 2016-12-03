@@ -16,6 +16,7 @@ using Unclassified.TxLib;
 using WikiClientLibrary;
 using WikiClientLibrary.Generators;
 using WikiEdit.Services;
+using WikiEdit.ViewModels.Primitives;
 using WikiEdit.Views;
 
 namespace WikiEdit.ViewModels.Documents
@@ -27,9 +28,6 @@ namespace WikiEdit.ViewModels.Documents
 
         public override object DocumentContext => SiteContext;
 
-        public ObservableCollection<RecentChangeViewModel> RecentChangesList { get; } =
-            new ObservableCollection<RecentChangeViewModel>();
-
         public ListCollectionView RecentChangesView { get; }
 
         public WikiSiteOverviewViewModel(IViewModelFactory viewModelFactory, SettingsService settingsService, WikiSiteViewModel wikiSite)
@@ -38,8 +36,11 @@ namespace WikiEdit.ViewModels.Documents
             if (settingsService == null) throw new ArgumentNullException(nameof(settingsService));
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             SiteContext = wikiSite;
+
             RecentChangesView = new ListCollectionView(RecentChangesList);
             RecentChangesView.GroupDescriptions.Add(new PropertyGroupDescription(nameof(RecentChangeViewModel.TimeStamp), DateGroupingConverter.Default));
+            RecentChangesFilter.PropertyChanged += RecentChangesFilter_PropertyChanged;
+
             _ViewModelFactory = viewModelFactory;
             Title = ToolTip = wikiSite.DisplayName;
             BuildContentId(wikiSite.ApiEndpoint);
@@ -63,7 +64,7 @@ namespace WikiEdit.ViewModels.Documents
             {
                 IsBusy = false;
             }
-            await RefreshRecentActivitiesAsync();
+            InvalidateRecentActivities(true);
         }
 
         protected override void OnIsBusyChanged()
@@ -74,34 +75,6 @@ namespace WikiEdit.ViewModels.Documents
         }
 
         #region Site Information
-
-        private async Task RefreshRecentActivitiesAsync()
-        {
-            if (IsBusy) return;
-            IsBusy = true;
-            Status = Tx.T("please wait");
-            try
-            {
-                var rcg = new RecentChangesGenerator(await SiteContext.GetSiteAsync())
-                {
-                    PagingSize = RecentActivitiesPagingSize + 10,
-                };
-                var rcs = await rcg.EnumRecentChangesAsync()
-                    .Take(RecentActivitiesPagingSize).ToArray();
-                RecentChangesList.Clear();
-                foreach (var rc in rcs)
-                {
-                    var vm = _ViewModelFactory.CreateRecentChange(rc, SiteContext);
-                    var date = rc.TimeStamp.Date;
-                    RecentChangesList.Add(vm);
-                }
-            }
-            finally
-            {
-                IsBusy = false;
-                Status = null;
-            }
-        }
 
         private DelegateCommand _RefreshSiteCommand;
 
@@ -156,17 +129,77 @@ namespace WikiEdit.ViewModels.Documents
             }
         }
 
-        public static IList<int> PagingSizeChoices { get; } = new[] {25, 50, 100, 200};
+        #endregion
 
-        private int _RecentActivitiesPagingSize = 50;
-                    
-        public int RecentActivitiesPagingSize
+        #region Recent Changes
+
+        public ObservableCollection<RecentChangeViewModel> RecentChangesList { get; } =
+            new ObservableCollection<RecentChangeViewModel>();
+
+        public static IList<int> PagingSizeChoices { get; } = new[] { 25, 50, 100, 200 };
+
+        private int _RecentChangesPagingSize = 50;
+
+        public int RecentChangesPagingSize
         {
-            get { return _RecentActivitiesPagingSize; }
+            get { return _RecentChangesPagingSize; }
             set
             {
-                if (SetProperty(ref _RecentActivitiesPagingSize, value))
-                    RefreshRecentActivitiesAsync().Forget();
+                if (SetProperty(ref _RecentChangesPagingSize, value))
+                    InvalidateRecentActivities(false);
+            }
+        }
+
+        public RecentChangesFilterViewModel RecentChangesFilter { get; } = new RecentChangesFilterViewModel();
+
+        private void RecentChangesFilter_PropertyChanged(object sender, PropertyChangedEventArgs e)
+        {
+            InvalidateRecentActivities(false);
+        }
+
+        private int RefreshRecentActivitiesToken;
+
+        private void InvalidateRecentActivities(bool forceRefresh)
+        {
+            RefreshRecentActivitiesToken++;
+            RefreshRecentActivitiesAsync(forceRefresh ? 0 : 2000, RefreshRecentActivitiesToken).Forget();
+        }
+
+        private async Task RefreshRecentActivitiesAsync(int msDelay, int token)
+        {
+            if (msDelay > 0) await Task.Delay(msDelay);
+            if (token != RefreshRecentActivitiesToken) return;
+            while (IsBusy)
+            {
+                // Wait until the previous RefreshRecentActivitiesAsync has finished/cancelled.
+                if (token != RefreshRecentActivitiesToken) return;
+                await Task.Delay(2000);
+            }
+            IsBusy = true;
+            Status = Tx.T("please wait");
+            try
+            {
+                var rcg = new RecentChangesGenerator(await SiteContext.GetSiteAsync())
+                {
+                    PagingSize = RecentChangesPagingSize + 10,
+                };
+                if (token != RefreshRecentActivitiesToken) return;
+                RecentChangesFilter.ConfigureGenerator(rcg);
+                var rcs = await rcg.EnumRecentChangesAsync()
+                    .Take(RecentChangesPagingSize).ToArray();
+                if (token != RefreshRecentActivitiesToken) return;
+                RecentChangesList.Clear();
+                foreach (var rc in rcs)
+                {
+                    var vm = _ViewModelFactory.CreateRecentChange(rc, SiteContext);
+                    var date = rc.TimeStamp.Date;
+                    RecentChangesList.Add(vm);
+                }
+            }
+            finally
+            {
+                IsBusy = false;
+                Status = null;
             }
         }
 
@@ -261,7 +294,7 @@ namespace WikiEdit.ViewModels.Documents
             /// <inheritdoc />
             public object ConvertBack(object value, Type targetType, object parameter, CultureInfo culture)
             {
-                throw new NotImplementedException();
+                throw new NotSupportedException();
             }
         }
     }

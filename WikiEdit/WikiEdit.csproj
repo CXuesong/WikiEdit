@@ -141,6 +141,7 @@
     <Compile Include="ViewModels\Primitives\Badges.cs" />
     <Compile Include="ViewModels\Primitives\CommandLinkViewModel.cs" />
     <Compile Include="ViewModels\Primitives\DocumentOutlineItem.cs" />
+    <Compile Include="ViewModels\Primitives\RecentChangesFilterViewModel.cs" />
     <Compile Include="ViewModels\Primitives\TextBoxViewModelAdapter.cs" />
     <Compile Include="ViewModels\RecentChangeViewModel.cs" />
     <Compile Include="ViewModels\SessionInformationViewModel.cs" />
