@@ -23,6 +23,8 @@ namespace WikiEdit.ViewModels
     {
         private readonly IViewModelFactory _ViewModelFactory;
 
+        public WikiSiteViewModel WikiSite { get; }
+
         public RecentChangesEntry RawEntry { get; }
 
         /// <summary>
@@ -63,19 +65,17 @@ namespace WikiEdit.ViewModels
         /// </summary>
         public string TargetTitle => RawEntry.Title;
 
+        /// <summary>
+        /// Revision ids used to show diff.
+        /// </summary>
+        public Tuple<int, int> DiffRevisionIds { get; }
+
         public int DeltaContentLength => RawEntry.NewContentLength - RawEntry.OldContentLength;
 
         /// <summary>
         /// For TextBlock Formatting.
         /// </summary>
         public int DeltaContentLengthSign => Math.Sign(DeltaContentLength);
-
-        /// <summary>
-        /// The view model for the target page or log type of the recent change.
-        /// </summary>
-        public BindableBase TargetBadge { get; }
-
-        public UserNameViewModel UserNameBadge { get; }
 
         #region Commands
 
@@ -112,6 +112,51 @@ namespace WikiEdit.ViewModels
             }
         }
 
+
+        private DelegateCommand<string> _OpenWikiLinkCommand;
+
+        public DelegateCommand<string> OpenWikiLinkCommand
+        {
+            get
+            {
+                if (_OpenWikiLinkCommand == null)
+                {
+                    _OpenWikiLinkCommand = new DelegateCommand<string>(async param =>
+                    {
+                        var site = await WikiSite.GetSiteAsync();
+                        var title = WikiLink.Parse(site, param);
+                        if (title.Namespace.Id == BuiltInNamespaces.Special)
+                            await _ViewModelFactory.OpenPageAsync(WikiSite, param);
+                        else
+                            await _ViewModelFactory.OpenPageEditorAsync(WikiSite, param);
+                    });
+                }
+                return _OpenWikiLinkCommand;
+            }
+        }
+
+
+        private DelegateCommand _OpenDiffCommand;
+
+        public DelegateCommand OpenDiffCommand
+        {
+            get
+            {
+                // Issue: If we declare OpenDiffCommand as DelegateCommand<Tuple<int,int>>, and
+                // pass the revids as Tuple, the first call to CanExecute will pass null to the CanExecuteMethod,
+                // regardless of what DiffRevisionIds actually is.
+                // <Hyperlink Command="{Binding OpenDiffCommand}" CommandParameter="{Binding DiffRevisionIds}">
+                if (DiffRevisionIds != null && _OpenDiffCommand == null)
+                {
+                    _OpenDiffCommand = new DelegateCommand(() =>
+                    {
+                        _ViewModelFactory.OpenPageDiffViewModel(WikiSite, DiffRevisionIds.Item1, DiffRevisionIds.Item2);
+                    });
+                }
+                return _OpenDiffCommand;
+            }
+        }
+
         #endregion
 
         public string Summary { get; }
@@ -136,8 +181,13 @@ namespace WikiEdit.ViewModels
             if (wikiSite == null) throw new ArgumentNullException(nameof(wikiSite));
             if (model == null) throw new ArgumentNullException(nameof(model));
             _ViewModelFactory = viewModelFactory;
+            WikiSite = wikiSite;
             RawEntry = model;
             TimeStamp = model.TimeStamp.ToLocalTime();
+            if (model.OldRevisionId > 0 && model.RevisionId > 0)
+            {
+                DiffRevisionIds = Tuple.Create(model.OldRevisionId, model.RevisionId);
+            }
             var sb = new StringBuilder();
             switch (model.Type)
             {

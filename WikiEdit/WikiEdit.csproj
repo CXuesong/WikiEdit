@@ -136,6 +136,7 @@
     <Compile Include="ViewModels\Documents\DocumentViewModel.cs" />
     <Compile Include="ViewModels\Documents\PageDiffViewModel.cs" />
     <Compile Include="ViewModels\Documents\PageEditorViewModel.cs" />
+    <Compile Include="ViewModels\Documents\PageHistoryViewModel.cs" />
     <Compile Include="ViewModels\Documents\WikiSiteOverviewViewModel.cs" />
     <Compile Include="ViewModels\Primitives\Badges.cs" />
     <Compile Include="ViewModels\Primitives\CommandLinkViewModel.cs" />
