@@ -15,7 +15,8 @@
 		<text key="changes.flags.bot">b</text>
 		<text key="changes.flags.minor">m</text>
 		<text key="changes.flags.new">N</text>
-		<text key="changes.tips.unpatrolled">This revision hasn't been patrolled.</text>
+		<text key="changes.tips.mark as patrolled">This revision needs patrol. Click to mark as patrolled.</text>
+		<text key="changes.tips.show diff">Show revision diff.</text>
 		<text key="confirm.logout">Are you sure to log out?</text>
 		<text key="confirm.remove">Are you sure to remove "{name}"?</text>
 		<text key="diff" comment="An action where two versions of text are compared for the differences.">Diff</text>
@@ -318,7 +319,8 @@
 		<text key="changes.flags.bot">机</text>
 		<text key="changes.flags.minor">小</text>
 		<text key="changes.flags.new">新</text>
-		<text key="changes.tips.unpatrolled" acceptpunctuation="true">此修订需要巡查。</text>
+		<text key="changes.tips.mark as patrolled" acceptpunctuation="true">此修订需要巡查。点击此处将其标记为已巡查。</text>
+		<text key="changes.tips.show diff" acceptpunctuation="true">显示版本差异。</text>
 		<text key="confirm.logout" acceptpunctuation="true">确实要注销吗？</text>
 		<text key="confirm.remove" acceptpunctuation="true">确实要删除“{name}”吗？</text>
 		<text key="diff">对比</text>

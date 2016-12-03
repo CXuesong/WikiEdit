@@ -85,6 +85,7 @@
                 <Label Content="{Tx:T items per page}" />
                 <ComboBox ItemsSource="{x:Static dvm:WikiSiteOverviewViewModel.PagingSizeChoices}" SelectedItem="{Binding RecentActivitiesPagingSize}"
                               IsEnabled="{Binding IsBusy, Converter={StaticResource UniversalBooleanConverter}, ConverterParameter=Inverse}" />
+                <CheckBox Content=""></CheckBox>
             </WrapPanel>
             <ListView ItemsSource="{Binding RecentChangesView}" Grid.Row="2" VirtualizingPanel.IsVirtualizingWhenGrouping="True" VirtualizingPanel.VirtualizationMode="Recycling">
                 <ListView.GroupStyle>
@@ -98,7 +99,22 @@
                 </ListView.GroupStyle>
                 <ListView.View>
                     <GridView>
-                        <GridViewColumn Header="!" DisplayMemberBinding="{Binding NeedPatrol, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=@!}" Width="20" />
+                        <GridViewColumn Header="!" Width="20">
+                            <GridViewColumn.CellTemplate>
+                                <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
+                                    <TextBlock x:Name="Block" Visibility="Collapsed">
+                                        <Hyperlink Command="{Binding PatrolCommand}" ToolTip="{Tx:T changes.tips.mark as patrolled}">
+                                            <TextBlock Text="{Binding IsBusy, ConverterParameter=@…|@!, Converter={StaticResource LocalizableBooleanConverter}}" FontWeight="Bold" Foreground="Red" />
+                                        </Hyperlink>
+                                    </TextBlock>
+                                    <DataTemplate.Triggers>
+                                        <DataTrigger Binding="{Binding NeedPatrol}" Value="True">
+                                            <Setter TargetName="Block" Property="Visibility" Value="Visible" />
+                                        </DataTrigger>
+                                    </DataTemplate.Triggers>
+                                </DataTemplate>
+                            </GridViewColumn.CellTemplate>
+                        </GridViewColumn>
                         <GridViewColumn Header="{Tx:T changes.flags.new}" DisplayMemberBinding="{Binding IsNew, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=changes.flags.new}" Width="30" />
                         <GridViewColumn Header="{Tx:T changes.flags.minor}" DisplayMemberBinding="{Binding IsMinor, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=changes.flags.minor}" Width="30" />
                         <GridViewColumn Header="{Tx:T changes.flags.bot}" DisplayMemberBinding="{Binding IsBot, Converter={StaticResource LocalizableBooleanConverter}, ConverterParameter=changes.flags.bot}" Width="30" />
@@ -118,7 +134,7 @@
                             <GridViewColumn.CellTemplate>
                                 <DataTemplate DataType="{x:Type vm:RecentChangeViewModel}">
                                     <TextBlock>
-                                        <Hyperlink Command="{Binding OpenDiffCommand}">
+                                        <Hyperlink Command="{Binding OpenDiffCommand}" ToolTip="{Tx:T changes.tips.show diff}">
                                             <TextBlock x:Name="Block" Text="{Binding DeltaContentLength, StringFormat=\{0:+#;-#;0\}}" TextAlignment="Right" />
                                         </Hyperlink>
                                     </TextBlock>

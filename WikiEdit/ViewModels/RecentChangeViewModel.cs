@@ -32,7 +32,13 @@ namespace WikiEdit.ViewModels
         /// </summary>
         public DateTime TimeStamp { get; }
 
-        public bool NeedPatrol => RawEntry.PatrolStatus == PatrolStatus.Unpatrolled;
+        private bool _NeedPatrol;
+
+        public bool NeedPatrol
+        {
+            get { return _NeedPatrol; }
+            set { SetProperty(ref _NeedPatrol, value); }
+        }
 
         private bool _IsBusy;
 
@@ -90,12 +96,13 @@ namespace WikiEdit.ViewModels
                     _PatrolCommand = new DelegateCommand(async () =>
                     {
                         if (IsBusy) return;
-                        if (RawEntry.PatrolStatus != PatrolStatus.Unpatrolled) return;
+                        if (!NeedPatrol) return;
+                        IsBusy = true;
                         Status = Tx.T("please wait");
                         try
                         {
                             await RawEntry.PatrolAsync();
-                            OnPropertyChanged(nameof(NeedPatrol));
+                            NeedPatrol = false;
                             Status = null;
                         }
                         catch (Exception ex)
@@ -161,17 +168,12 @@ namespace WikiEdit.ViewModels
 
         public string Summary { get; }
 
-        private static Hyperlink NewHyperlink(string text, Action onClick)
+        /// <inheritdoc />
+        protected override void OnPropertyChanged(string propertyName = null)
         {
-            var link = new Hyperlink(new Run(text));
-            link.Click += (_, e) => onClick();
-            return link;
-        }
-
-        private static Hyperlink NewHyperlink(string text, ICommand command)
-        {
-            var link = new Hyperlink(new Run(text)) {Command = command};
-            return link;
+            if (propertyName == nameof(IsBusy))
+                _PatrolCommand?.RaiseCanExecuteChanged();
+            base.OnPropertyChanged(propertyName);
         }
 
         internal RecentChangeViewModel(IViewModelFactory viewModelFactory, 
@@ -184,6 +186,7 @@ namespace WikiEdit.ViewModels
             WikiSite = wikiSite;
             RawEntry = model;
             TimeStamp = model.TimeStamp.ToLocalTime();
+            NeedPatrol = RawEntry.PatrolStatus == PatrolStatus.Unpatrolled;
             if (model.OldRevisionId > 0 && model.RevisionId > 0)
             {
                 DiffRevisionIds = Tuple.Create(model.OldRevisionId, model.RevisionId);
