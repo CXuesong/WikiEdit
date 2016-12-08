@@ -41,13 +41,17 @@
 		<text key="editor.save changes">Save changes</text>
 		<text key="editor.submission success">The edit has been submitted successfully: {title}. Revision id: {revid}.</text>
 		<text key="editor.submitting your edit">Submitting your edit…</text>
+		<text key="editor.summary builder.new section">New section.</text>
+		<text key="editor.summary builder.removed section">Removed section.</text>
+		<text key="editor.summary builder.renamed section">Renamed section to {path}.</text>
+		<text key="editor.summary builder.whitespace changes">Whitespace changes.</text>
 		<text key="editor.watch this page">Watch this page</text>
 		<text key="enter a page title here">Enter the title of a page…</text>
 		<text key="errors.editor language not supported">Editor does not support "{name}" .</text>
 		<text key="errors.field is required">The field is required.</text>
 		<text key="errors.invalid api endpoint">The provided API endpoint URL is invalid.</text>
 		<text key="errors.syntax highlight definition">Error loading syntax highlight definition "{name}".</text>
-		<text key="items per page">Items count per page:</text>
+		<text key="items per page">Items per page:</text>
 		<text key="last access time">Last access</text>
 		<text key="logactions:delete">Delete</text>
 		<text key="logactions:event" comment="logtype=delete, logaction=event">Log Visibility</text>
@@ -350,6 +354,10 @@
 		<text key="editor.save changes">保存修改</text>
 		<text key="editor.submission success" acceptpunctuation="true">已经成功提交：{title}。修订号：{revid}。</text>
 		<text key="editor.submitting your edit" acceptpunctuation="true">正在提交你的修改……</text>
+		<text key="editor.summary builder.new section" acceptpunctuation="true">新小节。</text>
+		<text key="editor.summary builder.removed section" acceptpunctuation="true">删除小节。</text>
+		<text key="editor.summary builder.renamed section" acceptpunctuation="true">小节重命名为{path}。</text>
+		<text key="editor.summary builder.whitespace changes" acceptpunctuation="true">空白字符变化。</text>
 		<text key="editor.watch this page">监视此页面</text>
 		<text key="enter a page title here" acceptpunctuation="true">在此键入页面标题……</text>
 		<text key="errors.editor language not supported" acceptpunctuation="true">文本编辑器不支持“{name}”。</text>
