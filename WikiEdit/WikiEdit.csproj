@@ -328,8 +328,8 @@
     <None Include="App.config" />
   </ItemGroup>
   <ItemGroup>
-    <ProjectReference Include="..\DiffMatchPatch\DiffMatchPatch.csproj">
-      <Project>{047ea12e-3060-4e1e-ad70-e3eea240f90e}</Project>
+    <ProjectReference Include="..\modules\DiffMatchPatch\DiffMatchPatch\DiffMatchPatch.csproj">
+      <Project>{5dfa1438-cbb4-4a13-9919-c09b9a18b24b}</Project>
       <Name>DiffMatchPatch</Name>
     </ProjectReference>
     <ProjectReference Include="..\modules\MwParserFromScratch\MwParserFromScratch\MwParserFromScratch.csproj">
@@ -339,6 +339,10 @@
     <ProjectReference Include="..\modules\WikiClientLibrary\WikiClientLibrary\WikiClientLibrary.csproj">
       <Project>{15e595db-4ff0-4722-ac16-1881c6b811cc}</Project>
       <Name>WikiClientLibrary</Name>
+    </ProjectReference>
+    <ProjectReference Include="..\WikiDiffSummary\WikiDiffSummary.csproj">
+      <Project>{1959d562-5152-4ad3-8824-a93bcc589627}</Project>
+      <Name>WikiDiffSummary</Name>
     </ProjectReference>
   </ItemGroup>
   <ItemGroup>

@@ -4,3 +4,9 @@
 [submodule "modules/MwParserFromScratch"]
 	path = modules/MwParserFromScratch
 	url = https://github.com/CXuesong/MwParserFromScratch
+[submodule "modules/WikiDiffSummary"]
+	path = modules/WikiDiffSummary
+	url = https://github.com/CXuesong/WikiDiffSummary
+[submodule "modules/DiffMatchPatch"]
+	path = modules/DiffMatchPatch
+	url = https://github.com/CXuesong/DiffMatchPatch
